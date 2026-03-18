@@ -281,7 +281,7 @@ const mosaicPhotos = [
   { bg: "#f3e5f5", emoji: null, img: "/mosaic-hair-3.webp", big: false, scale: "scale-100" },
   { bg: "#fce4f0", emoji: "👩🏿‍🦱", big: false },
   { bg: "#e0f7fa", emoji: "👩🏽‍🦲", big: false },
-  { bg: "#fff8e1", emoji: "👩🏾‍🦰", big: false },
+  { bg: "#fff8e1", emoji: null, img: "/mosaic-hair-5.jpg", big: false, scale: "scale-100" },
 ];
 
 function WhoRecommends() {
