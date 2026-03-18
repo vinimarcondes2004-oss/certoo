@@ -114,13 +114,8 @@ function Header() {
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
           {/* Logo */}
-          <div className="flex flex-col leading-[1.1]">
-            <div className="flex items-center gap-1">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-black"
-                style={{ background: PINK }}>T</div>
-              <span className="font-black text-lg tracking-tight" style={{ color: "#1a1a1a" }}>Tout</span>
-              <span className="font-light text-lg tracking-tight text-gray-500">Lissie</span>
-            </div>
+          <div className="flex items-center">
+            <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
           </div>
         </div>
 
