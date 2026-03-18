@@ -284,7 +284,7 @@ function WhoRecommends() {
   return (
     <section className="py-8" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Tout recomenda</h2>
+        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Profissional recomenda</h2>
         {/* Mosaic grid */}
         <div className="grid grid-cols-4 gap-2" style={{ gridAutoRows: "140px" }}>
           {mosaicPhotos.map((p, i) => (
@@ -419,7 +419,7 @@ function WhoUses() {
   return (
     <section id="quem-usa" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Tout recomenda! 💖</h2>
+        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Profissional recomenda! 💖</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {reviews.map((r, i) => (
             <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
@@ -443,10 +443,10 @@ function WhoUses() {
 
 /* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
 const salonReviews = [
-  { name: "Ana C.", role: "Cabeleireira profissional", img: "/avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Tout Lissie em todos os atendimentos." },
+  { name: "Ana C.", role: "Cabeleireira profissional", img: "/avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Profissional em todos os atendimentos." },
   { name: "Mariana T.", role: "Salão de Beleza SP", img: "/avatar-6.jpg", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
   { name: "Renata P.", role: "Hair Stylist", img: "/avatar-7.jpg", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
-  { name: "Luana B.", role: "Salão Chic RJ", img: "/avatar-8.jpg", stars: 5, text: "Desde que comecei a usar Tout, minhas clientes voltam sempre!" },
+  { name: "Luana B.", role: "Salão Chic RJ", img: "/avatar-8.jpg", stars: 5, text: "Desde que comecei a usar Profissional, minhas clientes voltam sempre!" },
 ];
 
 function SalonSection() {
@@ -454,9 +454,9 @@ function SalonSection() {
     <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-2">
-          Tout Lissie a queridinha dos salões <span style={{ color: PINK }}>♥</span>
+          Profissional a queridinha dos salões <span style={{ color: PINK }}>♥</span>
         </h2>
-        <p className="text-center text-sm text-gray-500 mb-7">Profissionais que confiam na qualidade Tout</p>
+        <p className="text-center text-sm text-gray-500 mb-7">Profissionais que confiam na qualidade Profissional</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {salonReviews.map((r, i) => (
             <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
@@ -479,7 +479,7 @@ function SalonSection() {
 
 /* ─── FAQ ─── */
 const faqs = [
-  { q: "Como usar o shampoo Tout Lissie?", a: "Aplique sobre os cabelos molhados, massageie o couro cabeludo por 2 a 3 minutos e enxágue bem. Para melhores resultados, use com o condicionador da linha." },
+  { q: "Como usar o shampoo Profissional?", a: "Aplique sobre os cabelos molhados, massageie o couro cabeludo por 2 a 3 minutos e enxágue bem. Para melhores resultados, use com o condicionador da linha." },
   { q: "Os produtos são para todos os tipos de cabelo?", a: "Sim! A linha foi desenvolvida para atender todos os tipos de cabelo — liso, ondulado, cacheado e crespo — com fórmulas específicas para cada necessidade." },
   { q: "Qual o prazo de entrega?", a: "O prazo varia conforme sua localização. Em geral entregamos em 2 a 7 dias úteis. Pedidos acima de R$150 têm frete grátis." },
   { q: "Posso trocar ou devolver?", a: "Sim! Oferecemos 30 dias para troca ou devolução sem complicação. Sua satisfação total ou o dinheiro de volta." },
@@ -556,7 +556,7 @@ function Footer() {
               <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
             </div>
             <p className="text-white/75 text-sm leading-relaxed mb-4">
-              A marca favorita de quem cuida do cabelo com amor e dedicação.
+              A marca favorita de quem cuida do cabelo com amor e dedicação. 
             </p>
             <div className="flex gap-3">
               {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
@@ -593,7 +593,7 @@ function Footer() {
           </div>
         </div>
         <div className="border-t border-white/20 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/60 text-xs">© 2026 Tout Lissie. Todos os direitos reservados.</p>
+          <p className="text-white/60 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
           <div className="flex items-center gap-2">
             <span className="text-white/50 text-xs">Pagamentos:</span>
             {["Visa","Master","Pix","Boleto"].map(p => (

@@ -206,7 +206,7 @@ export default function Produtos() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-black text-sm" style={{ color: PINK }}>T</div>
-              <span className="font-black text-xl">Tout Lissie</span>
+              <span className="font-black text-xl">Profissional</span>
             </div>
             <div className="flex gap-3">
               {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
@@ -216,7 +216,7 @@ export default function Produtos() {
                 </a>
               ))}
             </div>
-            <p className="text-white/60 text-xs">© 2026 Tout Lissie. Todos os direitos reservados.</p>
+            <p className="text-white/60 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
