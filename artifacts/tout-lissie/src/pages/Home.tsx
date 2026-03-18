@@ -100,7 +100,6 @@ function Header() {
           <a href="#" className="hover:text-pink-600 transition">Início</a>
           <Link href="/produtos" className="hover:text-pink-600 transition">Produtos</Link>
           <a href="#quem-usa" className="hover:text-pink-600 transition">Quem usa</a>
-          <a href="#depoimentos" className="hover:text-pink-600 transition">Depoimentos</a>
           <a href="#faq" className="hover:text-pink-600 transition">FAQ</a>
         </nav>
 
@@ -124,7 +123,6 @@ function Header() {
           <a href="#" className="py-1 text-gray-700">Início</a>
           <Link href="/produtos" className="py-1 text-gray-700">Produtos</Link>
           <a href="#quem-usa" className="py-1 text-gray-700">Quem usa</a>
-          <a href="#depoimentos" className="py-1 text-gray-700">Depoimentos</a>
           <a href="#faq" className="py-1 text-gray-700">FAQ</a>
         </div>
       )}
