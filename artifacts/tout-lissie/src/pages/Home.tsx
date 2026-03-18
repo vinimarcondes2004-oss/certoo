@@ -590,7 +590,6 @@ function Footer() {
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Suporte</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
               {[
-                { label: "Trocas e devoluções", href: "#" },
                 { label: "Rastrear pedido", href: "/rastrear-pedido" },
                 { label: "Privacidade", href: "#" },
                 { label: "Termos de uso", href: "#" },
