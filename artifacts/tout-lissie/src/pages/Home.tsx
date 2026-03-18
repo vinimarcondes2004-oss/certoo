@@ -307,6 +307,12 @@ function EleganceBanner() {
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-80 h-80 rounded-full" style={{ background: PINK, filter: "blur(80px)" }} />
       </div>
+      <img
+        src={`${import.meta.env.BASE_URL}product-oil-repair-colorful.png`}
+        alt="Oil Repair"
+        className="absolute right-0 bottom-0 h-full object-contain object-right-bottom pointer-events-none select-none opacity-90"
+        style={{ maxWidth: "45%" }}
+      />
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8 relative z-10">
         <div className="flex-1">
           <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">A elegância que</p>
@@ -317,15 +323,6 @@ function EleganceBanner() {
           <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
             Descubra Agora
           </button>
-        </div>
-        <div className="flex items-end gap-3 justify-center">
-          {[
-            { color: PINK, h: 160 },
-            { color: "#ff4499", h: 190 },
-            { color: "#c0003d", h: 140 },
-          ].map((b, i) => (
-            <Bottle key={i} color={b.color} w={55} h={b.h} />
-          ))}
         </div>
       </div>
     </section>
