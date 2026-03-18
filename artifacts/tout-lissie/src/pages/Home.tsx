@@ -297,9 +297,9 @@ function WhoRecommends() {
                 : p.emoji}
             </div>
           ))}
-          {/* Extra filler cells for desktop */}
-          <div className="hidden md:block rounded-2xl col-span-1 overflow-hidden">
-            <img src="/mosaic-hair-4.jpg" alt="" className="w-full h-full object-cover" />
+          {/* Extra filler cell for desktop */}
+          <div className="hidden md:block rounded-2xl col-span-4 overflow-hidden">
+            <img src="/mosaic-hair-4.jpg" alt="" className="w-full h-full object-cover object-center" />
           </div>
         </div>
       </div>
