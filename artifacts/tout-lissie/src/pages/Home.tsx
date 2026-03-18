@@ -177,7 +177,7 @@ function Hero() {
   return (
     <>
       {/* Main hero */}
-      <section className="relative overflow-hidden" style={{ minHeight: 420 }}>
+      <section className="relative overflow-hidden" style={{ minHeight: 560 }}>
         {/* Full-cover background image with fade transition */}
         <img
           src={`${import.meta.env.BASE_URL}${heroBgs[current]}`}
