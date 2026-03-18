@@ -201,7 +201,7 @@ function Hero() {
 const bestSellers = [
   { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, color: PINK, badge: "Mais Vendido" },
   { name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 189, color: "#4a90e2", badge: "Top", img: "product-condicionador-brilho.png" },
-  { name: "Shampoo e máscara de hidratação", ml: "250g", price: "R$ 80,00", old: "R$ 79,90", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito", img: "product-mascara-hidratacao.png" },
+  { name: "Shampoo e máscara de hidratação", ml: "250g", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito", img: "product-mascara-hidratacao.png" },
   { name: "Óleo Reparador", ml: "50ml", price: "R$ 39,90", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo" },
   { name: "Finalizador Liss", ml: "200ml", price: "R$ 54,90", old: "R$ 74,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque" },
 ];
