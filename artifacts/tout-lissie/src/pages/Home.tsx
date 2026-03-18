@@ -301,8 +301,8 @@ function WhoRecommends() {
             </div>
           ))}
           {/* Extra filler cells for desktop */}
-          <div className="hidden md:block rounded-2xl col-span-1" style={{ background: "#fce4f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span className="text-4xl">💕</span>
+          <div className="hidden md:block rounded-2xl col-span-1 overflow-hidden">
+            <img src="/mosaic-hair-4.jpg" alt="" className="w-full h-full object-cover" />
           </div>
           <div className="hidden md:block rounded-2xl" style={{ background: "#e8f5e9", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span className="text-4xl">✨</span>
