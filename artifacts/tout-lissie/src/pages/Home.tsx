@@ -592,7 +592,6 @@ function Footer() {
               {[
                 { label: "Rastrear pedido", href: "/rastrear-pedido" },
                 { label: "Privacidade", href: "#" },
-                { label: "Termos de uso", href: "#" },
               ].map(item => (
                 <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
               ))}
