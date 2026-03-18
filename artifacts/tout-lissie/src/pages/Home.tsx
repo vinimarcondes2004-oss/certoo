@@ -410,10 +410,10 @@ function ResultadoMagic() {
 
 /* ─── QUEM USA TOUT RECOMENDA (reviews) ─── */
 const reviews = [
-  { name: "Fernanda K.", avatar: "👩🏻", stars: 5, text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável desde a primeira aplicação.", date: "15 mar 2026" },
-  { name: "Beatriz S.", avatar: "👩🏽", stars: 5, text: "A máscara é um milagre! Nunca vi resultado tão rápido e duradouro.", date: "12 mar 2026" },
-  { name: "Priscila A.", avatar: "👩🏾", stars: 5, text: "O finalizador deixa o cabelo com um brilho incomparável. Recomendo!", date: "10 mar 2026" },
-  { name: "Renata M.", avatar: "👩🏼", stars: 5, text: "Uso toda a linha e meu cabelo nunca esteve tão saudável.", date: "8 mar 2026" },
+  { name: "Fernanda K.", img: "/avatar-1.jpg", stars: 5, text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável desde a primeira aplicação.", date: "15 mar 2026" },
+  { name: "Beatriz S.", img: "/avatar-2.jpg", stars: 5, text: "A máscara é um milagre! Nunca vi resultado tão rápido e duradouro.", date: "12 mar 2026" },
+  { name: "Priscila A.", img: "/avatar-3.jpg", stars: 5, text: "O finalizador deixa o cabelo com um brilho incomparável. Recomendo!", date: "10 mar 2026" },
+  { name: "Renata M.", img: "/avatar-4.jpg", stars: 5, text: "Uso toda a linha e meu cabelo nunca esteve tão saudável.", date: "8 mar 2026" },
 ];
 
 function WhoUses() {
@@ -425,8 +425,7 @@ function WhoUses() {
           {reviews.map((r, i) => (
             <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-xl"
-                  style={{ background: PINK_LIGHT }}>{r.avatar}</div>
+                <img src={r.img} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.date}</p>
@@ -445,10 +444,10 @@ function WhoUses() {
 
 /* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
 const salonReviews = [
-  { name: "Ana C.", role: "Cabeleireira profissional", avatar: "👩🏻‍🦰", stars: 5, text: "Meus clientes amam os resultados! Uso Tout Lissie em todos os atendimentos." },
-  { name: "Mariana T.", role: "Salão de Beleza SP", avatar: "👩🏽", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
-  { name: "Renata P.", role: "Hair Stylist", avatar: "👩🏾‍🦳", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
-  { name: "Luana B.", role: "Salão Chic RJ", avatar: "👩🏼‍🦱", stars: 5, text: "Desde que comecei a usar Tout, minhas clientes voltam sempre!" },
+  { name: "Ana C.", role: "Cabeleireira profissional", img: "/avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Tout Lissie em todos os atendimentos." },
+  { name: "Mariana T.", role: "Salão de Beleza SP", img: "/avatar-6.jpg", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
+  { name: "Renata P.", role: "Hair Stylist", img: "/avatar-7.jpg", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
+  { name: "Luana B.", role: "Salão Chic RJ", img: "/avatar-8.jpg", stars: 5, text: "Desde que comecei a usar Tout, minhas clientes voltam sempre!" },
 ];
 
 function SalonSection() {
@@ -463,8 +462,7 @@ function SalonSection() {
           {salonReviews.map((r, i) => (
             <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-2xl"
-                  style={{ background: PINK_LIGHT }}>{r.avatar}</div>
+                <img src={r.img} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.role}</p>
