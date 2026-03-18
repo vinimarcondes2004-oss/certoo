@@ -276,7 +276,6 @@ function BestSellers() {
 const mosaicPhotos = [
   { bg: "#fce4f0", emoji: null, img: "/mosaic-hair.jpg", big: true, scale: "scale-110" },
   { bg: "#e3f2fd", emoji: null, img: "/mosaic-hair-2.jpg", big: false, scale: "scale-100" },
-  { bg: "#fff3e0", emoji: "👩🏼‍🦲", big: true },
   { bg: "#f3e5f5", emoji: null, img: "/mosaic-hair-3.webp", big: false, scale: "scale-100" },
   { bg: "#e0f7fa", emoji: null, img: "/mosaic-hair-6.jpg", big: false, scale: "scale-100" },
   { bg: "#fff8e1", emoji: null, img: "/mosaic-hair-5.jpg", big: false, scale: "scale-100" },
