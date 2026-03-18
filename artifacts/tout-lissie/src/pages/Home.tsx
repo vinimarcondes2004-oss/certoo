@@ -200,7 +200,7 @@ function Hero() {
 /* ─── MAIS VENDIDOS ─── */
 const bestSellers = [
   { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, color: PINK, badge: "Mais Vendido" },
-  { name: "Condicionador Brilho", ml: "300ml", price: "R$ 44,90", old: "R$ 59,90", stars: 5, n: 189, color: "#4a90e2", badge: "Top" },
+  { name: "Condicionador Brilho", ml: "300ml", price: "R$ 44,90", old: "R$ 59,90", stars: 5, n: 189, color: "#4a90e2", badge: "Top", img: "product-condicionador-brilho.png" },
   { name: "Máscara Hidratação", ml: "250g", price: "R$ 59,90", old: "R$ 79,90", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito" },
   { name: "Óleo Reparador", ml: "50ml", price: "R$ 39,90", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo" },
   { name: "Finalizador Liss", ml: "200ml", price: "R$ 54,90", old: "R$ 74,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque" },
@@ -222,7 +222,22 @@ function BestSellers() {
               <div className="relative">
                 <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                   style={{ background: PINK }}>{p.badge}</span>
-                <ProductImg color={p.color} height={130} />
+                {p.img ? (
+                  <div style={{
+                    height: 130,
+                    background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    overflow: "hidden",
+                  }}>
+                    <img
+                      src={`${import.meta.env.BASE_URL}${p.img}`}
+                      alt={p.name}
+                      style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }}
+                    />
+                  </div>
+                ) : (
+                  <ProductImg color={p.color} height={130} />
+                )}
               </div>
               <div className="p-3">
                 <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
