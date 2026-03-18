@@ -605,7 +605,7 @@ function Footer() {
               {[
                 { label: "Shampoos", href: "/categoria/shampoo-e-mascara" },
                 { label: "Máscaras", href: "/categoria/shampoo-e-mascara" },
-                { label: "Reparador de pontas", href: "#" },
+                { label: "Reparador de pontas", href: "/categoria/reparador-de-pontas" },
                 { label: "Kits", href: "#" },
               ].map(item => (
                 <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
