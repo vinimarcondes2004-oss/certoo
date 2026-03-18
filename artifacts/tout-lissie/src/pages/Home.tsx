@@ -532,6 +532,9 @@ function FAQ() {
                   <MessageCircle size={16} /> Falar pelo WhatsApp
                 </a>
                 <a href="mailto:Prprofissional0111@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => { e.preventDefault(); window.open('mailto:Prprofissional0111@gmail.com', '_blank'); }}
                   className="w-full border-2 border-white text-white font-bold rounded-full py-2.5 text-sm hover:bg-white/10 transition flex items-center justify-center">
                   Enviar e-mail
                 </a>
