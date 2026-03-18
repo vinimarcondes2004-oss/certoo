@@ -274,8 +274,8 @@ function BestSellers() {
 
 /* ─── QUEM USA TOUT RECOMENDA (photo mosaic) ─── */
 const mosaicPhotos = [
-  { bg: "#fce4f0", emoji: null, img: "/mosaic-hair.jpg", big: true },
-  { bg: "#e3f2fd", emoji: null, img: "/mosaic-hair-2.jpg", big: false },
+  { bg: "#fce4f0", emoji: null, img: "/mosaic-hair.jpg", big: true, scale: "scale-110" },
+  { bg: "#e3f2fd", emoji: null, img: "/mosaic-hair-2.jpg", big: false, scale: "scale-100" },
   { bg: "#e8f5e9", emoji: "👩🏾‍🦳", big: false },
   { bg: "#fff3e0", emoji: "👩🏼‍🦲", big: true },
   { bg: "#f3e5f5", emoji: "👩🏻‍🦳", big: false },
@@ -296,7 +296,7 @@ function WhoRecommends() {
               className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
               style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
               {p.img
-                ? <img src={p.img} alt="" className="w-full h-full object-cover scale-110" />
+                ? <img src={p.img} alt="" className={`w-full h-full object-cover ${p.scale ?? "scale-110"}`} />
                 : p.emoji}
             </div>
           ))}
