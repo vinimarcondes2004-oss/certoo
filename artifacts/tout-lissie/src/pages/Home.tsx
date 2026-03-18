@@ -526,10 +526,11 @@ function FAQ() {
                 </p>
               </div>
               <div className="space-y-2 mt-6">
-                <button className="w-full bg-white font-bold rounded-full py-2.5 text-sm hover:bg-pink-50 transition flex items-center justify-center gap-2"
+                <a href="https://wa.me/5511953770968" target="_blank" rel="noopener noreferrer"
+                  className="w-full bg-white font-bold rounded-full py-2.5 text-sm hover:bg-pink-50 transition flex items-center justify-center gap-2"
                   style={{ color: PINK }}>
                   <MessageCircle size={16} /> Falar pelo WhatsApp
-                </button>
+                </a>
                 <button className="w-full border-2 border-white text-white font-bold rounded-full py-2.5 text-sm hover:bg-white/10 transition">
                   Enviar e-mail
                 </button>
