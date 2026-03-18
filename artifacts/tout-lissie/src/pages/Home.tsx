@@ -442,15 +442,45 @@ function WhoUses() {
 
 
 /* ─── CATEGORIES BANNER ─── */
+const categoryCards = [
+  { label: "Capitã Aqua", img: "product-pos-quimica.png", color: "#d0eaf8", textColor: "#1a5276", big: true },
+  { label: "Capitã Nutre", img: "product-hidratacao.png", color: "#d5f0e0", textColor: "#1a5c2e", big: false },
+  { label: "Capitã Force", img: "product-progressiva.png", color: "#fde8f0", textColor: "#7b1040", big: false },
+  { label: "Finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec", textColor: "#880e4f", big: false },
+];
+
 function CategoriesBanner() {
   return (
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <img
-          src={`${import.meta.env.BASE_URL}categories-banner.png`}
-          alt="Categorias de produtos"
-          className="w-full rounded-2xl object-cover"
-        />
+        <div className="grid grid-cols-4 grid-rows-2 gap-3" style={{ height: 320 }}>
+          {/* Big card left — spans 2 cols, 2 rows */}
+          <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform"
+            style={{ background: categoryCards[0].color }}>
+            <img src={`${import.meta.env.BASE_URL}${categoryCards[0].img}`} alt={categoryCards[0].label}
+              className="absolute inset-0 w-full h-full object-contain p-8" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl" />
+            <span className="absolute bottom-4 left-4 text-white font-black text-xl drop-shadow">{categoryCards[0].label}</span>
+          </div>
+          {/* Top-right: 2 small cards */}
+          {categoryCards.slice(1, 3).map((cat, i) => (
+            <div key={i} className="col-span-1 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform"
+              style={{ background: cat.color }}>
+              <img src={`${import.meta.env.BASE_URL}${cat.img}`} alt={cat.label}
+                className="absolute inset-0 w-full h-full object-contain p-4" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
+              <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{cat.label}</span>
+            </div>
+          ))}
+          {/* Bottom-right: 1 wide card */}
+          <div className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform"
+            style={{ background: categoryCards[3].color }}>
+            <img src={`${import.meta.env.BASE_URL}${categoryCards[3].img}`} alt={categoryCards[3].label}
+              className="absolute inset-0 w-full h-full object-contain p-4" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
+            <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{categoryCards[3].label}</span>
+          </div>
+        </div>
       </div>
     </section>
   );
