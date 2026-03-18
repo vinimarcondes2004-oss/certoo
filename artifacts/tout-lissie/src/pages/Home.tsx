@@ -296,7 +296,7 @@ function WhoRecommends() {
               className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
               style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
               {p.img
-                ? <img src={p.img} alt="" className="w-full h-full object-cover" />
+                ? <img src={p.img} alt="" className="w-full h-full object-contain" />
                 : p.emoji}
             </div>
           ))}
