@@ -553,8 +553,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-black text-sm" style={{ color: PINK }}>T</div>
-              <span className="font-black text-xl">Tout Lissie</span>
+              <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
             </div>
             <p className="text-white/75 text-sm leading-relaxed mb-4">
               A marca favorita de quem cuida do cabelo com amor e dedicação.
