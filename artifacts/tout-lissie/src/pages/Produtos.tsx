@@ -193,18 +193,11 @@ export default function Produtos() {
                 <div className="relative">
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: PINK }}>{p.badge}</span>
-                  <div style={{
-                    height: 150,
-                    background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    overflow: "hidden",
-                  }}>
-                    <img
-                      src={`${import.meta.env.BASE_URL}${p.img}`}
-                      alt={p.name}
-                      style={{ height: 138, width: "auto", objectFit: "contain" }}
-                    />
-                  </div>
+                  <img
+                    src={`${import.meta.env.BASE_URL}${p.img}`}
+                    alt={p.name}
+                    style={{ height: 150, width: "100%", objectFit: "contain" }}
+                  />
                 </div>
                 <div className="p-3 flex flex-col flex-1">
                   <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
