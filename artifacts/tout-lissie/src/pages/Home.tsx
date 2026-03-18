@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   ShoppingCart, Star, ChevronDown, ChevronUp, Search,
   Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
@@ -333,6 +333,53 @@ function EleganceBanner() {
   );
 }
 
+/* ─── BEFORE / AFTER SLIDER ─── */
+function BeforeAfterSlider({ before, after }: { before: string; after: string }) {
+  const [pos, setPos] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const updatePos = useCallback((clientX: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const pct = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+    setPos(pct);
+  }, []);
+
+  const onMouseDown = () => { dragging.current = true; };
+  const onMouseMove = (e: React.MouseEvent) => { if (dragging.current) updatePos(e.clientX); };
+  const onMouseUp = () => { dragging.current = false; };
+  const onTouchMove = (e: React.TouchEvent) => updatePos(e.touches[0].clientX);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative select-none overflow-hidden rounded-2xl"
+      style={{ width: 300, height: 420, cursor: "ew-resize" }}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+      onTouchMove={onTouchMove}
+    >
+      <img src={after} alt="Depois" className="absolute inset-0 w-full h-full object-cover object-top" />
+      <div className="absolute inset-0 overflow-hidden" style={{ width: `${pos}%` }}>
+        <img src={before} alt="Antes" className="absolute inset-0 w-full h-full object-cover object-top" style={{ width: 300 }} />
+      </div>
+      <div className="absolute top-0 bottom-0 flex flex-col items-center" style={{ left: `calc(${pos}% - 1px)` }}>
+        <div className="w-0.5 flex-1" style={{ background: "white" }} />
+        <div className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0" style={{ border: `2px solid ${PINK}` }}>
+          <span className="text-xs font-black" style={{ color: PINK }}>◀▶</span>
+        </div>
+        <div className="w-0.5 flex-1" style={{ background: "white" }} />
+      </div>
+      <span className="absolute top-3 left-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">ANTES</span>
+      <span className="absolute top-3 right-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">DEPOIS</span>
+    </div>
+  );
+}
+
 /* ─── RESULTADO MAGIC ─── */
 function ResultadoMagic() {
   return (
@@ -340,21 +387,10 @@ function ResultadoMagic() {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-2">Resultado Magic</h2>
         <p className="text-center text-gray-500 text-sm mb-8">Veja a transformação real</p>
-        {/* Large person photo + products */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-          {/* Person photo placeholder */}
-          <div className="relative flex-shrink-0">
-            <div style={{
-              width: 280, height: 380,
-              background: "linear-gradient(180deg, #fce4f0 0%, #f8b4d4 50%, #e84393 100%)",
-              borderRadius: 24,
-              display: "flex", alignItems: "flex-end", justifyContent: "center",
-              overflow: "hidden",
-            }}>
-              <span style={{ fontSize: "10rem", lineHeight: 1 }}>👩🏾‍🦱</span>
-            </div>
+          <div className="flex-shrink-0">
+            <BeforeAfterSlider before="/before-hair.jpg" after="/after-hair.jpg" />
           </div>
-          {/* Products alongside */}
           <div className="flex md:flex-col gap-4 items-center">
             {[PINK, "#ff4499", "#c0003d"].map((c, i) => (
               <div key={i} className="flex flex-col items-center gap-2">
