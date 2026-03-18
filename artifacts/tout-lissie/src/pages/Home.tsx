@@ -604,7 +604,7 @@ function Footer() {
             <ul className="space-y-1.5 text-sm text-white/80">
               {[
                 { label: "Shampoos", href: "/categoria/shampoo-e-mascara" },
-                { label: "Máscaras", href: "#" },
+                { label: "Máscaras", href: "/categoria/shampoo-e-mascara" },
                 { label: "Óleos", href: "#" },
                 { label: "Kits", href: "#" },
               ].map(item => (
