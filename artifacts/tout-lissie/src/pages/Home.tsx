@@ -179,16 +179,14 @@ function Hero() {
             </a>
           </div>
 
-          {/* Right – product bottles */}
-          <div className="flex-1 flex justify-center md:justify-end items-end gap-3 pb-2 min-h-[220px]">
-            {[
-              { color: "#d4003a", h: 160 },
-              { color: "#e8006f", h: 190 },
-              { color: "#ff4499", h: 170 },
-              { color: "#c0003d", h: 150 },
-            ].map((b, i) => (
-              <Bottle key={i} color={b.color} w={52} h={b.h} />
-            ))}
+          {/* Right – hero image */}
+          <div className="flex-1 flex justify-center md:justify-end">
+            <img
+              src={`${import.meta.env.BASE_URL}hero-products.png`}
+              alt="Linha de produtos Tout Lissie"
+              className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl"
+              style={{ maxHeight: 380 }}
+            />
           </div>
         </div>
       </section>
