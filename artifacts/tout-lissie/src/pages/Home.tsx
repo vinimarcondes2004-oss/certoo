@@ -1,352 +1,367 @@
 import { useState } from "react";
-import { ShoppingCart, Star, ChevronDown, ChevronUp, Search, Heart, User, Menu, X, Instagram, Facebook, MessageCircle } from "lucide-react";
+import {
+  ShoppingCart, Star, ChevronDown, ChevronUp, Search,
+  Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
+} from "lucide-react";
 
-const PINK = "#e84393";
+const PINK = "#e8006f";
+const PINK2 = "#f5007a";
 const PINK_LIGHT = "#fce4f0";
-const PINK_DARK = "#c2185b";
-const RED = "#e53935";
+const DARK_RED = "#c0003d";
+const GRAY_BG = "#f8f8f8";
 
-function StarRating({ rating = 5, count }: { rating?: number; count?: number }) {
+/* ─── helpers ─── */
+function Stars({ n = 5, size = 12 }: { n?: number; size?: number }) {
   return (
-    <span className="flex items-center gap-1">
+    <span className="flex items-center gap-0.5">
       {[1,2,3,4,5].map(i => (
-        <Star key={i} size={13} fill={i <= rating ? "#f5a623" : "none"} stroke={i <= rating ? "#f5a623" : "#ccc"} />
+        <Star key={i} size={size}
+          fill={i <= n ? "#f5a623" : "none"}
+          stroke={i <= n ? "#f5a623" : "#ddd"} />
       ))}
-      {count && <span className="text-xs text-gray-500 ml-1">({count})</span>}
     </span>
   );
 }
 
-function AddToCartBtn({ small }: { small?: boolean }) {
+function BuyBtn({ label = "Comprar", full }: { label?: string; full?: boolean }) {
   return (
     <button
       style={{ background: PINK }}
-      className={`text-white font-bold rounded-full transition hover:opacity-90 ${small ? "text-xs px-3 py-1.5" : "text-sm px-5 py-2"}`}
+      className={`text-white text-xs font-bold rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap ${full ? "w-full py-2 text-sm" : ""}`}
     >
-      Comprar
+      {label}
     </button>
   );
 }
 
-
-function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
+/* Placeholder product bottle illustration */
+function Bottle({ color = PINK, w = 48, h = 80 }: { color?: string; w?: number; h?: number }) {
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div style={{ width: w, height: h, position: "relative", flexShrink: 0 }}>
+      <div style={{
+        position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+        width: w * 0.45, height: h * 0.18,
+        background: color, borderRadius: "4px 4px 0 0", opacity: 0.9,
+      }} />
+      <div style={{
+        position: "absolute", top: h * 0.16, left: 0, right: 0, bottom: 0,
+        background: `linear-gradient(160deg, ${color}cc, ${color})`,
+        borderRadius: "8px 8px 12px 12px",
+      }}>
+        <div style={{
+          position: "absolute", top: "20%", left: "15%", right: "15%", height: "40%",
+          background: "rgba(255,255,255,0.18)", borderRadius: 4,
+        }} />
+        <div style={{
+          position: "absolute", bottom: "12%", left: "10%", right: "10%", height: "18%",
+          background: "rgba(255,255,255,0.12)", borderRadius: 3,
+        }} />
+      </div>
+    </div>
+  );
+}
+
+/* Placeholder product image card */
+function ProductImg({ color = PINK, height = 140 }: { color?: string; height?: number }) {
+  return (
+    <div style={{
+      height,
+      background: `linear-gradient(145deg, ${color}22, ${color}55)`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <Bottle color={color} w={50} h={90} />
+    </div>
+  );
+}
+
+/* ─── TOP ANNOUNCEMENT BAR ─── */
+function AnnouncementBar() {
+  return (
+    <div style={{ background: `linear-gradient(90deg, ${DARK_RED}, ${PINK2})` }}
+      className="py-2 px-4 flex items-center justify-between gap-4 text-white text-xs">
+      <div className="hidden md:flex items-center gap-6 font-medium">
+        <span>Pegue instantaneamente</span>
+        <span className="opacity-60">|</span>
+        <span>Proteja os fios</span>
+        <span className="opacity-60">|</span>
+        <span>Resultados visíveis</span>
+      </div>
+      <div className="flex md:hidden items-center gap-2 font-medium flex-1">
+        <span>Pegue instantaneamente • Proteja os fios</span>
+      </div>
+      <button style={{ background: "white", color: PINK }}
+        className="font-black text-xs rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap flex-shrink-0">
+        APROVEITE AGORA!
+      </button>
+    </div>
+  );
+}
+
+/* ─── HEADER ─── */
+function Header() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          <button className="md:hidden" onClick={() => setOpen(!open)}>
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <div className="flex flex-col leading-tight">
-            <span style={{ color: PINK }} className="font-black text-2xl tracking-tight">Tout</span>
-            <span className="text-xs text-gray-400 -mt-1 font-medium tracking-widest uppercase">Lissie</span>
+          {/* Logo */}
+          <div className="flex flex-col leading-[1.1]">
+            <div className="flex items-center gap-1">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-black"
+                style={{ background: PINK }}>T</div>
+              <span className="font-black text-lg tracking-tight" style={{ color: "#1a1a1a" }}>Tout</span>
+              <span className="font-light text-lg tracking-tight text-gray-500">Lissie</span>
+            </div>
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
-          <a href="#" className="hover:text-pink-500 transition">Início</a>
-          <a href="#produtos" className="hover:text-pink-500 transition">Produtos</a>
-          <a href="#quem-usa" className="hover:text-pink-500 transition">Quem usa</a>
-          <a href="#depoimentos" className="hover:text-pink-500 transition">Depoimentos</a>
-          <a href="#faq" className="hover:text-pink-500 transition">FAQ</a>
+        <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-gray-600">
+          {["Início","Produtos","Quem usa","Depoimentos","FAQ"].map(item => (
+            <a key={item} href={`#${item.toLowerCase().replace(" ","-")}`}
+              className="hover:text-pink-600 transition">{item}</a>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center border border-gray-200 rounded-full px-3 py-1.5 gap-2 bg-gray-50">
-            <Search size={15} className="text-gray-400" />
-            <input placeholder="Buscar produtos..." className="bg-transparent text-sm outline-none w-36" />
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5 bg-gray-50">
+            <Search size={14} className="text-gray-400" />
+            <input className="bg-transparent text-sm outline-none w-32 text-gray-700"
+              placeholder="Buscar produtos..." />
           </div>
           <button className="relative p-1.5">
-            <ShoppingCart size={22} className="text-gray-700" />
-            <span style={{ background: PINK }} className="absolute -top-1 -right-1 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">0</span>
+            <ShoppingCart size={20} className="text-gray-700" />
+            <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
+              style={{ background: PINK }}>0</span>
           </button>
-          <button className="p-1.5"><User size={22} className="text-gray-700" /></button>
-          <button className="p-1.5"><Heart size={22} className="text-gray-700" /></button>
+          <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
+          <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
         </div>
       </div>
-      {menuOpen && (
-        <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3 text-sm font-medium">
-          <a href="#">Início</a>
-          <a href="#produtos">Produtos</a>
-          <a href="#quem-usa">Quem usa</a>
-          <a href="#depoimentos">Depoimentos</a>
-          <a href="#faq">FAQ</a>
+      {open && (
+        <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3 text-sm font-medium bg-white">
+          {["Início","Produtos","Quem usa","Depoimentos","FAQ"].map(item => (
+            <a key={item} href="#" className="py-1 text-gray-700">{item}</a>
+          ))}
         </div>
       )}
     </header>
   );
 }
 
-function HeroSection() {
+/* ─── HERO ─── */
+function Hero() {
+  const [activeTab, setActiveTab] = useState("Shampoo");
+  const tabs = ["Antes e Depois", "Shampoo", "Hidratação", "Finalização"];
   return (
-    <section
-      style={{
-        background: "linear-gradient(135deg, #e84393 0%, #ff6b9d 40%, #fce4f0 100%)",
-        minHeight: 420,
-      }}
-      className="relative overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row items-center gap-8">
-        <div className="flex-1 text-center md:text-left">
-          <p style={{ color: "rgba(255,255,255,0.85)" }} className="text-sm font-semibold uppercase tracking-widest mb-2">
-            Perfeito para
-          </p>
-          <h1 className="text-white font-black text-4xl md:text-5xl lg:text-6xl leading-tight mb-4">
-            todas as horas<br />do seu dia
-          </h1>
-          <p className="text-white/80 text-base mb-6 max-w-md">
-            Descubra a linha completa de cuidados para cabelos que vai transformar sua rotina de beleza.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+    <>
+      {/* Main hero */}
+      <section style={{
+        background: `linear-gradient(120deg, ${DARK_RED} 0%, ${PINK2} 45%, #ff88bb 70%, #fce4f0 100%)`,
+        minHeight: 380,
+      }} className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-6">
+          {/* Left */}
+          <div className="flex-1 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">
+              SMASH, IMEDIATAMENTE
+            </p>
+            <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
+              Perfeito para<br />todas as horas<br />do seu dia
+            </h1>
             <a href="#produtos">
-              <button className="bg-white font-bold rounded-full px-8 py-3 text-base transition hover:bg-pink-50" style={{ color: PINK }}>
+              <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition"
+                style={{ color: PINK }}>
                 APROVEITE AGORA!
               </button>
             </a>
           </div>
-          <div className="flex gap-4 mt-6 justify-center md:justify-start">
-            {["Shampoo", "Condicionador", "Hidratação", "Finalização"].map(tag => (
-              <span key={tag} className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm">
-                {tag}
-              </span>
+
+          {/* Right – product bottles */}
+          <div className="flex-1 flex justify-center md:justify-end items-end gap-3 pb-2 min-h-[220px]">
+            {[
+              { color: "#d4003a", h: 160 },
+              { color: "#e8006f", h: 190 },
+              { color: "#ff4499", h: 170 },
+              { color: "#c0003d", h: 150 },
+            ].map((b, i) => (
+              <Bottle key={i} color={b.color} w={52} h={b.h} />
             ))}
           </div>
         </div>
-        <div className="flex-1 flex justify-center md:justify-end">
-          <div className="relative">
-            <div className="w-72 h-72 md:w-96 md:h-96 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <div className="grid grid-cols-3 gap-3 p-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="w-16 h-20 bg-white/30 rounded-xl backdrop-blur-sm border border-white/40 flex items-center justify-center">
-                    <div className="w-6 h-12 rounded-full" style={{ background: i % 2 === 0 ? "white" : "rgba(255,255,255,0.5)" }} />
-                  </div>
-                ))}
-              </div>
-            </div>
+      </section>
+
+      {/* Category nav */}
+      <div className="bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+            Unidona, seu cabelo merece o melhor!
+          </p>
+          <div className="flex gap-1 overflow-x-auto pb-0.5 scrollbar-hide">
+            {tabs.map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                className={`whitespace-nowrap text-xs font-semibold px-4 py-1.5 rounded-full transition ${
+                  activeTab === tab
+                    ? "text-white"
+                    : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                }`}
+                style={activeTab === tab ? { background: PINK } : {}}>
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }
 
-const categories = [
-  { name: "Shampoo", icon: "🧴" },
-  { name: "Condicionador", icon: "💧" },
-  { name: "Máscara", icon: "🌸" },
-  { name: "Finalizador", icon: "✨" },
-  { name: "Óleo", icon: "💎" },
-  { name: "Protetor", icon: "🛡️" },
-];
-
-function CategoryBar() {
-  return (
-    <div className="bg-white border-b border-gray-100 py-4">
-      <div className="max-w-7xl mx-auto px-4 flex gap-6 overflow-x-auto pb-1 scrollbar-hide">
-        {categories.map(cat => (
-          <button
-            key={cat.name}
-            className="flex flex-col items-center gap-1.5 min-w-[70px] group"
-          >
-            <div
-              style={{ background: PINK_LIGHT }}
-              className="w-14 h-14 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 transition"
-            >
-              {cat.icon}
-            </div>
-            <span className="text-xs font-medium text-gray-600 group-hover:text-pink-500 transition whitespace-nowrap">
-              {cat.name}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
+/* ─── MAIS VENDIDOS ─── */
 const bestSellers = [
-  {
-    name: "Shampoo Magic Liss",
-    subtitle: "300ml",
-    price: "R$ 49,90",
-    originalPrice: "R$ 69,90",
-    rating: 5,
-    reviews: 234,
-    badge: "Mais Vendido",
-    bgColor: "#fff0f7",
-    bottleColor: "#e84393",
-  },
-  {
-    name: "Condicionador Brilho",
-    subtitle: "300ml",
-    price: "R$ 44,90",
-    originalPrice: "R$ 59,90",
-    rating: 5,
-    reviews: 189,
-    badge: "Top",
-    bgColor: "#f0f7ff",
-    bottleColor: "#4a90e2",
-  },
-  {
-    name: "Máscara Hidratação",
-    subtitle: "250g",
-    price: "R$ 59,90",
-    originalPrice: "R$ 79,90",
-    rating: 5,
-    reviews: 312,
-    badge: "Favorito",
-    bgColor: "#fff7f0",
-    bottleColor: "#ff9800",
-  },
-  {
-    name: "Óleo Reparador",
-    subtitle: "50ml",
-    price: "R$ 39,90",
-    originalPrice: "R$ 54,90",
-    rating: 4,
-    reviews: 156,
-    badge: "Novo",
-    bgColor: "#f0fff4",
-    bottleColor: "#4caf50",
-  },
-  {
-    name: "Finalizador Liss",
-    subtitle: "200ml",
-    price: "R$ 54,90",
-    originalPrice: "R$ 74,90",
-    rating: 5,
-    reviews: 278,
-    badge: "Destaque",
-    bgColor: "#fdf0ff",
-    bottleColor: "#9c27b0",
-  },
+  { name: "Shampoo Magic Liss", ml: "300ml", price: "R$ 49,90", old: "R$ 69,90", stars: 5, n: 234, color: PINK, badge: "Mais Vendido" },
+  { name: "Condicionador Brilho", ml: "300ml", price: "R$ 44,90", old: "R$ 59,90", stars: 5, n: 189, color: "#4a90e2", badge: "Top" },
+  { name: "Máscara Hidratação", ml: "250g", price: "R$ 59,90", old: "R$ 79,90", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito" },
+  { name: "Óleo Reparador", ml: "50ml", price: "R$ 39,90", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo" },
+  { name: "Finalizador Liss", ml: "200ml", price: "R$ 54,90", old: "R$ 74,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque" },
 ];
 
-function ProductCard({ product }: { product: typeof bestSellers[0] }) {
+function BestSellers() {
   return (
-    <div className="product-card flex flex-col min-w-[200px] w-[200px]">
-      <div className="relative" style={{ background: product.bgColor }}>
-        <div className="absolute top-2 left-2 z-10">
-          <span style={{ background: PINK }} className="text-white text-xs font-bold px-2 py-0.5 rounded-full">
-            {product.badge}
-          </span>
-        </div>
-        <div className="h-44 flex items-center justify-center p-4">
-          <div className="relative">
-            <div
-              className="w-16 h-28 rounded-full shadow-lg"
-              style={{ background: `linear-gradient(180deg, ${product.bottleColor}dd 0%, ${product.bottleColor} 100%)` }}
-            />
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-4 rounded-t-full bg-white/40" />
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-6 bg-white/20 rounded-sm" />
-          </div>
-        </div>
-      </div>
-      <div className="p-3 flex flex-col flex-1">
-        <h3 className="font-bold text-sm text-gray-800 mb-0.5">{product.name}</h3>
-        <p className="text-xs text-gray-500 mb-1">{product.subtitle}</p>
-        <StarRating rating={product.rating} count={product.reviews} />
-        <div className="mt-2 mb-3">
-          <span className="text-xs text-gray-400 line-through">{product.originalPrice}</span>
-          <p className="font-black text-base" style={{ color: PINK }}>{product.price}</p>
-        </div>
-        <AddToCartBtn small />
-      </div>
-    </div>
-  );
-}
-
-function BestSellersSection() {
-  return (
-    <section id="produtos" className="py-10 bg-white">
+    <section id="produtos" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-black text-gray-900">Mais Vendidos</h2>
-          <a href="#" style={{ color: PINK }} className="text-sm font-semibold hover:underline">Ver todos →</a>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-black text-gray-900">Mais Vendidos</h2>
+          <a href="#" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
+            Ver todos <ChevronRight size={15} />
+          </a>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
-          {bestSellers.map((p, i) => <ProductCard key={i} product={p} />)}
+          {bestSellers.map((p, i) => (
+            <div key={i} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+              <div className="relative">
+                <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: PINK }}>{p.badge}</span>
+                <ProductImg color={p.color} height={130} />
+              </div>
+              <div className="p-3">
+                <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
+                <p className="text-[11px] text-gray-400 mb-1">{p.ml}</p>
+                <Stars n={p.stars} size={11} />
+                <p className="text-[10px] text-gray-400 line-through mt-1">{p.old}</p>
+                <p className="font-black text-sm mb-2" style={{ color: PINK }}>{p.price}</p>
+                <BuyBtn />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-const testimonialImages = [
-  { bg: "#fce4f0", emoji: "👩🏻‍🦱" },
-  { bg: "#e8f5e9", emoji: "👩🏾‍🦳" },
-  { bg: "#e3f2fd", emoji: "👩🏽‍🦰" },
-  { bg: "#fff3e0", emoji: "👩🏼‍🦲" },
-  { bg: "#f3e5f5", emoji: "👩🏻‍🦳" },
+/* ─── QUEM USA TOUT RECOMENDA (photo mosaic) ─── */
+const mosaicPhotos = [
+  { bg: "#fce4f0", emoji: "👩🏻‍🦱", big: true },
+  { bg: "#e3f2fd", emoji: "👩🏽‍🦰", big: false },
+  { bg: "#e8f5e9", emoji: "👩🏾‍🦳", big: false },
+  { bg: "#fff3e0", emoji: "👩🏼‍🦲", big: true },
+  { bg: "#f3e5f5", emoji: "👩🏻‍🦳", big: false },
+  { bg: "#fce4f0", emoji: "👩🏿‍🦱", big: false },
+  { bg: "#e0f7fa", emoji: "👩🏽‍🦲", big: false },
+  { bg: "#fff8e1", emoji: "👩🏾‍🦰", big: false },
 ];
 
-function WhoRecommendsSection() {
+function WhoRecommends() {
   return (
-    <section id="depoimentos" className="py-10" style={{ background: PINK_LIGHT }}>
+    <section className="py-8" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="section-title">Quem usa Tout recomenda</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {testimonialImages.map((img, i) => (
-            <div
-              key={i}
-              className="rounded-2xl overflow-hidden aspect-square flex items-center justify-center text-6xl shadow-sm"
-              style={{ background: img.bg }}
-            >
-              {img.emoji}
+        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Tout recomenda</h2>
+        {/* Mosaic grid */}
+        <div className="grid grid-cols-4 md:grid-cols-6 gap-2" style={{ gridAutoRows: "120px" }}>
+          {mosaicPhotos.map((p, i) => (
+            <div key={i}
+              className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
+              style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
+              {p.emoji}
             </div>
           ))}
-        </div>
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { name: "Juliana M.", city: "São Paulo", text: "Meu cabelo nunca ficou tão liso e brilhoso! Amei demais o shampoo Tout.", stars: 5 },
-            { name: "Carla R.", city: "Rio de Janeiro", text: "Produto incrível! A máscara de hidratação transformou completamente meu cabelo.", stars: 5 },
-            { name: "Ana Paula S.", city: "Belo Horizonte", text: "Recomendo para todas! O finalizador é maravilhoso, deixa o cabelo perfeito.", stars: 5 },
-          ].map((t, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 shadow-sm">
-              <StarRating rating={t.stars} />
-              <p className="text-sm text-gray-700 mt-2 mb-3 italic">"{t.text}"</p>
-              <p className="font-bold text-sm text-gray-800">{t.name}</p>
-              <p className="text-xs text-gray-400">{t.city}</p>
-            </div>
-          ))}
+          {/* Extra filler cells for desktop */}
+          <div className="hidden md:block rounded-2xl col-span-1" style={{ background: "#fce4f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span className="text-4xl">💕</span>
+          </div>
+          <div className="hidden md:block rounded-2xl" style={{ background: "#e8f5e9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span className="text-4xl">✨</span>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
+/* ─── ELEGANCE BANNER ─── */
 function EleganceBanner() {
   return (
-    <section
-      style={{
-        background: "linear-gradient(135deg, #1a1a2e 0%, #2d1b3d 50%, #3d0a2e 100%)",
-        minHeight: 280,
-      }}
-      className="relative overflow-hidden py-16"
-    >
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full" style={{ background: PINK, filter: "blur(60px)" }} />
-        <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full" style={{ background: "#9c27b0", filter: "blur(50px)" }} />
+    <section style={{ background: `linear-gradient(120deg, #1a0010 0%, #3d0020 40%, #6b0030 70%, #c0003d 100%)` }}
+      className="py-14 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full" style={{ background: PINK, filter: "blur(80px)" }} />
       </div>
-      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-8 relative z-10">
-        <div className="flex-1 text-center md:text-left">
-          <p style={{ color: PINK }} className="text-sm font-semibold uppercase tracking-widest mb-2">A elegância que</p>
-          <h2 className="text-white font-black text-4xl md:text-5xl leading-tight mb-4">
-            seus fios <span style={{ color: PINK }}>merecem</span>
+      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8 relative z-10">
+        <div className="flex-1">
+          <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">A elegância que</p>
+          <h2 className="text-white font-black text-4xl md:text-5xl leading-tight mb-3">
+            seus fios <span style={{ color: "#ff88bb" }}>merecem</span>
           </h2>
-          <p className="text-white/70 text-base mb-6">
-            Cabelos lindos • Fios saudáveis • Resultado garantido
-          </p>
-          <button style={{ background: PINK }} className="text-white font-bold rounded-full px-8 py-3 text-base hover:opacity-90 transition">
+          <p className="text-white/60 text-sm mb-6">Cabelos lindos • Fios saudáveis • Resultado garantido</p>
+          <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
             Descubra Agora
           </button>
         </div>
-        <div className="flex gap-4 justify-center">
-          {[PINK, "#9c27b0", RED].map((c, i) => (
-            <div key={i} className="w-20 h-36 rounded-full shadow-2xl border-2 border-white/20 flex items-end justify-center pb-3"
-              style={{ background: `linear-gradient(180deg, ${c}88 0%, ${c} 100%)` }}>
-              <span className="text-white/60 text-xs">Tout</span>
+        <div className="flex items-end gap-3 justify-center">
+          {[
+            { color: PINK, h: 160 },
+            { color: "#ff4499", h: 190 },
+            { color: "#c0003d", h: 140 },
+          ].map((b, i) => (
+            <Bottle key={i} color={b.color} w={55} h={b.h} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── FINALIZADORES ─── */
+const finalizadores = [
+  { name: "Sérum Liss Pro", price: "R$ 64,90", stars: 5, n: 198, color: PINK },
+  { name: "Spray Protetor Térmico", price: "R$ 38,90", stars: 5, n: 145, color: "#2196f3" },
+  { name: "Creme Finalizador", price: "R$ 52,90", stars: 5, n: 221, color: "#ff6b6b" },
+  { name: "Óleo de Argan", price: "R$ 45,90", stars: 4, n: 167, color: "#ff9800" },
+  { name: "Leave-in Nutritivo", price: "R$ 41,90", stars: 5, n: 189, color: "#8e24aa" },
+];
+
+function Finalizadores() {
+  return (
+    <section className="py-8 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-black text-gray-900">Finalizadores</h2>
+          <a href="#" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
+            Ver todos <ChevronRight size={15} />
+          </a>
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+          {finalizadores.map((p, i) => (
+            <div key={i} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+              <ProductImg color={p.color} height={130} />
+              <div className="p-3">
+                <p className="font-bold text-xs text-gray-800 leading-tight mb-1">{p.name}</p>
+                <Stars n={p.stars} size={11} />
+                <p className="font-black text-sm mt-1.5 mb-2" style={{ color: PINK }}>{p.price}</p>
+                <BuyBtn />
+              </div>
             </div>
           ))}
         </div>
@@ -355,151 +370,144 @@ function EleganceBanner() {
   );
 }
 
-const finalizadores = [
-  { name: "Sérum Liss Pro", price: "R$ 64,90", rating: 5, reviews: 198, color: "#e84393" },
-  { name: "Spray Protetor", price: "R$ 38,90", rating: 5, reviews: 145, color: "#2196f3" },
-  { name: "Creme Finalizador", price: "R$ 52,90", rating: 5, reviews: 221, color: "#ff6b6b" },
-  { name: "Óleo Argan", price: "R$ 45,90", rating: 4, reviews: 167, color: "#ff9800" },
+/* ─── RESULTADO MAGIC ─── */
+function ResultadoMagic() {
+  return (
+    <section className="py-10" style={{ background: GRAY_BG }}>
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-xl font-black text-center text-gray-900 mb-2">Resultado Magic</h2>
+        <p className="text-center text-gray-500 text-sm mb-8">Veja a transformação real</p>
+        {/* Large person photo + products */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+          {/* Person photo placeholder */}
+          <div className="relative flex-shrink-0">
+            <div style={{
+              width: 280, height: 380,
+              background: "linear-gradient(180deg, #fce4f0 0%, #f8b4d4 50%, #e84393 100%)",
+              borderRadius: 24,
+              display: "flex", alignItems: "flex-end", justifyContent: "center",
+              overflow: "hidden",
+            }}>
+              <span style={{ fontSize: "10rem", lineHeight: 1 }}>👩🏾‍🦱</span>
+            </div>
+          </div>
+          {/* Products alongside */}
+          <div className="flex md:flex-col gap-4 items-center">
+            {[PINK, "#ff4499", "#c0003d"].map((c, i) => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <Bottle color={c} w={50} h={90} />
+                <div className="text-center">
+                  <p className="text-xs font-bold text-gray-700">Produto {i + 1}</p>
+                  <p className="text-xs" style={{ color: PINK }}>R$ {(49.9 + i * 10).toFixed(2).replace(".", ",")}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── QUEM USA TOUT RECOMENDA (reviews) ─── */
+const reviews = [
+  { name: "Fernanda K.", avatar: "👩🏻", stars: 5, text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável desde a primeira aplicação.", date: "15 mar 2026" },
+  { name: "Beatriz S.", avatar: "👩🏽", stars: 5, text: "A máscara é um milagre! Nunca vi resultado tão rápido e duradouro.", date: "12 mar 2026" },
+  { name: "Priscila A.", avatar: "👩🏾", stars: 5, text: "O finalizador deixa o cabelo com um brilho incomparável. Recomendo!", date: "10 mar 2026" },
+  { name: "Renata M.", avatar: "👩🏼", stars: 5, text: "Uso toda a linha e meu cabelo nunca esteve tão saudável.", date: "8 mar 2026" },
 ];
 
-function FinalizadoresSection() {
+function WhoUses() {
+  return (
+    <section id="quem-usa" className="py-8 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Tout recomenda! 💖</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {reviews.map((r, i) => (
+            <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-xl"
+                  style={{ background: PINK_LIGHT }}>{r.avatar}</div>
+                <div>
+                  <p className="font-bold text-xs text-gray-800">{r.name}</p>
+                  <p className="text-[10px] text-gray-400">{r.date}</p>
+                </div>
+              </div>
+              <Stars n={r.stars} size={12} />
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">"{r.text}"</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── DEPARTAMENTOS ─── */
+const depts = [
+  { name: "Shampoos", icon: "🧴" },
+  { name: "Condicionadores", icon: "💧" },
+  { name: "Máscaras", icon: "🌸" },
+  { name: "Finalizadores", icon: "✨" },
+  { name: "Óleos", icon: "💎" },
+  { name: "Protetor", icon: "🛡️" },
+  { name: "Kits", icon: "🎁" },
+  { name: "Acessórios", icon: "💫" },
+];
+
+function Departments() {
+  return (
+    <section style={{ background: GRAY_BG }} className="py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-xl font-black text-gray-900 mb-5 flex items-center gap-2">
+          Departamentos <span>💅</span>
+        </h2>
+        <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
+          {depts.map(d => (
+            <button key={d.name} className="flex flex-col items-center gap-2 flex-shrink-0 group">
+              <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-3xl group-hover:scale-105 transition">
+                {d.icon}
+              </div>
+              <span className="text-xs font-semibold text-gray-600 group-hover:text-pink-600 transition text-center whitespace-nowrap">
+                {d.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
+const salonReviews = [
+  { name: "Ana C.", role: "Cabeleireira profissional", avatar: "👩🏻‍🦰", stars: 5, text: "Meus clientes amam os resultados! Uso Tout Lissie em todos os atendimentos." },
+  { name: "Mariana T.", role: "Salão de Beleza SP", avatar: "👩🏽", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
+  { name: "Renata P.", role: "Hair Stylist", avatar: "👩🏾‍🦳", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
+  { name: "Luana B.", role: "Salão Chic RJ", avatar: "👩🏼‍🦱", stars: 5, text: "Desde que comecei a usar Tout, minhas clientes voltam sempre!" },
+];
+
+function SalonSection() {
   return (
     <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-black text-gray-900">Finalizadores</h2>
-          <a href="#" style={{ color: PINK }} className="text-sm font-semibold hover:underline">Ver todos →</a>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {finalizadores.map((p, i) => (
-            <div key={i} className="product-card">
-              <div className="h-40 flex items-center justify-center" style={{ background: `${p.color}15` }}>
-                <div className="w-14 h-24 rounded-xl shadow-md flex items-center justify-center"
-                  style={{ background: `linear-gradient(180deg, ${p.color}99 0%, ${p.color} 100%)` }}>
-                  <div className="w-8 h-10 bg-white/20 rounded-lg" />
-                </div>
-              </div>
-              <div className="p-3">
-                <h3 className="font-bold text-sm text-gray-800 mb-1">{p.name}</h3>
-                <StarRating rating={p.rating} count={p.reviews} />
-                <p className="font-black text-base mt-2 mb-3" style={{ color: PINK }}>{p.price}</p>
-                <AddToCartBtn small />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function MagicResultSection() {
-  return (
-    <section className="py-12" style={{ background: "#fafafa" }}>
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="section-title">Resultado Magic ✨</h2>
-        <p className="text-center text-gray-500 -mt-3 mb-8 text-sm">Veja a transformação real dos nossos clientes</p>
-        <div className="flex flex-col md:flex-row items-center gap-8">
-          <div className="flex-1 flex justify-center">
-            <div className="relative">
-              <div className="w-64 h-80 rounded-3xl overflow-hidden shadow-xl" style={{ background: "linear-gradient(135deg, #fce4f0 0%, #e84393 100%)" }}>
-                <div className="w-full h-full flex items-center justify-center text-8xl">👩🏾‍🦱</div>
-              </div>
-              <div style={{ background: PINK }} className="absolute -bottom-4 -right-4 text-white rounded-2xl px-4 py-2 shadow-lg">
-                <p className="font-black text-lg">100%</p>
-                <p className="text-xs">Aprovação</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="space-y-4">
-              {[
-                { label: "Maciez", value: 98 },
-                { label: "Brilho", value: 95 },
-                { label: "Hidratação", value: 99 },
-                { label: "Redução do frizz", value: 97 },
-              ].map(item => (
-                <div key={item.label}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium text-gray-700">{item.label}</span>
-                    <span className="font-bold" style={{ color: PINK }}>{item.value}%</span>
-                  </div>
-                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${item.value}%`, background: `linear-gradient(90deg, #e84393, #ff6b9d)` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6">
-              <button style={{ background: PINK }} className="text-white font-bold rounded-full px-8 py-3 hover:opacity-90 transition">
-                Quero esse resultado!
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const reviews = [
-  {
-    name: "Fernanda K.",
-    avatar: "👩🏻",
-    stars: 5,
-    text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável. Jamais vou trocar por outra marca!",
-    product: "Shampoo Magic Liss",
-    date: "15 mar 2026",
-  },
-  {
-    name: "Beatriz S.",
-    avatar: "👩🏽",
-    stars: 5,
-    text: "A máscara de hidratação é um milagre! Nunca vi resultado tão rápido e duradouro.",
-    product: "Máscara Hidratação",
-    date: "12 mar 2026",
-  },
-  {
-    name: "Priscila A.",
-    avatar: "👩🏾",
-    stars: 5,
-    text: "Amei demais! O finalizador deixa o cabelo com um brilho e uma leveza incomparáveis.",
-    product: "Finalizador Liss",
-    date: "10 mar 2026",
-  },
-  {
-    name: "Renata M.",
-    avatar: "👩🏼",
-    stars: 5,
-    text: "Recomendo 100%! Uso toda a linha e meu cabelo nunca esteve tão saudável e bonito.",
-    product: "Linha Completa",
-    date: "8 mar 2026",
-  },
-];
-
-function WhoUsesSection() {
-  return (
-    <section id="quem-usa" className="py-10 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="section-title">Quem usa Tout recomenda! 💖</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {reviews.map((r, i) => (
-            <div key={i} className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl">{r.avatar}</span>
+        <h2 className="text-xl font-black text-center text-gray-900 mb-2">
+          Tout Lissie a queridinha dos salões <span style={{ color: PINK }}>♥</span>
+        </h2>
+        <p className="text-center text-sm text-gray-500 mb-7">Profissionais que confiam na qualidade Tout</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {salonReviews.map((r, i) => (
+            <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-2xl"
+                  style={{ background: PINK_LIGHT }}>{r.avatar}</div>
                 <div>
-                  <p className="font-bold text-sm text-gray-800">{r.name}</p>
-                  <p className="text-xs text-gray-400">{r.date}</p>
+                  <p className="font-bold text-xs text-gray-800">{r.name}</p>
+                  <p className="text-[10px] text-gray-400">{r.role}</p>
                 </div>
               </div>
-              <StarRating rating={r.stars} />
-              <p className="text-sm text-gray-600 mt-2 mb-3 leading-relaxed">"{r.text}"</p>
-              <span className="text-xs font-semibold px-2 py-1 rounded-full" style={{ background: PINK_LIGHT, color: PINK }}>
-                {r.product}
-              </span>
+              <Stars n={r.stars} size={12} />
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">"{r.text}"</p>
             </div>
           ))}
         </div>
@@ -508,240 +516,124 @@ function WhoUsesSection() {
   );
 }
 
-const departments = [
-  { name: "Shampoos", icon: "🧴", count: 12 },
-  { name: "Condicionadores", icon: "💧", count: 8 },
-  { name: "Máscaras", icon: "🌸", count: 10 },
-  { name: "Finalizadores", icon: "✨", count: 15 },
-  { name: "Óleos", icon: "💎", count: 6 },
-  { name: "Protetores", icon: "🛡️", count: 9 },
-  { name: "Kits", icon: "🎁", count: 5 },
-  { name: "Acessórios", icon: "💫", count: 7 },
-];
-
-function DepartmentsSection() {
-  return (
-    <section className="py-10" style={{ background: PINK_LIGHT }}>
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="section-title">Departamentos 💅</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-          {departments.map(dep => (
-            <button key={dep.name} className="flex flex-col items-center gap-2 group">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl transition group-hover:scale-110 shadow-sm"
-                style={{ background: "white" }}
-              >
-                {dep.icon}
-              </div>
-              <span className="text-xs font-semibold text-gray-700 group-hover:text-pink-500 transition text-center">
-                {dep.name}
-              </span>
-              <span className="text-xs text-gray-400">{dep.count} itens</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ToutLissieSalons() {
-  return (
-    <section className="py-12 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="section-title">Tout Lissie a queridinha dos salões 💕</h2>
-        <div className="flex flex-col md:flex-row items-center gap-8 mt-6">
-          <div className="flex-1">
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Profissionais de beleza de todo o Brasil escolhem a linha Tout Lissie para oferecer o melhor tratamento para seus clientes. Com fórmulas desenvolvidas por especialistas, nossa linha proporciona resultados visíveis desde a primeira aplicação.
-            </p>
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              {[
-                { value: "500+", label: "Salões parceiros" },
-                { value: "50k+", label: "Clientes felizes" },
-                { value: "4.9★", label: "Avaliação média" },
-              ].map(stat => (
-                <div key={stat.label} className="text-center p-3 rounded-xl" style={{ background: PINK_LIGHT }}>
-                  <p className="font-black text-2xl" style={{ color: PINK }}>{stat.value}</p>
-                  <p className="text-xs text-gray-600 mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-            <button style={{ background: PINK }} className="text-white font-bold rounded-full px-8 py-3 hover:opacity-90 transition">
-              Seja um parceiro
-            </button>
-          </div>
-          <div className="flex-1">
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { bg: "#fce4f0", emoji: "💆🏽‍♀️" },
-                { bg: "#e3f2fd", emoji: "💇🏻‍♀️" },
-                { bg: "#e8f5e9", emoji: "💅🏾" },
-                { bg: "#fff3e0", emoji: "🪄" },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl aspect-square flex items-center justify-center text-5xl shadow-sm"
-                  style={{ background: item.bg }}
-                >
-                  {item.emoji}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
+/* ─── FAQ ─── */
 const faqs = [
-  {
-    q: "Como usar o shampoo Tout Lissie?",
-    a: "Aplique sobre os cabelos molhados, massageie suavemente o couro cabeludo por 2 a 3 minutos e enxágue bem. Para melhores resultados, use em conjunto com o condicionador da linha.",
-  },
-  {
-    q: "Os produtos são indicados para todos os tipos de cabelo?",
-    a: "Sim! Toda a linha Tout Lissie foi desenvolvida para atender todos os tipos de cabelo — liso, ondulado, cacheado e crespo — com fórmulas específicas para cada necessidade.",
-  },
-  {
-    q: "Qual o prazo de entrega?",
-    a: "O prazo de entrega varia conforme a sua localização. Em geral, entregamos em 2 a 7 dias úteis para todo o Brasil. Pedidos acima de R$150 têm frete grátis.",
-  },
-  {
-    q: "Posso trocar ou devolver um produto?",
-    a: "Sim! Oferecemos 30 dias para troca ou devolução sem complicação. Nossa política garante sua satisfação total ou seu dinheiro de volta.",
-  },
-  {
-    q: "Os produtos são testados em animais?",
-    a: "Não! Somos 100% cruelty-free. Todos os nossos produtos são desenvolvidos sem testes em animais e utilizamos ingredientes de origem sustentável.",
-  },
-  {
-    q: "Como faço para acompanhar meu pedido?",
-    a: "Após a confirmação do pagamento, você receberá um e-mail com o código de rastreamento. Você pode acompanhar sua entrega diretamente pelo nosso site ou pelos Correios.",
-  },
+  { q: "Como usar o shampoo Tout Lissie?", a: "Aplique sobre os cabelos molhados, massageie o couro cabeludo por 2 a 3 minutos e enxágue bem. Para melhores resultados, use com o condicionador da linha." },
+  { q: "Os produtos são para todos os tipos de cabelo?", a: "Sim! A linha foi desenvolvida para atender todos os tipos de cabelo — liso, ondulado, cacheado e crespo — com fórmulas específicas para cada necessidade." },
+  { q: "Qual o prazo de entrega?", a: "O prazo varia conforme sua localização. Em geral entregamos em 2 a 7 dias úteis. Pedidos acima de R$150 têm frete grátis." },
+  { q: "Posso trocar ou devolver?", a: "Sim! Oferecemos 30 dias para troca ou devolução sem complicação. Sua satisfação total ou o dinheiro de volta." },
+  { q: "Os produtos são testados em animais?", a: "Não! Somos 100% cruelty-free. Todos os produtos são desenvolvidos sem testes em animais e com ingredientes de origem sustentável." },
 ];
 
-function FAQSection() {
+function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" className="py-12" style={{ background: "#fafafa" }}>
-      <div className="max-w-4xl mx-auto px-4">
-        <h2 className="section-title">FAQ</h2>
-        <p className="text-center text-gray-500 -mt-3 mb-8 text-sm">Perguntas frequentes</p>
-        <div className="space-y-3">
-          {faqs.map((faq, i) => (
-            <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-              <button
-                className="w-full flex items-center justify-between px-6 py-4 text-left"
-                onClick={() => setOpen(open === i ? null : i)}
-              >
-                <span className="font-semibold text-gray-800 text-sm">{faq.q}</span>
-                {open === i ? (
-                  <ChevronUp size={18} style={{ color: PINK }} className="flex-shrink-0" />
-                ) : (
-                  <ChevronDown size={18} className="text-gray-400 flex-shrink-0" />
+    <section id="faq" style={{ background: GRAY_BG }} className="py-10">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-xl font-black text-gray-900 mb-6">FAQ</h2>
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Accordion */}
+          <div className="flex-1 space-y-2">
+            {faqs.map((f, i) => (
+              <div key={i} className="bg-white rounded-xl overflow-hidden border border-gray-100">
+                <button
+                  className="w-full flex items-center justify-between px-5 py-3.5 text-left"
+                  onClick={() => setOpen(open === i ? null : i)}>
+                  <span className="font-semibold text-sm text-gray-800">{f.q}</span>
+                  {open === i
+                    ? <ChevronUp size={16} style={{ color: PINK }} className="flex-shrink-0" />
+                    : <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />}
+                </button>
+                {open === i && (
+                  <div className="px-5 pb-4">
+                    <p className="text-sm text-gray-600 leading-relaxed">{f.a}</p>
+                  </div>
                 )}
-              </button>
-              {open === i && (
-                <div className="px-6 pb-4">
-                  <p className="text-sm text-gray-600 leading-relaxed">{faq.a}</p>
-                </div>
-              )}
+              </div>
+            ))}
+          </div>
+
+          {/* Right CTA card */}
+          <div className="md:w-72 flex-shrink-0">
+            <div style={{ background: `linear-gradient(135deg, ${PINK}, #ff6bb3)` }}
+              className="rounded-2xl p-6 text-white h-full flex flex-col justify-between min-h-[280px]">
+              <div>
+                <h3 className="font-black text-xl mb-2">Ficou alguma dúvida?</h3>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  Nossa equipe está disponível para te ajudar segunda a sexta, das 8h às 18h.
+                </p>
+              </div>
+              <div className="space-y-2 mt-6">
+                <button className="w-full bg-white font-bold rounded-full py-2.5 text-sm hover:bg-pink-50 transition flex items-center justify-center gap-2"
+                  style={{ color: PINK }}>
+                  <MessageCircle size={16} /> Falar pelo WhatsApp
+                </button>
+                <button className="w-full border-2 border-white text-white font-bold rounded-full py-2.5 text-sm hover:bg-white/10 transition">
+                  Enviar e-mail
+                </button>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function NewsletterSection() {
-  return (
-    <section style={{ background: PINK }} className="py-10">
-      <div className="max-w-2xl mx-auto px-4 text-center">
-        <h2 className="text-white font-black text-2xl mb-2">Receba ofertas exclusivas!</h2>
-        <p className="text-white/80 text-sm mb-6">Cadastre seu e-mail e ganhe 10% de desconto na primeira compra</p>
-        <div className="flex gap-2 max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Seu melhor e-mail"
-            className="flex-1 rounded-full px-4 py-3 text-sm outline-none border-2 border-white/30 bg-white/20 text-white placeholder-white/60 focus:border-white transition"
-          />
-          <button className="bg-white font-bold rounded-full px-6 py-3 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
-            Quero!
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
+/* ─── FOOTER ─── */
 function Footer() {
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-6">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+    <footer style={{ background: PINK }} className="text-white">
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="mb-4">
-              <span style={{ color: PINK }} className="font-black text-2xl">Tout</span>
-              <span className="text-gray-400 text-xs ml-1 uppercase tracking-widest">Lissie</span>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-black text-sm" style={{ color: PINK }}>T</div>
+              <span className="font-black text-xl">Tout Lissie</span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
+            <p className="text-white/75 text-sm leading-relaxed mb-4">
               A marca favorita de quem cuida do cabelo com amor e dedicação.
             </p>
             <div className="flex gap-3">
-              {[
-                { Icon: Instagram, label: "Instagram" },
-                { Icon: Facebook, label: "Facebook" },
-                { Icon: MessageCircle, label: "WhatsApp" },
-              ].map(({ Icon, label }) => (
-                <a key={label} href="#" aria-label={label}
-                  className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-pink-500 transition">
-                  <Icon size={16} />
+              {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
+                <a key={i} href="#"
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                  <Icon size={15} />
                 </a>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="font-bold text-sm mb-4 uppercase tracking-wider text-gray-300">Produtos</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {["Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits"].map(item => (
-                <li key={item}><a href="#" className="hover:text-pink-400 transition">{item}</a></li>
+            <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Produtos</h4>
+            <ul className="space-y-1.5 text-sm text-white/80">
+              {["Shampoos","Condicionadores","Máscaras","Finalizadores","Óleos","Kits"].map(item => (
+                <li key={item}><a href="#" className="hover:text-white transition">{item}</a></li>
               ))}
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-sm mb-4 uppercase tracking-wider text-gray-300">Empresa</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {["Sobre nós", "Blog", "Parceiros", "Trabalhe conosco", "Imprensa"].map(item => (
-                <li key={item}><a href="#" className="hover:text-pink-400 transition">{item}</a></li>
+            <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Empresa</h4>
+            <ul className="space-y-1.5 text-sm text-white/80">
+              {["Sobre nós","Blog","Parceiros","Trabalhe conosco"].map(item => (
+                <li key={item}><a href="#" className="hover:text-white transition">{item}</a></li>
               ))}
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-sm mb-4 uppercase tracking-wider text-gray-300">Suporte</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {["Central de ajuda", "Trocas e devoluções", "Rastrear pedido", "Política de privacidade", "Termos de uso"].map(item => (
-                <li key={item}><a href="#" className="hover:text-pink-400 transition">{item}</a></li>
+            <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Suporte</h4>
+            <ul className="space-y-1.5 text-sm text-white/80">
+              {["Central de ajuda","Trocas e devoluções","Rastrear pedido","Privacidade","Termos de uso"].map(item => (
+                <li key={item}><a href="#" className="hover:text-white transition">{item}</a></li>
               ))}
             </ul>
-            <div className="mt-4 p-3 rounded-xl bg-gray-800">
-              <p className="text-xs text-gray-400 mb-1">Atendimento</p>
-              <p className="text-sm font-semibold text-white">seg-sex, 8h-18h</p>
-              <p className="text-sm text-pink-400">contato@toutlissie.com.br</p>
-            </div>
           </div>
         </div>
-
-        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 text-xs text-center md:text-left">
-            © 2026 Tout Lissie. Todos os direitos reservados.
-          </p>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-600 text-xs">Pagamentos seguros:</span>
-            {["Visa", "Master", "Pix", "Boleto"].map(p => (
-              <span key={p} className="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded-md font-medium">{p}</span>
+        <div className="border-t border-white/20 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-white/60 text-xs">© 2026 Tout Lissie. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-2">
+            <span className="text-white/50 text-xs">Pagamentos:</span>
+            {["Visa","Master","Pix","Boleto"].map(p => (
+              <span key={p} className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded font-medium">{p}</span>
             ))}
           </div>
         </div>
@@ -750,22 +642,22 @@ function Footer() {
   );
 }
 
+/* ─── PAGE ─── */
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
+      <AnnouncementBar />
       <Header />
-      <HeroSection />
-      <CategoryBar />
-      <BestSellersSection />
-      <WhoRecommendsSection />
+      <Hero />
+      <BestSellers />
+      <WhoRecommends />
       <EleganceBanner />
-      <FinalizadoresSection />
-      <MagicResultSection />
-      <WhoUsesSection />
-      <DepartmentsSection />
-      <ToutLissieSalons />
-      <FAQSection />
-      <NewsletterSection />
+      <Finalizadores />
+      <ResultadoMagic />
+      <WhoUses />
+      <Departments />
+      <SalonSection />
+      <FAQ />
       <Footer />
     </div>
   );
