@@ -302,7 +302,7 @@ function WhoRecommends() {
 /* ─── ELEGANCE BANNER ─── */
 function EleganceBanner() {
   return (
-    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 420 }}>
+    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 600 }}>
       <img
         src={`${import.meta.env.BASE_URL}product-oil-repair-colorful.png`}
         alt="Oil Repair"
