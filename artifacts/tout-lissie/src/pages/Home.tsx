@@ -274,7 +274,7 @@ function BestSellers() {
 
 /* ─── QUEM USA TOUT RECOMENDA (photo mosaic) ─── */
 const mosaicPhotos = [
-  { bg: "#fce4f0", emoji: "👩🏻‍🦱", big: true },
+  { bg: "#fce4f0", emoji: null, img: "/mosaic-hair.jpg", big: true },
   { bg: "#e3f2fd", emoji: "👩🏽‍🦰", big: false },
   { bg: "#e8f5e9", emoji: "👩🏾‍🦳", big: false },
   { bg: "#fff3e0", emoji: "👩🏼‍🦲", big: true },
@@ -295,7 +295,9 @@ function WhoRecommends() {
             <div key={i}
               className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
               style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
-              {p.emoji}
+              {p.img
+                ? <img src={p.img} alt="" className="w-full h-full object-cover" />
+                : p.emoji}
             </div>
           ))}
           {/* Extra filler cells for desktop */}
