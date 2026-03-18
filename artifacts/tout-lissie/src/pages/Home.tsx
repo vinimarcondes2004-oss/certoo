@@ -591,7 +591,6 @@ function Footer() {
             <ul className="space-y-1.5 text-sm text-white/80">
               {[
                 { label: "Rastrear pedido", href: "/rastrear-pedido" },
-                { label: "Privacidade", href: "#" },
               ].map(item => (
                 <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
               ))}
