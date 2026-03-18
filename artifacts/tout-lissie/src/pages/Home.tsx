@@ -477,7 +477,6 @@ function CategoriesBanner() {
             style={{ background: categoryCards[3].color }}>
             <img src={`${import.meta.env.BASE_URL}${categoryCards[3].img}`} alt={categoryCards[3].label}
               className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
             <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{categoryCards[3].label}</span>
           </div>
         </div>
