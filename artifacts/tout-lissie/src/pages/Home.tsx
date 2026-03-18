@@ -292,17 +292,13 @@ function WhoRecommends() {
         {/* Mosaic grid */}
         <div className="grid grid-cols-4 md:grid-cols-6 gap-2" style={{ gridAutoRows: "120px" }}>
           {mosaicPhotos.map((p, i) => (
-            p.img
-              ? <div key={i}
-                  className="rounded-2xl overflow-hidden col-span-1"
-                  style={{ gridRow: 'span 1', alignSelf: 'start', aspectRatio: '183/275', width: '60%' }}>
-                  <img src={p.img} alt="" className="w-full h-full object-cover" />
-                </div>
-              : <div key={i}
-                  className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
-                  style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
-                  {p.emoji}
-                </div>
+            <div key={i}
+              className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
+              style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
+              {p.img
+                ? <img src={p.img} alt="" className="w-full h-full object-cover scale-90" />
+                : p.emoji}
+            </div>
           ))}
           {/* Extra filler cells for desktop */}
           <div className="hidden md:block rounded-2xl col-span-1" style={{ background: "#fce4f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
