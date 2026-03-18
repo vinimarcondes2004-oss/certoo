@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ShoppingCart, Star, ChevronDown, ChevronUp, Search,
   Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
@@ -157,16 +157,33 @@ function Header() {
 }
 
 /* ─── HERO ─── */
+const heroBgs = ["hero-bg.png", "hero-bg-2.png"];
+
 function Hero() {
+  const [current, setCurrent] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFading(true);
+      setTimeout(() => {
+        setCurrent(c => (c + 1) % heroBgs.length);
+        setFading(false);
+      }, 600);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <>
       {/* Main hero */}
       <section className="relative overflow-hidden" style={{ minHeight: 420 }}>
-        {/* Full-cover background image */}
+        {/* Full-cover background image with fade transition */}
         <img
-          src={`${import.meta.env.BASE_URL}hero-bg.png`}
+          src={`${import.meta.env.BASE_URL}${heroBgs[current]}`}
           alt=""
           className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ transition: "opacity 0.6s ease", opacity: fading ? 0 : 1 }}
         />
         {/* Gradient overlay so text is readable on the left */}
         <div className="absolute inset-0"
