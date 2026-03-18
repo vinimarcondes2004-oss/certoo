@@ -112,7 +112,6 @@ const allProducts = [
   { name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque", img: "product-finalizador-liss.png", category: "Kits" },
   { name: "Óleo de Argan Premium", ml: "60ml", price: "R$ 65,00", old: "R$ 89,90", stars: 5, n: 201, color: "#f59e0b", badge: "Novo", img: "product-megaliss.png", category: "Óleos" },
   { name: "Condicionador Hidratação Intensa", ml: "300ml", price: "R$ 55,00", old: "R$ 79,90", stars: 5, n: 143, color: "#06b6d4", badge: "Top", img: "product-pos-quimica.png", category: "Condicionadores" },
-  { name: "Máscara Reconstrução Profunda", ml: "500g", price: "R$ 95,00", old: "R$ 139,90", stars: 5, n: 267, color: "#ec4899", badge: "Favorito", img: "product-hidratacao.png", category: "Máscaras" },
 ];
 
 const categories = ["Todos", "Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits", "Progressiva"];
