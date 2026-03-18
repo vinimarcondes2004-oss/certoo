@@ -275,7 +275,7 @@ function BestSellers() {
 /* ─── QUEM USA TOUT RECOMENDA (photo mosaic) ─── */
 const mosaicPhotos = [
   { bg: "#fce4f0", emoji: null, img: "/mosaic-hair.jpg", big: true },
-  { bg: "#e3f2fd", emoji: "👩🏽‍🦰", big: false },
+  { bg: "#e3f2fd", emoji: null, img: "/mosaic-hair-2.jpg", big: false },
   { bg: "#e8f5e9", emoji: "👩🏾‍🦳", big: false },
   { bg: "#fff3e0", emoji: "👩🏼‍🦲", big: true },
   { bg: "#f3e5f5", emoji: "👩🏻‍🦳", big: false },
