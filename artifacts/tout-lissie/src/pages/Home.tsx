@@ -302,17 +302,13 @@ function WhoRecommends() {
 /* ─── ELEGANCE BANNER ─── */
 function EleganceBanner() {
   return (
-    <section style={{ background: `linear-gradient(120deg, #1a0010 0%, #3d0020 40%, #6b0030 70%, #c0003d 100%)` }}
-      className="py-14 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full" style={{ background: PINK, filter: "blur(80px)" }} />
-      </div>
+    <section className="py-14 relative overflow-hidden">
       <img
         src={`${import.meta.env.BASE_URL}product-oil-repair-colorful.png`}
         alt="Oil Repair"
-        className="absolute right-0 bottom-0 h-full object-contain object-right-bottom pointer-events-none select-none opacity-90"
-        style={{ maxWidth: "45%" }}
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
       />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.82) 0%, rgba(61,0,32,0.70) 50%, rgba(0,0,0,0.10) 100%)" }} />
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8 relative z-10">
         <div className="flex-1">
           <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">A elegância que</p>
