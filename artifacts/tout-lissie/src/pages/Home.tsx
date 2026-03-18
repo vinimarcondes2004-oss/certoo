@@ -153,8 +153,6 @@ function Header() {
 
 /* ─── HERO ─── */
 function Hero() {
-  const [activeTab, setActiveTab] = useState("Shampoo");
-  const tabs = ["Antes e Depois", "Shampoo", "Hidratação", "Finalização"];
   return (
     <>
       {/* Main hero */}
@@ -190,27 +188,6 @@ function Hero() {
         </div>
       </section>
 
-      {/* Category nav */}
-      <div className="bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-gray-700 whitespace-nowrap">
-            Unidona, seu cabelo merece o melhor!
-          </p>
-          <div className="flex gap-1 overflow-x-auto pb-0.5 scrollbar-hide">
-            {tabs.map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)}
-                className={`whitespace-nowrap text-xs font-semibold px-4 py-1.5 rounded-full transition ${
-                  activeTab === tab
-                    ? "text-white"
-                    : "text-gray-600 bg-gray-100 hover:bg-gray-200"
-                }`}
-                style={activeTab === tab ? { background: PINK } : {}}>
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
     </>
   );
 }
