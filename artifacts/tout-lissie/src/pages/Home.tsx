@@ -28,29 +28,6 @@ function AddToCartBtn({ small }: { small?: boolean }) {
   );
 }
 
-const promoItems = [
-  "🌸 Frete grátis acima de R$150",
-  "✨ Até 6x sem juros",
-  "💖 Troca e devolução grátis",
-  "🌸 Frete grátis acima de R$150",
-  "✨ Até 6x sem juros",
-  "💖 Troca e devolução grátis",
-  "🌸 Frete grátis acima de R$150",
-  "✨ Até 6x sem juros",
-  "💖 Troca e devolução grátis",
-];
-
-function TopBar() {
-  return (
-    <div style={{ background: PINK }} className="overflow-hidden py-2">
-      <div className="marquee-inner">
-        {[...promoItems, ...promoItems].map((item, i) => (
-          <span key={i} className="text-white text-sm font-medium px-8">{item}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -776,7 +753,6 @@ function Footer() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      <TopBar />
       <Header />
       <HeroSection />
       <CategoryBar />
