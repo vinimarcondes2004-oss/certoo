@@ -111,7 +111,6 @@ const allProducts = [
   { name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo", img: "product-reparador-pontas.png", category: "Finalizadores" },
   { name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque", img: "product-finalizador-liss.png", category: "Kits" },
   { name: "Óleo de Argan Premium", ml: "60ml", price: "R$ 65,00", old: "R$ 89,90", stars: 5, n: 201, color: "#f59e0b", badge: "Novo", img: "product-megaliss.png", category: "Óleos" },
-  { name: "Condicionador Hidratação Intensa", ml: "300ml", price: "R$ 55,00", old: "R$ 79,90", stars: 5, n: 143, color: "#06b6d4", badge: "Top", img: "product-pos-quimica.png", category: "Condicionadores" },
 ];
 
 const categories = ["Todos", "Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits", "Progressiva"];
