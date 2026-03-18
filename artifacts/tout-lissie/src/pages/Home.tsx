@@ -475,8 +475,6 @@ function CategoriesBanner() {
           {/* Bottom-right: 1 wide card */}
           <div className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform"
             style={{ background: categoryCards[3].color }}>
-            <img src={`${import.meta.env.BASE_URL}${categoryCards[3].img}`} alt={categoryCards[3].label}
-              className="absolute inset-0 w-full h-full object-cover" />
             <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{categoryCards[3].label}</span>
           </div>
         </div>
