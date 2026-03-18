@@ -445,7 +445,7 @@ function WhoUses() {
 const categoryCards = [
   { label: "Shampoo e máscara", img: "product-pos-quimica.png", color: "#d0eaf8", textColor: "#1a5276", big: true },
   { label: "Reparador de pontas", img: "product-oil-repair.png", color: "#d5f0e0", textColor: "#1a5c2e", big: false },
-  { label: "Capitã Force", img: "product-progressiva.png", color: "#fde8f0", textColor: "#7b1040", big: false },
+  { label: "Progressiva sem formol", img: "product-progressiva.png", color: "#fde8f0", textColor: "#7b1040", big: false },
   { label: "Finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec", textColor: "#880e4f", big: false },
 ];
 
