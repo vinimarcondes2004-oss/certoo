@@ -294,8 +294,8 @@ function WhoRecommends() {
           {mosaicPhotos.map((p, i) => (
             p.img
               ? <div key={i}
-                  className="rounded-2xl overflow-hidden col-span-2"
-                  style={{ gridRow: 'span 2', alignSelf: 'start', aspectRatio: '183/275' }}>
+                  className="rounded-2xl overflow-hidden col-span-1"
+                  style={{ gridRow: 'span 1', alignSelf: 'start', aspectRatio: '183/275' }}>
                   <img src={p.img} alt="" className="w-full h-full object-cover" />
                 </div>
               : <div key={i}
