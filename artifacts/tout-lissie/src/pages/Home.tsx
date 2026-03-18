@@ -199,7 +199,7 @@ function Hero() {
 
 /* ─── MAIS VENDIDOS ─── */
 const bestSellers = [
-  { name: "Progressiva sem formol", ml: "1l", price: "R$ 49,90", old: "R$ 69,90", stars: 5, n: 234, color: PINK, badge: "Mais Vendido" },
+  { name: "Progressiva sem formol", ml: "1L", price: "R$ 49,90", old: "R$ 69,90", stars: 5, n: 234, color: PINK, badge: "Mais Vendido" },
   { name: "Condicionador Brilho", ml: "300ml", price: "R$ 44,90", old: "R$ 59,90", stars: 5, n: 189, color: "#4a90e2", badge: "Top" },
   { name: "Máscara Hidratação", ml: "250g", price: "R$ 59,90", old: "R$ 79,90", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito" },
   { name: "Óleo Reparador", ml: "50ml", price: "R$ 39,90", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo" },
