@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "wouter";
 import {
   ShoppingCart, Star, ChevronDown, ChevronUp, Search,
   Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
@@ -124,10 +125,11 @@ function Header() {
         </div>
 
         <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-gray-600">
-          {["Início","Produtos","Quem usa","Depoimentos","FAQ"].map(item => (
-            <a key={item} href={`#${item.toLowerCase().replace(" ","-")}`}
-              className="hover:text-pink-600 transition">{item}</a>
-          ))}
+          <a href="#" className="hover:text-pink-600 transition">Início</a>
+          <Link href="/produtos" className="hover:text-pink-600 transition">Produtos</Link>
+          <a href="#quem-usa" className="hover:text-pink-600 transition">Quem usa</a>
+          <a href="#depoimentos" className="hover:text-pink-600 transition">Depoimentos</a>
+          <a href="#faq" className="hover:text-pink-600 transition">FAQ</a>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -147,9 +149,11 @@ function Header() {
       </div>
       {open && (
         <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3 text-sm font-medium bg-white">
-          {["Início","Produtos","Quem usa","Depoimentos","FAQ"].map(item => (
-            <a key={item} href="#" className="py-1 text-gray-700">{item}</a>
-          ))}
+          <a href="#" className="py-1 text-gray-700">Início</a>
+          <Link href="/produtos" className="py-1 text-gray-700">Produtos</Link>
+          <a href="#quem-usa" className="py-1 text-gray-700">Quem usa</a>
+          <a href="#depoimentos" className="py-1 text-gray-700">Depoimentos</a>
+          <a href="#faq" className="py-1 text-gray-700">FAQ</a>
         </div>
       )}
     </header>
@@ -229,9 +233,9 @@ function BestSellers() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl font-black text-gray-900">Mais Vendidos</h2>
-          <a href="#" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
+          <Link href="/produtos" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
             Ver todos <ChevronRight size={15} />
-          </a>
+          </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
           {bestSellers.map((p, i) => (
