@@ -186,7 +186,7 @@ function Hero() {
         />
         {/* Gradient overlay so text is readable on the left */}
         <div className="absolute inset-0"
-          style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
+          style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.55) 0%, rgba(220,0,80,0.40) 40%, rgba(0,0,0,0.05) 100%)" }} />
 
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
