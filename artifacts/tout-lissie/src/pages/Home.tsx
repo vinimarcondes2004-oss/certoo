@@ -602,8 +602,13 @@ function Footer() {
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Produtos</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              {["Shampoos","Máscaras","Óleos","Kits"].map(item => (
-                <li key={item}><a href="#" className="hover:text-white transition">{item}</a></li>
+              {[
+                { label: "Shampoos", href: "/categoria/shampoo-e-mascara" },
+                { label: "Máscaras", href: "#" },
+                { label: "Óleos", href: "#" },
+                { label: "Kits", href: "#" },
+              ].map(item => (
+                <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
               ))}
             </ul>
           </div>
