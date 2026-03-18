@@ -287,20 +287,13 @@ function WhoRecommends() {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Tout recomenda</h2>
         {/* Mosaic grid */}
-        <div className="grid grid-cols-4 md:grid-cols-6 gap-2" style={{ gridAutoRows: "120px" }}>
+        <div className="grid grid-cols-4 gap-2" style={{ gridAutoRows: "140px" }}>
           {mosaicPhotos.map((p, i) => (
             <div key={i}
-              className={`rounded-2xl flex items-center justify-center overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}
-              style={{ background: p.bg, fontSize: p.big ? "5rem" : "2.5rem" }}>
-              {p.img
-                ? <img src={p.img} alt="" className={`w-full h-full object-cover ${p.scale ?? "scale-110"}`} />
-                : p.emoji}
+              className={`rounded-2xl overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
+              <img src={p.img} alt="" className={`w-full h-full object-cover ${p.scale ?? "scale-100"}`} />
             </div>
           ))}
-          {/* Extra filler cell for desktop */}
-          <div className="hidden md:block rounded-2xl col-span-4 overflow-hidden">
-            <img src="/mosaic-hair-4.jpg" alt="" className="w-full h-full object-cover object-center" />
-          </div>
         </div>
       </div>
     </section>
