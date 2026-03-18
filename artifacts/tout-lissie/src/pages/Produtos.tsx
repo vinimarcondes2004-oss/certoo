@@ -115,7 +115,6 @@ const allProducts = [
   { name: "Máscara Reconstrução Profunda", ml: "500g", price: "R$ 95,00", old: "R$ 139,90", stars: 5, n: 267, color: "#ec4899", badge: "Favorito", img: "product-hidratacao.png", category: "Máscaras" },
   { name: "Shampoo Antiqueda Fortalecedor", ml: "300ml", price: "R$ 60,00", old: "R$ 84,90", stars: 4, n: 98, color: "#10b981", badge: "Novo", img: "product-pos-quimica.png", category: "Shampoos" },
   { name: "Kit Progressiva Completo", ml: "Kit", price: "R$ 220,00", old: "R$ 320,00", stars: 5, n: 189, color: DARK_RED, badge: "Mais Vendido", img: "product-progressiva.png", category: "Kits" },
-  { name: "Óleo de Coco Hidratante", ml: "60ml", price: "R$ 48,00", old: "R$ 65,00", stars: 5, n: 176, color: "#d97706", badge: "Favorito", img: "product-megaliss.png", category: "Óleos" },
 ];
 
 const categories = ["Todos", "Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits", "Progressiva"];
