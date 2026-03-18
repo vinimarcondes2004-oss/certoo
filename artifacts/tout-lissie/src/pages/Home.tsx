@@ -462,9 +462,9 @@ function CategoriesBanner() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl" />
             <span className="absolute bottom-4 left-4 text-white font-black text-xl drop-shadow">{categoryCards[0].label}</span>
           </div>
-          {/* Top-right: 2 small cards */}
+          {/* Right: 2 stacked cards filling right half */}
           {categoryCards.slice(1, 3).map((cat, i) => (
-            <div key={i} className="col-span-1 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform"
+            <div key={i} className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform"
               style={{ background: cat.color }}>
               <img src={`${import.meta.env.BASE_URL}${cat.img}`} alt={cat.label}
                 className="absolute inset-0 w-full h-full object-cover" />
