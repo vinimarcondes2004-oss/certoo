@@ -8,7 +8,7 @@ export default function SobreNos() {
         <div className="max-w-5xl mx-auto flex items-center gap-4">
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition">← Voltar</Link>
           <span className="text-gray-300">|</span>
-          <span className="font-bold text-gray-800 text-lg tracking-tight">Tout Lissie</span>
+          <span className="font-bold text-gray-800 text-lg tracking-tight">Profissional</span>
         </div>
       </header>
 
@@ -88,7 +88,7 @@ export default function SobreNos() {
 
       {/* Footer simples */}
       <footer className="bg-gray-50 border-t border-gray-100 py-6 px-6 text-center">
-        <p className="text-gray-400 text-xs">© 2026 Tout Lissie. Todos os direitos reservados.</p>
+        <p className="text-gray-400 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
