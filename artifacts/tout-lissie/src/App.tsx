@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import Produtos from "@/pages/Produtos";
 import Categoria from "@/pages/Categoria";
 import SobreNos from "@/pages/SobreNos";
+import RastrearPedido from "@/pages/RastrearPedido";
 
 const queryClient = new QueryClient();
 
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/produtos" component={Produtos} />
       <Route path="/categoria/:slug" component={Categoria} />
       <Route path="/sobre-nos" component={SobreNos} />
+      <Route path="/rastrear-pedido" component={RastrearPedido} />
       <Route path="*" component={Home} />
     </Switch>
   );

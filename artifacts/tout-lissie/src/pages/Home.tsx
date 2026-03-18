@@ -623,8 +623,14 @@ function Footer() {
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Suporte</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              {["Central de ajuda","Trocas e devoluções","Rastrear pedido","Privacidade","Termos de uso"].map(item => (
-                <li key={item}><a href="#" className="hover:text-white transition">{item}</a></li>
+              {[
+                { label: "Central de ajuda", href: "#" },
+                { label: "Trocas e devoluções", href: "#" },
+                { label: "Rastrear pedido", href: "/rastrear-pedido" },
+                { label: "Privacidade", href: "#" },
+                { label: "Termos de uso", href: "#" },
+              ].map(item => (
+                <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
               ))}
             </ul>
           </div>
