@@ -443,10 +443,10 @@ function WhoUses() {
 
 /* ─── CATEGORIES BANNER ─── */
 const categoryCards = [
-  { label: "Shampoo e máscara", img: "product-pos-quimica.png", color: "#d0eaf8", textColor: "#1a5276", big: true },
-  { label: "Reparador de pontas", img: "product-oil-repair.png", color: "#d5f0e0", textColor: "#1a5c2e", big: false },
-  { label: "Progressiva sem formol", img: "product-progressiva.png", color: "#fde8f0", textColor: "#7b1040", big: false },
-  { label: "Finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec", textColor: "#880e4f", big: false },
+  { label: "Shampoo e máscara", slug: "shampoo-e-mascara", img: "product-pos-quimica.png", color: "#d0eaf8", textColor: "#1a5276", big: true },
+  { label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-oil-repair.png", color: "#d5f0e0", textColor: "#1a5c2e", big: false },
+  { label: "Progressiva sem formol", slug: "progressiva-sem-formol", img: "product-progressiva.png", color: "#fde8f0", textColor: "#7b1040", big: false },
+  { label: "Finalizadores", slug: "finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec", textColor: "#880e4f", big: false },
 ];
 
 function CategoriesBanner() {
@@ -455,22 +455,24 @@ function CategoriesBanner() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-4 grid-rows-2 gap-3" style={{ height: 320 }}>
           {/* Big card left — spans 2 cols, 2 rows */}
-          <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform"
+          <Link href={`/categoria/${categoryCards[0].slug}`}
+            className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform block"
             style={{ background: categoryCards[0].color }}>
             <img src={`${import.meta.env.BASE_URL}${categoryCards[0].img}`} alt={categoryCards[0].label}
               className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl" />
             <span className="absolute bottom-4 left-4 text-white font-black text-xl drop-shadow">{categoryCards[0].label}</span>
-          </div>
+          </Link>
           {/* Right: 2 stacked cards filling right half */}
           {categoryCards.slice(1, 3).map((cat, i) => (
-            <div key={i} className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform"
+            <Link key={i} href={`/categoria/${cat.slug}`}
+              className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform block"
               style={{ background: cat.color }}>
               <img src={`${import.meta.env.BASE_URL}${cat.img}`} alt={cat.label}
                 className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
               <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{cat.label}</span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
