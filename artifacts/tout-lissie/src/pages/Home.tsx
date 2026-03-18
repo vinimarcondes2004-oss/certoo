@@ -441,6 +441,21 @@ function WhoUses() {
 }
 
 
+/* ─── CATEGORIES BANNER ─── */
+function CategoriesBanner() {
+  return (
+    <section className="py-8 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <img
+          src={`${import.meta.env.BASE_URL}categories-banner.png`}
+          alt="Categorias de produtos"
+          className="w-full rounded-2xl object-cover"
+        />
+      </div>
+    </section>
+  );
+}
+
 /* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
 const salonReviews = [
   { name: "Ana C.", role: "Cabeleireira profissional", img: "/avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Profissional em todos os atendimentos." },
@@ -618,6 +633,7 @@ export default function Home() {
       <EleganceBanner />
       <ResultadoMagic />
       <WhoUses />
+      <CategoriesBanner />
       <SalonSection />
       <FAQ />
       <Footer />
