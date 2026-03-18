@@ -472,11 +472,6 @@ function CategoriesBanner() {
               <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{cat.label}</span>
             </div>
           ))}
-          {/* Bottom-right: 1 wide card */}
-          <div className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform"
-            style={{ background: categoryCards[3].color }}>
-            <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{categoryCards[3].label}</span>
-          </div>
         </div>
       </div>
     </section>
