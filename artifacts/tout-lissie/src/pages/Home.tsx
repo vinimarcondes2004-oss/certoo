@@ -176,7 +176,7 @@ function Hero() {
   return (
     <>
       {/* Main hero */}
-      <section className="relative overflow-hidden" style={{ minHeight: 560 }}>
+      <section className="relative overflow-hidden" style={{ minHeight: 700 }}>
         {/* Full-cover background image with fade transition */}
         <img
           src={`${import.meta.env.BASE_URL}${heroBgs[current]}`}
@@ -186,7 +186,7 @@ function Hero() {
         />
         {/* Gradient overlay so text is readable on the left */}
         <div className="absolute inset-0"
-          style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.55) 0%, rgba(220,0,80,0.40) 40%, rgba(0,0,0,0.05) 100%)" }} />
+          style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
 
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
@@ -302,13 +302,13 @@ function WhoRecommends() {
 /* ─── ELEGANCE BANNER ─── */
 function EleganceBanner() {
   return (
-    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 600 }}>
+    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 720 }}>
       <img
         src={`${import.meta.env.BASE_URL}product-oil-repair-colorful.png`}
         alt="Oil Repair"
         className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
       />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.55) 0%, rgba(61,0,32,0.40) 50%, rgba(0,0,0,0.05) 100%)" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.82) 0%, rgba(61,0,32,0.70) 50%, rgba(0,0,0,0.10) 100%)" }} />
       <div className="w-full max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center gap-8 relative z-10">
         <div className="flex-1">
           <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">A elegância que</p>
