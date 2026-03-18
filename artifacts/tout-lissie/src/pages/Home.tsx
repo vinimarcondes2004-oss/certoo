@@ -158,12 +158,19 @@ function Hero() {
   return (
     <>
       {/* Main hero */}
-      <section style={{
-        background: `linear-gradient(120deg, ${DARK_RED} 0%, ${PINK2} 45%, #ff88bb 70%, #fce4f0 100%)`,
-        minHeight: 380,
-      }} className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center gap-6">
-          {/* Left */}
+      <section className="relative overflow-hidden" style={{ minHeight: 420 }}>
+        {/* Full-cover background image */}
+        <img
+          src={`${import.meta.env.BASE_URL}hero-bg.png`}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        {/* Gradient overlay so text is readable on the left */}
+        <div className="absolute inset-0"
+          style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
           <div className="flex-1 text-white">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">
               SMASH, IMEDIATAMENTE
@@ -178,16 +185,8 @@ function Hero() {
               </button>
             </a>
           </div>
-
-          {/* Right – hero image */}
-          <div className="flex-1 flex justify-center md:justify-end">
-            <img
-              src={`${import.meta.env.BASE_URL}hero-products.png`}
-              alt="Linha de produtos Tout Lissie"
-              className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl"
-              style={{ maxHeight: 380 }}
-            />
-          </div>
+          {/* Spacer so text doesn't overlap face */}
+          <div className="flex-1 hidden md:block" />
         </div>
       </section>
 
