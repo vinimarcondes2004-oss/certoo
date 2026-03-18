@@ -344,43 +344,6 @@ function EleganceBanner() {
   );
 }
 
-/* ─── FINALIZADORES ─── */
-const finalizadores = [
-  { name: "Sérum Liss Pro", price: "R$ 64,90", stars: 5, n: 198, color: PINK },
-  { name: "Spray Protetor Térmico", price: "R$ 38,90", stars: 5, n: 145, color: "#2196f3" },
-  { name: "Creme Finalizador", price: "R$ 52,90", stars: 5, n: 221, color: "#ff6b6b" },
-  { name: "Óleo de Argan", price: "R$ 45,90", stars: 4, n: 167, color: "#ff9800" },
-  { name: "Leave-in Nutritivo", price: "R$ 41,90", stars: 5, n: 189, color: "#8e24aa" },
-];
-
-function Finalizadores() {
-  return (
-    <section className="py-8 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-black text-gray-900">Finalizadores</h2>
-          <a href="#" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
-            Ver todos <ChevronRight size={15} />
-          </a>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
-          {finalizadores.map((p, i) => (
-            <div key={i} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
-              <ProductImg color={p.color} height={130} />
-              <div className="p-3">
-                <p className="font-bold text-xs text-gray-800 leading-tight mb-1">{p.name}</p>
-                <Stars n={p.stars} size={11} />
-                <p className="font-black text-sm mt-1.5 mb-2" style={{ color: PINK }}>{p.price}</p>
-                <BuyBtn />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ─── RESULTADO MAGIC ─── */
 function ResultadoMagic() {
   return (
@@ -663,7 +626,6 @@ export default function Home() {
       <BestSellers />
       <WhoRecommends />
       <EleganceBanner />
-      <Finalizadores />
       <ResultadoMagic />
       <WhoUses />
       <Departments />
