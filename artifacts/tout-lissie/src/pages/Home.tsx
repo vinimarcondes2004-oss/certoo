@@ -216,7 +216,7 @@ function Hero() {
 
 /* ─── MAIS VENDIDOS ─── */
 const bestSellers = [
-  { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, color: PINK, badge: "Mais Vendido" },
+  { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, color: PINK, badge: "Mais Vendido", img: "product-progressiva.png" },
   { name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 189, color: "#4a90e2", badge: "Top", img: "product-pos-quimica.png" },
   { name: "Shampoo e máscara de hidratação", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito", img: "product-hidratacao.png" },
   { name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo", img: "product-reparador-pontas.png" },
