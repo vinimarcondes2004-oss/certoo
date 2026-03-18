@@ -360,17 +360,6 @@ function ResultadoMagic() {
           <div className="flex-shrink-0">
             <BeforeAfterSlider before="/before-hair.jpg" after="/after-hair.jpg" />
           </div>
-          <div className="flex md:flex-col gap-4 items-center">
-            {[PINK, "#ff4499", "#c0003d"].map((c, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <Bottle color={c} w={50} h={90} />
-                <div className="text-center">
-                  <p className="text-xs font-bold text-gray-700">Produto {i + 1}</p>
-                  <p className="text-xs" style={{ color: PINK }}>R$ {(49.9 + i * 10).toFixed(2).replace(".", ",")}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
