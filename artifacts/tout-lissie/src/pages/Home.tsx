@@ -61,15 +61,20 @@ function Bottle({ color = PINK, w = 48, h = 80 }: { color?: string; w?: number; 
   );
 }
 
-/* Placeholder product image card */
+/* Product image card */
 function ProductImg({ color = PINK, height = 140 }: { color?: string; height?: number }) {
   return (
     <div style={{
       height,
-      background: `linear-gradient(145deg, ${color}22, ${color}55)`,
+      background: `linear-gradient(145deg, ${color}18, ${color}35)`,
       display: "flex", alignItems: "center", justifyContent: "center",
+      overflow: "hidden",
     }}>
-      <Bottle color={color} w={50} h={90} />
+      <img
+        src={`${import.meta.env.BASE_URL}product-megaliss.png`}
+        alt="Produto"
+        style={{ height: height * 0.92, width: "auto", objectFit: "contain" }}
+      />
     </div>
   );
 }
