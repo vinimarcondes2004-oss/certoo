@@ -295,7 +295,7 @@ function WhoRecommends() {
             p.img
               ? <div key={i}
                   className="rounded-2xl overflow-hidden col-span-1"
-                  style={{ gridRow: 'span 1', alignSelf: 'start', aspectRatio: '183/275' }}>
+                  style={{ gridRow: 'span 1', alignSelf: 'start', aspectRatio: '183/275', width: '60%' }}>
                   <img src={p.img} alt="" className="w-full h-full object-cover" />
                 </div>
               : <div key={i}
