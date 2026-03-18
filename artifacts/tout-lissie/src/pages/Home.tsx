@@ -602,7 +602,7 @@ function Footer() {
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Produtos</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              {["Shampoos","Condicionadores","Máscaras","Óleos","Kits"].map(item => (
+              {["Shampoos","Máscaras","Óleos","Kits"].map(item => (
                 <li key={item}><a href="#" className="hover:text-white transition">{item}</a></li>
               ))}
             </ul>
