@@ -406,41 +406,6 @@ function WhoUses() {
   );
 }
 
-/* ─── DEPARTAMENTOS ─── */
-const depts = [
-  { name: "Shampoos", icon: "🧴" },
-  { name: "Condicionadores", icon: "💧" },
-  { name: "Máscaras", icon: "🌸" },
-  { name: "Finalizadores", icon: "✨" },
-  { name: "Óleos", icon: "💎" },
-  { name: "Protetor", icon: "🛡️" },
-  { name: "Kits", icon: "🎁" },
-  { name: "Acessórios", icon: "💫" },
-];
-
-function Departments() {
-  return (
-    <section style={{ background: GRAY_BG }} className="py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-gray-900 mb-5 flex items-center gap-2">
-          Departamentos <span>💅</span>
-        </h2>
-        <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
-          {depts.map(d => (
-            <button key={d.name} className="flex flex-col items-center gap-2 flex-shrink-0 group">
-              <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-3xl group-hover:scale-105 transition">
-                {d.icon}
-              </div>
-              <span className="text-xs font-semibold text-gray-600 group-hover:text-pink-600 transition text-center whitespace-nowrap">
-                {d.name}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
 const salonReviews = [
@@ -617,7 +582,6 @@ export default function Home() {
       <EleganceBanner />
       <ResultadoMagic />
       <WhoUses />
-      <Departments />
       <SalonSection />
       <FAQ />
       <Footer />
