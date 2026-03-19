@@ -248,11 +248,11 @@ function BestSellers() {
 
 /* ─── QUEM USA TOUT RECOMENDA (photo mosaic) ─── */
 const mosaicPhotos = [
-  { bg: "#fce4f0", emoji: null, img: "/mosaic-hair.jpg", big: true, scale: "scale-110" },
-  { bg: "#e3f2fd", emoji: null, img: "/mosaic-hair-2.jpg", big: false, scale: "scale-100" },
-  { bg: "#f3e5f5", emoji: null, img: "/mosaic-hair-3.webp", big: false, scale: "scale-100" },
-  { bg: "#e0f7fa", emoji: null, img: "/mosaic-hair-6.jpg", big: false, scale: "scale-100" },
-  { bg: "#fff8e1", emoji: null, img: "/mosaic-hair-5.jpg", big: false, scale: "scale-100" },
+  { bg: "#fce4f0", emoji: null, img: "mosaic-hair.jpg", big: true, scale: "scale-110" },
+  { bg: "#e3f2fd", emoji: null, img: "mosaic-hair-2.jpg", big: false, scale: "scale-100" },
+  { bg: "#f3e5f5", emoji: null, img: "mosaic-hair-3.webp", big: false, scale: "scale-100" },
+  { bg: "#e0f7fa", emoji: null, img: "mosaic-hair-6.jpg", big: false, scale: "scale-100" },
+  { bg: "#fff8e1", emoji: null, img: "mosaic-hair-5.jpg", big: false, scale: "scale-100" },
 ];
 
 function WhoRecommends() {
@@ -265,7 +265,7 @@ function WhoRecommends() {
           {mosaicPhotos.map((p, i) => (
             <div key={i}
               className={`rounded-2xl overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
-              <img src={p.img} alt="" className={`w-full h-full object-cover ${p.scale ?? "scale-100"}`} />
+              <img src={`${import.meta.env.BASE_URL}${p.img}`} alt="" className={`w-full h-full object-cover ${p.scale ?? "scale-100"}`} />
             </div>
           ))}
         </div>
@@ -356,7 +356,7 @@ function ResultadoMagic() {
         <p className="text-center text-gray-500 text-sm mb-8">Veja a transformação real</p>
         <div className="flex flex-col md:flex-row items-center justify-center gap-6">
           <div className="flex-shrink-0">
-            <BeforeAfterSlider before="/before-hair.jpg" after="/after-hair.jpg" />
+            <BeforeAfterSlider before={`${import.meta.env.BASE_URL}before-hair.jpg`} after={`${import.meta.env.BASE_URL}after-hair.jpg`} />
           </div>
         </div>
       </div>
@@ -366,10 +366,10 @@ function ResultadoMagic() {
 
 /* ─── QUEM USA TOUT RECOMENDA (reviews) ─── */
 const reviews = [
-  { name: "Fernanda K.", img: "/avatar-1.jpg", stars: 5, text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável desde a primeira aplicação.", date: "15 mar 2026" },
-  { name: "Beatriz S.", img: "/avatar-2.jpg", stars: 5, text: "A máscara é um milagre! Nunca vi resultado tão rápido e duradouro.", date: "12 mar 2026" },
-  { name: "Priscila A.", img: "/avatar-3.jpg", stars: 5, text: "O finalizador deixa o cabelo com um brilho incomparável. Recomendo!", date: "10 mar 2026" },
-  { name: "Renata M.", img: "/avatar-4.jpg", stars: 5, text: "Uso toda a linha e meu cabelo nunca esteve tão saudável.", date: "8 mar 2026" },
+  { name: "Fernanda K.", img: "avatar-1.jpg", stars: 5, text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável desde a primeira aplicação.", date: "15 mar 2026" },
+  { name: "Beatriz S.", img: "avatar-2.jpg", stars: 5, text: "A máscara é um milagre! Nunca vi resultado tão rápido e duradouro.", date: "12 mar 2026" },
+  { name: "Priscila A.", img: "avatar-3.jpg", stars: 5, text: "O finalizador deixa o cabelo com um brilho incomparável. Recomendo!", date: "10 mar 2026" },
+  { name: "Renata M.", img: "avatar-4.jpg", stars: 5, text: "Uso toda a linha e meu cabelo nunca esteve tão saudável.", date: "8 mar 2026" },
 ];
 
 function WhoUses() {
@@ -381,7 +381,7 @@ function WhoUses() {
           {reviews.map((r, i) => (
             <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <img src={r.img} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.date}</p>
@@ -439,10 +439,10 @@ function CategoriesBanner() {
 
 /* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
 const salonReviews = [
-  { name: "Ana C.", role: "Cabeleireira profissional", img: "/avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Profissional em todos os atendimentos." },
-  { name: "Mariana T.", role: "Salão de Beleza SP", img: "/avatar-6.jpg", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
-  { name: "Renata P.", role: "Hair Stylist", img: "/avatar-7.jpg", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
-  { name: "Luana B.", role: "Salão Chic RJ", img: "/avatar-8.jpg", stars: 5, text: "Desde que comecei a usar Profissional, minhas clientes voltam sempre!" },
+  { name: "Ana C.", role: "Cabeleireira profissional", img: "avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Profissional em todos os atendimentos." },
+  { name: "Mariana T.", role: "Salão de Beleza SP", img: "avatar-6.jpg", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
+  { name: "Renata P.", role: "Hair Stylist", img: "avatar-7.jpg", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
+  { name: "Luana B.", role: "Salão Chic RJ", img: "avatar-8.jpg", stars: 5, text: "Desde que comecei a usar Profissional, minhas clientes voltam sempre!" },
 ];
 
 function SalonSection() {
@@ -457,7 +457,7 @@ function SalonSection() {
           {salonReviews.map((r, i) => (
             <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <img src={r.img} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                <img src={`${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.role}</p>
