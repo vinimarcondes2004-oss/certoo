@@ -78,6 +78,8 @@ export interface SectionTitles {
   faq: string;
   faqCta: string;
   faqCtaSubtitle: string;
+  featuredTitle: string;
+  featuredCategory: string;
 }
 
 export interface AboutValue {
@@ -152,6 +154,7 @@ export const DEFAULT_SECTION_LAYOUT: SectionConfig[] = [
   { id: "elegance",     label: "Banner Elegance",        visible: true },
   { id: "resultadoMagic", label: "Antes & Depois",      visible: true },
   { id: "reviews",      label: "Avaliações de Clientes", visible: true },
+  { id: "featured",     label: "Vitrine de Produtos",   visible: true },
   { id: "salon",        label: "Seção Salões",           visible: true },
   { id: "faq",          label: "FAQ",                    visible: true },
 ];
@@ -224,6 +227,8 @@ export const defaultSiteData: SiteData = {
     faq: "FAQ",
     faqCta: "Ficou alguma dúvida?",
     faqCtaSubtitle: "Nossa equipe está disponível para te ajudar segunda a sexta, das 8h às 18h.",
+    featuredTitle: "Finalizadores",
+    featuredCategory: "",
   },
   sobreNos: {
     heroTagline: "Sobre nós",
@@ -284,9 +289,26 @@ export function mergeWithDefaults(parsed: Partial<SiteData>): SiteData {
     mosaicPhotos: Array.isArray(parsed.mosaicPhotos) ? parsed.mosaicPhotos : defaultSiteData.mosaicPhotos,
     categoryCards: Array.isArray(parsed.categoryCards) ? parsed.categoryCards : defaultSiteData.categoryCards,
     footerLinks: Array.isArray(parsed.footerLinks) ? parsed.footerLinks : defaultSiteData.footerLinks,
-    sectionLayout: (Array.isArray(parsed.sectionLayout) && parsed.sectionLayout.length > 0)
-      ? parsed.sectionLayout
-      : defaultSiteData.sectionLayout,
+    sectionLayout: (() => {
+      if (!Array.isArray(parsed.sectionLayout) || parsed.sectionLayout.length === 0) {
+        return defaultSiteData.sectionLayout;
+      }
+      const savedIds = new Set(parsed.sectionLayout.map((s: SectionConfig) => s.id));
+      const missing = DEFAULT_SECTION_LAYOUT.filter(s => !savedIds.has(s.id));
+      if (missing.length === 0) return parsed.sectionLayout as SectionConfig[];
+      const result: SectionConfig[] = [...parsed.sectionLayout as SectionConfig[]];
+      for (const sec of missing) {
+        const defIdx = DEFAULT_SECTION_LAYOUT.findIndex(s => s.id === sec.id);
+        const nextExisting = DEFAULT_SECTION_LAYOUT.slice(defIdx + 1).find(s => savedIds.has(s.id));
+        if (nextExisting) {
+          const insertAt = result.findIndex(s => s.id === nextExisting.id);
+          result.splice(insertAt, 0, sec);
+        } else {
+          result.push(sec);
+        }
+      }
+      return result;
+    })(),
   };
 }
 

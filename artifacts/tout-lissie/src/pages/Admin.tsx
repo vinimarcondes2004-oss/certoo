@@ -518,6 +518,8 @@ function ContentTab() {
           <Field label="Título 'Quem usa - avaliações'"><input className={inputCls} value={st.whoUses} onChange={e => updateData({ sectionTitles: { ...st, whoUses: e.target.value } })} /></Field>
           <Field label="Título 'Salões'"><input className={inputCls} value={st.salonSection} onChange={e => updateData({ sectionTitles: { ...st, salonSection: e.target.value } })} /></Field>
           <Field label="Subtítulo 'Salões'"><input className={inputCls} value={st.salonSubtitle} onChange={e => updateData({ sectionTitles: { ...st, salonSubtitle: e.target.value } })} /></Field>
+          <Field label="Título 'Vitrine de Produtos'"><input className={inputCls} value={st.featuredTitle ?? "Finalizadores"} onChange={e => updateData({ sectionTitles: { ...st, featuredTitle: e.target.value } })} /></Field>
+          <Field label="Vitrine — Filtrar por categoria (deixe vazio para mostrar todos)"><input className={inputCls} placeholder="ex: finalizadores" value={st.featuredCategory ?? ""} onChange={e => updateData({ sectionTitles: { ...st, featuredCategory: e.target.value } })} /></Field>
           <Field label="Título do FAQ"><input className={inputCls} value={st.faq} onChange={e => updateData({ sectionTitles: { ...st, faq: e.target.value } })} /></Field>
           <Field label="FAQ - Título CTA (card rosa)"><input className={inputCls} value={st.faqCta} onChange={e => updateData({ sectionTitles: { ...st, faqCta: e.target.value } })} /></Field>
           <Field label="FAQ - Subtítulo CTA"><textarea className={textareaCls} rows={2} value={st.faqCtaSubtitle} onChange={e => updateData({ sectionTitles: { ...st, faqCtaSubtitle: e.target.value } })} /></Field>

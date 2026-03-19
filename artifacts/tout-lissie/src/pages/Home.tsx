@@ -369,6 +369,53 @@ function CategoriesBanner() {
   );
 }
 
+/* ─── VITRINE DE PRODUTOS ─── */
+function FeaturedCategory() {
+  const { data } = useSite();
+  const title = data.sectionTitles.featuredTitle || "Finalizadores";
+  const cat = (data.sectionTitles.featuredCategory || "").trim().toLowerCase();
+  const products = cat
+    ? data.products.filter(p => (p.category || "").toLowerCase() === cat || (p.categoryLabel || "").toLowerCase() === cat)
+    : data.products;
+  if (products.length === 0) return null;
+  return (
+    <section className="py-8 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-black text-gray-900">{title}</h2>
+          <Link href="/produtos">
+            <span className="inline-flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: PINK }}>
+              Ver mais <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs" style={{ background: PINK }}><ChevronRight size={12} /></span>
+            </span>
+          </Link>
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+          {products.map((p) => (
+            <div key={p.id} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+              <div className="relative">
+                {p.badge && (
+                  <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
+                )}
+                <div style={{ height: 130, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }} />
+                </div>
+              </div>
+              <div className="p-3">
+                <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
+                <p className="text-[11px] text-gray-400 mb-1">{p.ml}</p>
+                <Stars n={p.stars} size={11} />
+                <p className="text-[10px] text-gray-400 line-through mt-1">{p.old}</p>
+                <p className="font-black text-sm mb-2" style={{ color: PINK }}>{p.price}</p>
+                <BuyBtn />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─── SALÕES ─── */
 function SalonSection() {
   const { data } = useSite();
@@ -534,6 +581,7 @@ const SECTION_MAP: Record<string, React.FC> = {
   elegance: EleganceBanner,
   resultadoMagic: ResultadoMagic,
   reviews: WhoUses,
+  featured: FeaturedCategory,
   salon: SalonSection,
   faq: FAQ,
 };
