@@ -131,7 +131,7 @@ function Header() {
 }
 
 /* ─── HERO ─── */
-const heroBgs = ["hero-bg.png", "hero-bg-2.png", "hero-bg-3.png"];
+const heroBgs = ["hero-bg.jpg", "hero-bg-2.jpg", "hero-bg-3.jpg"];
 
 function Hero() {
   const [current, setCurrent] = useState(0);

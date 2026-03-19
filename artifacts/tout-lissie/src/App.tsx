@@ -10,9 +10,9 @@ import RastrearPedido from "@/pages/RastrearPedido";
 const queryClient = new QueryClient();
 
 const ALL_IMAGES = [
-  "hero-bg.png",
-  "hero-bg-2.png",
-  "hero-bg-3.png",
+  "hero-bg.jpg",
+  "hero-bg-2.jpg",
+  "hero-bg-3.jpg",
   "logo-pr.png",
   "product-progressiva.png",
   "product-pos-quimica.png",
