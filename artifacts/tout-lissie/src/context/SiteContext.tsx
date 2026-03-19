@@ -16,18 +16,21 @@ async function fetchSiteData(): Promise<SiteData | null> {
 }
 
 async function pushSiteData(data: SiteData): Promise<void> {
-  await fetch(API_URL, {
+  const res = await fetch(API_URL, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  if (!res.ok) throw new Error("Falha ao salvar");
 }
 
 interface SiteContextType {
   data: SiteData;
   updateData: (updates: Partial<SiteData>) => void;
+  saveToServer: () => Promise<void>;
   synced: boolean;
   saveStatus: "idle" | "saving" | "saved" | "error";
+  hasUnsaved: boolean;
 }
 
 const SiteContext = createContext<SiteContextType | null>(null);
@@ -36,13 +39,15 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<SiteData>(loadSiteData);
   const [synced, setSynced] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hasUnsaved, setHasUnsaved] = useState(false);
   const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestData = useRef<SiteData>(data);
 
   useEffect(() => {
     fetchSiteData().then(serverData => {
       if (serverData) {
         setData(serverData);
+        latestData.current = serverData;
         saveSiteData(serverData);
       }
       setSynced(true);
@@ -53,29 +58,28 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     setData(prev => {
       const next = { ...prev, ...updates };
       saveSiteData(next);
-
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      if (statusTimer.current) clearTimeout(statusTimer.current);
-
-      setSaveStatus("saving");
-      saveTimer.current = setTimeout(() => {
-        pushSiteData(next)
-          .then(() => {
-            setSaveStatus("saved");
-            statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
-          })
-          .catch(() => {
-            setSaveStatus("error");
-            statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
-          });
-      }, 300);
-
+      latestData.current = next;
       return next;
     });
+    setHasUnsaved(true);
+  }
+
+  async function saveToServer() {
+    if (statusTimer.current) clearTimeout(statusTimer.current);
+    setSaveStatus("saving");
+    try {
+      await pushSiteData(latestData.current);
+      setSaveStatus("saved");
+      setHasUnsaved(false);
+      statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
+    } catch {
+      setSaveStatus("error");
+      statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
+    }
   }
 
   return (
-    <SiteContext.Provider value={{ data, updateData, synced, saveStatus }}>
+    <SiteContext.Provider value={{ data, updateData, saveToServer, synced, saveStatus, hasUnsaved }}>
       {children}
     </SiteContext.Provider>
   );

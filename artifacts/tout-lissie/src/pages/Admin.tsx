@@ -1159,17 +1159,39 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 function SaveIndicator() {
-  const { saveStatus } = useSite();
-  if (saveStatus === "idle") return null;
-  const config = {
-    saving: { bg: "bg-yellow-50 border-yellow-200", dot: "bg-yellow-400 animate-pulse", text: "text-yellow-700", label: "Salvando..." },
-    saved:  { bg: "bg-green-50 border-green-200",  dot: "bg-green-500",                text: "text-green-700",  label: "Salvo para todos ✓" },
-    error:  { bg: "bg-red-50 border-red-200",      dot: "bg-red-500",                  text: "text-red-700",    label: "Erro ao salvar" },
-  }[saveStatus];
+  const { saveStatus, hasUnsaved, saveToServer } = useSite();
+
+  const isSaving = saveStatus === "saving";
+
+  const statusBadge = saveStatus !== "idle" ? (
+    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold mx-3 mb-2 ${
+      saveStatus === "saving" ? "bg-yellow-50 border-yellow-200 text-yellow-700" :
+      saveStatus === "saved"  ? "bg-green-50 border-green-200 text-green-700" :
+                                "bg-red-50 border-red-200 text-red-700"
+    }`}>
+      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+        saveStatus === "saving" ? "bg-yellow-400 animate-pulse" :
+        saveStatus === "saved"  ? "bg-green-500" : "bg-red-500"
+      }`} />
+      {saveStatus === "saving" ? "Salvando..." : saveStatus === "saved" ? "Salvo para todos ✓" : "Erro ao salvar"}
+    </div>
+  ) : null;
+
   return (
-    <div className={`mx-3 mb-2 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${config.bg}`}>
-      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.dot}`} />
-      <span className={config.text}>{config.label}</span>
+    <div className="px-3 mb-2 space-y-2">
+      <button
+        onClick={saveToServer}
+        disabled={isSaving || !hasUnsaved}
+        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        style={hasUnsaved && !isSaving ? { background: PINK, color: "#fff" } : { background: "#f3f4f6", color: "#9ca3af" }}
+      >
+        <Save size={14} />
+        {isSaving ? "Salvando..." : hasUnsaved ? "Salvar alterações" : "Sem alterações"}
+      </button>
+      {hasUnsaved && saveStatus === "idle" && (
+        <p className="text-[10px] text-center text-amber-500 font-medium">● Alterações não salvas</p>
+      )}
+      {statusBadge}
     </div>
   );
 }
