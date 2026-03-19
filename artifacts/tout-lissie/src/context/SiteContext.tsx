@@ -48,10 +48,11 @@ export function SiteProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchSiteData().then(serverData => {
-      const resolved = serverData ?? mergeWithDefaults({});
-      setData(resolved);
-      latestData.current = resolved;
-      saveSiteData(resolved);
+      if (serverData) {
+        setData(serverData);
+        latestData.current = serverData;
+        saveSiteData(serverData);
+      }
       setSynced(true);
     });
   }, []);
@@ -103,19 +104,18 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     if (statusTimer.current) clearTimeout(statusTimer.current);
     setSaveStatus("saving");
-    try {
-      const serverData = await fetchSiteData();
-      const resolved = serverData ?? mergeWithDefaults({});
-      setData(resolved);
-      latestData.current = resolved;
-      saveSiteData(resolved);
-      setHasUnsaved(false);
-      setSaveStatus("saved");
-      statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
-    } catch {
+    const serverData = await fetchSiteData();
+    if (!serverData) {
       setSaveStatus("error");
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
+      return;
     }
+    setData(serverData);
+    latestData.current = serverData;
+    saveSiteData(serverData);
+    setHasUnsaved(false);
+    setSaveStatus("saved");
+    statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
   }
 
   return (
