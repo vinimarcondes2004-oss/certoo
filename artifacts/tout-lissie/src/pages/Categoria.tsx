@@ -98,9 +98,12 @@ export default function Categoria() {
   const { slug } = useParams<{ slug: string }>();
   const logo = data.settings.logo || "logo-pr.png";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
-  const products = data.products.filter(p =>
-    p.category === slug || (p.extraCategories || []).includes(slug || "")
-  );
+  const products = data.products.filter(p => {
+    const s = (slug || "").toLowerCase();
+    return p.category === slug
+      || (p.extraCategories || []).map(e => e.toLowerCase()).includes(s)
+      || (p.categoryLabel || "").toLowerCase() === s;
+  });
   const label = products[0]?.categoryLabel ?? slug?.replace(/-/g, " ");
 
   return (

@@ -251,7 +251,7 @@ export const defaultSiteData: SiteData = {
     { id: "1", label: "Shampoos", href: "/categoria/shampoo-e-mascara", column: "products" },
     { id: "2", label: "Máscaras", href: "/categoria/shampoo-e-mascara", column: "products" },
     { id: "3", label: "Reparador de pontas", href: "/categoria/reparador-de-pontas", column: "products" },
-    { id: "4", label: "Kits", href: "/categoria/shampoo-e-mascara", column: "products" },
+    { id: "4", label: "Kits", href: "/categoria/kits", column: "products" },
     { id: "5", label: "Sobre nós", href: "/sobre-nos", column: "company" },
     { id: "6", label: "Rastrear pedido", href: "/rastrear-pedido", column: "support" },
   ],
