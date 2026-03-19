@@ -330,16 +330,6 @@ export default function Produto() {
               )}
             </div>
             <div className="flex flex-col gap-4">
-              <div className="rounded-2xl p-7" style={{ background: `linear-gradient(135deg, ${product.color}15, ${product.color}30)` }}>
-                <p className="font-black text-xl text-gray-900 mb-1">{product.price}</p>
-                {product.old && <p className="text-gray-400 line-through text-sm mb-4">{product.old}</p>}
-                <a href={waLink} target="_blank" rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-white font-bold text-sm transition hover:opacity-90"
-                  style={{ background: PINK }}>
-                  <ShoppingCart size={16} />
-                  Comprar agora
-                </a>
-              </div>
               {product.ingredients && (
                 <div className="rounded-2xl border border-gray-100 p-5">
                   <p className="font-bold text-sm text-gray-800 mb-2">Ingredientes</p>
