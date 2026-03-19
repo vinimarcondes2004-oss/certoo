@@ -138,7 +138,7 @@ function BestSellers() {
           </Link>
         </div>
         <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
-          {data.products.map((p) => (
+          {data.products.filter(p => p.showInBestSellers !== false).map((p) => (
             <div key={p.id} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
               <div className="relative">
                 <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>

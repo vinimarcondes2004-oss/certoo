@@ -146,7 +146,7 @@ function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
-  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [] };
+  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [], showInBestSellers: true };
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(p: Product) { setEditing({ ...p }); setAdding(false); }
   function cancel() { setEditing(null); }
@@ -176,12 +176,76 @@ function ProductsTab() {
           <Field label="Categoria (slug)"><input className={inputCls} value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
           <Field label="Categoria (label)"><input className={inputCls} value={editing.categoryLabel} onChange={e => setEditing({ ...editing, categoryLabel: e.target.value })} placeholder="Shampoos" /></Field>
         </div>
-        <Field label="Categorias extras (separe por vírgula)" hint="Ex: kits,finalizadores — aparece nessas seções também">
-          <input className={inputCls}
-            value={(editing.extraCategories || []).join(", ")}
-            onChange={e => setEditing({ ...editing, extraCategories: e.target.value.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) })}
-            placeholder="kits, finalizadores" />
-        </Field>
+        {/* ─── Visibilidade ─── */}
+        <div className="rounded-xl border border-gray-200 p-4 space-y-4">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Onde este produto aparece?</p>
+
+          {/* Seções da página principal */}
+          <div>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase mb-2">Seções da página principal</p>
+            <div className="space-y-2">
+              {/* Mais Vendidos */}
+              <label className="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox"
+                  checked={editing.showInBestSellers !== false}
+                  onChange={e => setEditing({ ...editing, showInBestSellers: e.target.checked })}
+                  className="w-4 h-4 rounded accent-pink-500" />
+                <span className="text-sm text-gray-700 group-hover:text-gray-900">Mais Vendidos</span>
+              </label>
+              {/* Seção Kits (featured) */}
+              {(() => {
+                const featCat = (data.sectionTitles.featuredCategory || "kits").toLowerCase();
+                const featTitle = data.sectionTitles.featuredTitle || "Kits";
+                const extras = editing.extraCategories || [];
+                const inFeat = extras.includes(featCat) || (editing.categoryLabel || "").toLowerCase() === featCat || (editing.category || "").toLowerCase() === featCat;
+                return (
+                  <label className="flex items-center gap-2.5 cursor-pointer group">
+                    <input type="checkbox"
+                      checked={inFeat}
+                      onChange={e => {
+                        const base = extras.filter(x => x !== featCat);
+                        setEditing({ ...editing, extraCategories: e.target.checked ? [...base, featCat] : base });
+                      }}
+                      className="w-4 h-4 rounded accent-pink-500" />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">Seção "{featTitle}"</span>
+                  </label>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Páginas de categoria */}
+          {data.categoryCards.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold text-gray-400 uppercase mb-2">Páginas de categoria</p>
+              <div className="space-y-2">
+                {data.categoryCards.map(card => {
+                  const isMain = (editing.category || "").toLowerCase() === card.slug.toLowerCase();
+                  const extras = editing.extraCategories || [];
+                  const inExtra = extras.map(e => e.toLowerCase()).includes(card.slug.toLowerCase());
+                  const checked = isMain || inExtra;
+                  return (
+                    <label key={card.id} className={`flex items-center gap-2.5 ${isMain ? "opacity-70" : "cursor-pointer group"}`}>
+                      <input type="checkbox"
+                        checked={checked}
+                        disabled={isMain}
+                        onChange={e => {
+                          if (isMain) return;
+                          const base = extras.filter(x => x.toLowerCase() !== card.slug.toLowerCase());
+                          setEditing({ ...editing, extraCategories: e.target.checked ? [...base, card.slug] : base });
+                        }}
+                        className="w-4 h-4 rounded accent-pink-500" />
+                      <span className={`text-sm text-gray-700 ${!isMain && "group-hover:text-gray-900"}`}>
+                        {card.label}
+                        {isMain && <span className="ml-1 text-[10px] text-gray-400">(categoria principal)</span>}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
         <ImagePicker label="Imagem do produto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
         <Field label="Cor do card (hex)"><input className={inputCls} value={editing.color} onChange={e => setEditing({ ...editing, color: e.target.value })} placeholder="#e8006f" /></Field>
         <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>

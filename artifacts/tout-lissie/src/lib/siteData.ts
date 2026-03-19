@@ -11,6 +11,7 @@ export interface Product {
   categoryLabel: string;
   color: string;
   extraCategories?: string[];
+  showInBestSellers?: boolean;
 }
 
 export interface HeroSlide {
