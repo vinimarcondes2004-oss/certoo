@@ -146,7 +146,7 @@ function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
-  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [], showInBestSellers: true };
+  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [], showInBestSellers: true, outOfStock: false };
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(p: Product) { setEditing({ ...p }); setAdding(false); }
   function cancel() { setEditing(null); }
@@ -193,6 +193,7 @@ function ProductsTab() {
                 <span className="text-sm text-gray-700 group-hover:text-gray-900">Mais Vendidos</span>
               </label>
               {/* Seção Kits (featured) */}
+
               {(() => {
                 const featCat = (data.sectionTitles.featuredCategory || "kits").toLowerCase();
                 const featTitle = data.sectionTitles.featuredTitle || "Kits";
