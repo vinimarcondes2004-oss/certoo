@@ -100,9 +100,9 @@ function Hero() {
           loading={i === 0 ? "eager" : "lazy"}
           style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }} />
       ))}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
-        <div className="flex-1 text-white">
+      <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.65)" }} />
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col items-center justify-center text-center">
+        <div className="text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">{slide?.subtitle}</p>
           <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
             {(slide?.title ?? "").split("\n").map((line, i) => <span key={i}>{line}{i < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
@@ -113,7 +113,6 @@ function Hero() {
             </button>
           </a>
         </div>
-        <div className="flex-1 hidden md:block" />
       </div>
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {slides.map((_, i) => (
