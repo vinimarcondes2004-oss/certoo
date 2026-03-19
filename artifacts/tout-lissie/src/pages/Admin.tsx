@@ -1299,15 +1299,20 @@ function SaveIndicator() {
 
   const statusBadge = saveStatus !== "idle" ? (
     <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold mx-3 mb-2 ${
-      saveStatus === "saving" ? "bg-yellow-50 border-yellow-200 text-yellow-700" :
-      saveStatus === "saved"  ? "bg-green-50 border-green-200 text-green-700" :
-                                "bg-red-50 border-red-200 text-red-700"
+      saveStatus === "saving"        ? "bg-yellow-50 border-yellow-200 text-yellow-700" :
+      saveStatus === "saved"         ? "bg-green-50 border-green-200 text-green-700" :
+      saveStatus === "no-server-data"? "bg-amber-50 border-amber-200 text-amber-700" :
+                                       "bg-red-50 border-red-200 text-red-700"
     }`}>
       <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-        saveStatus === "saving" ? "bg-yellow-400 animate-pulse" :
-        saveStatus === "saved"  ? "bg-green-500" : "bg-red-500"
+        saveStatus === "saving"         ? "bg-yellow-400 animate-pulse" :
+        saveStatus === "saved"          ? "bg-green-500" :
+        saveStatus === "no-server-data" ? "bg-amber-400" : "bg-red-500"
       }`} />
-      {saveStatus === "saving" ? "Carregando..." : saveStatus === "saved" ? "Salvo para todos ✓" : "Erro ao salvar"}
+      {saveStatus === "saving"         ? "Salvando..." :
+       saveStatus === "saved"          ? "Salvo para todos ✓" :
+       saveStatus === "no-server-data" ? "Nenhuma versão salva no servidor" :
+                                         "Erro ao salvar"}
     </div>
   ) : null;
 

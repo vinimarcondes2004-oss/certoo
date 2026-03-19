@@ -31,7 +31,7 @@ interface SiteContextType {
   saveToServer: () => Promise<void>;
   reloadFromServer: () => Promise<void>;
   synced: boolean;
-  saveStatus: "idle" | "saving" | "saved" | "error";
+  saveStatus: "idle" | "saving" | "saved" | "error" | "no-server-data";
   hasUnsaved: boolean;
 }
 
@@ -40,18 +40,22 @@ const SiteContext = createContext<SiteContextType | null>(null);
 export function SiteProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<SiteData>(loadSiteData);
   const [synced, setSynced] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error" | "no-server-data">("idle");
   const [hasUnsaved, setHasUnsaved] = useState(false);
   const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestData = useRef<SiteData>(data);
 
   useEffect(() => {
-    fetchSiteData().then(serverData => {
+    fetchSiteData().then(async serverData => {
       if (serverData) {
         setData(serverData);
         latestData.current = serverData;
         saveSiteData(serverData);
+      } else {
+        try {
+          await pushSiteData(latestData.current);
+        } catch {}
       }
       setSynced(true);
     });
@@ -106,7 +110,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     setSaveStatus("saving");
     const serverData = await fetchSiteData();
     if (!serverData) {
-      setSaveStatus("error");
+      setSaveStatus("no-server-data");
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
       return;
     }
