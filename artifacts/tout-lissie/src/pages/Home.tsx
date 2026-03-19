@@ -372,7 +372,7 @@ function CategoriesBanner() {
 /* ─── VITRINE DE PRODUTOS ─── */
 function FeaturedCategory() {
   const { data } = useSite();
-  const title = data.sectionTitles.featuredTitle || "Finalizadores";
+  const title = data.sectionTitles.featuredTitle || "Kits";
   const cat = (data.sectionTitles.featuredCategory || "").trim().toLowerCase();
   const products = cat
     ? data.products.filter(p => (p.category || "").toLowerCase() === cat || (p.categoryLabel || "").toLowerCase() === cat)
