@@ -131,6 +131,66 @@ function ImagePicker({ value, onChange, label = "Imagem" }: { value: string; onC
   );
 }
 
+/* ─── VIDEO PICKER ─── */
+function VideoPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"upload" | "url">(value.startsWith("data:") ? "upload" : "url");
+
+  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLoading(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => { onChange(ev.target?.result as string); setLoading(false); };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }, [onChange]);
+
+  return (
+    <Field label="Vídeo">
+      <div className="flex gap-2 mb-3">
+        {(["upload", "url"] as const).map(m => (
+          <button key={m} type="button"
+            onClick={() => { setMode(m); if (m !== mode) onChange(""); }}
+            className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition ${mode === m ? "text-white border-transparent" : "border-gray-200 text-gray-500"}`}
+            style={mode === m ? { background: PINK } : {}}>
+            {m === "upload" ? "⬆️ Enviar arquivo" : "🔗 URL (YouTube / .mp4)"}
+          </button>
+        ))}
+      </div>
+
+      {mode === "upload" ? (
+        <div className="space-y-2">
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border-2 border-dashed border-gray-300 text-sm font-semibold text-gray-500 hover:border-pink-400 hover:text-pink-500 transition">
+            {loading ? <span className="animate-spin text-xs">⏳</span> : <Upload size={15} />}
+            {loading ? "Enviando..." : value.startsWith("data:video") ? "Substituir vídeo" : "Escolher arquivo de vídeo"}
+          </button>
+          <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={handleFile} />
+          {value.startsWith("data:video") && (
+            <div className="rounded-xl overflow-hidden border border-gray-100 bg-gray-50 relative">
+              <video src={value} className="w-full max-h-40 object-contain" controls playsInline />
+              <button type="button" onClick={() => onChange("")}
+                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center hover:bg-red-500 transition">
+                <X size={10} />
+              </button>
+            </div>
+          )}
+          <p className="text-xs text-gray-400">Formatos: MP4, WebM, MOV. Tamanho máximo recomendado: 50 MB.</p>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <input className={inputCls} value={value.startsWith("data:") ? "" : value}
+            onChange={e => onChange(e.target.value)}
+            placeholder="https://youtube.com/watch?v=... ou URL do .mp4" />
+          <p className="text-xs text-gray-400">Cole o link do YouTube ou um link direto de vídeo (.mp4).</p>
+        </div>
+      )}
+    </Field>
+  );
+}
+
 /* ─── SECTION HEADER ─── */
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
@@ -726,10 +786,7 @@ function ContentTab() {
               {(editMosaic.type ?? "image") === "image" ? (
                 <ImagePicker label="Foto" value={editMosaic.img} onChange={v => setEditMosaic({ ...editMosaic, img: v })} />
               ) : (
-                <Field label="URL do vídeo">
-                  <input className={inputCls} value={editMosaic.videoUrl ?? ""} onChange={e => setEditMosaic({ ...editMosaic, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=... ou URL do .mp4" />
-                  <p className="text-xs text-gray-400 mt-1">Cole o link do YouTube ou um link direto de vídeo (.mp4).</p>
-                </Field>
+                <VideoPicker value={editMosaic.videoUrl ?? ""} onChange={v => setEditMosaic({ ...editMosaic, videoUrl: v })} />
               )}
               <Field label="Largura">
                 <div className="flex gap-3">
