@@ -129,30 +129,30 @@ function Hero() {
 function BestSellers() {
   const { data } = useSite();
   return (
-    <section id="produtos" className="py-8 bg-white">
+    <section id="produtos" className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-black text-gray-900">{data.sectionTitles.bestSellers}</h2>
+        <div className="flex items-center justify-between mb-7">
+          <h2 className="text-2xl font-black text-gray-900">{data.sectionTitles.bestSellers}</h2>
           <Link href="/produtos" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
             Ver todos <ChevronRight size={15} />
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+        <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {data.products.map((p) => (
-            <div key={p.id} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+            <div key={p.id} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
               <div className="relative">
                 <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
-                <div style={{ height: 130, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }} />
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
-              <div className="p-3">
-                <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
-                <p className="text-[11px] text-gray-400 mb-1">{p.ml}</p>
-                <Stars n={p.stars} size={11} />
-                <p className="text-[10px] text-gray-400 line-through mt-1">{p.old}</p>
-                <p className="font-black text-sm mb-2" style={{ color: PINK }}>{p.price}</p>
-                <BuyBtn />
+              <div className="p-4">
+                <p className="font-bold text-sm text-gray-800 leading-tight mb-1">{p.name}</p>
+                <p className="text-xs text-gray-400 mb-1.5">{p.ml}</p>
+                <Stars n={p.stars} size={13} />
+                <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
+                <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
+                <BuyBtn full />
               </div>
             </div>
           ))}
@@ -182,10 +182,10 @@ function toYoutubeEmbed(url: string): string | null {
 function WhoRecommends() {
   const { data } = useSite();
   return (
-    <section className="py-8" style={{ background: GRAY_BG }}>
+    <section className="py-16" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-6">{data.sectionTitles.whoRecommends}</h2>
-        <div className="grid grid-cols-4 gap-2 items-start">
+        <h2 className="text-2xl font-black text-center text-gray-900 mb-8">{data.sectionTitles.whoRecommends}</h2>
+        <div className="grid grid-cols-4 gap-3 items-start">
           {data.mosaicPhotos.map((p, i) => {
             const isVideo = p.type === "video";
             const ytEmbed = isVideo && p.videoUrl ? toYoutubeEmbed(p.videoUrl) : null;
@@ -295,10 +295,10 @@ function ResultadoMagic() {
   const { data } = useSite();
   const rm = data.resultadoMagic;
   return (
-    <section className="py-10" style={{ background: GRAY_BG }}>
+    <section className="py-16" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-2">{rm.title}</h2>
-        <p className="text-center text-gray-500 text-sm mb-8">{rm.subtitle}</p>
+        <h2 className="text-2xl font-black text-center text-gray-900 mb-3">{rm.title}</h2>
+        <p className="text-center text-gray-500 text-sm mb-10">{rm.subtitle}</p>
         <div className="flex flex-col md:flex-row items-center justify-center gap-6">
           <div className="flex-shrink-0">
             <BeforeAfterSlider before={imgSrc(rm.beforeImg)} after={imgSrc(rm.afterImg)} />
@@ -313,21 +313,21 @@ function ResultadoMagic() {
 function WhoUses() {
   const { data } = useSite();
   return (
-    <section id="quem-usa" className="py-8 bg-white">
+    <section id="quem-usa" className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-6">{data.sectionTitles.whoUses}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <h2 className="text-2xl font-black text-center text-gray-900 mb-8">{data.sectionTitles.whoUses}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
           {data.reviews.map((r) => (
-            <div key={r.id} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
-              <div className="flex items-center gap-2 mb-2">
-                <img src={imgSrc(r.img)} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
+            <div key={r.id} className="border border-gray-100 rounded-2xl p-6 hover:shadow-sm transition">
+              <div className="flex items-center gap-3 mb-3">
+                <img src={imgSrc(r.img)} alt={r.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
                 <div>
-                  <p className="font-bold text-xs text-gray-800">{r.name}</p>
-                  <p className="text-[10px] text-gray-400">{r.date}</p>
+                  <p className="font-bold text-sm text-gray-800">{r.name}</p>
+                  <p className="text-xs text-gray-400">{r.date}</p>
                 </div>
               </div>
-              <Stars n={r.stars} size={12} />
-              <p className="text-xs text-gray-600 mt-2 leading-relaxed">"{r.text}"</p>
+              <Stars n={r.stars} size={14} />
+              <p className="text-sm text-gray-600 mt-3 leading-relaxed">"{r.text}"</p>
             </div>
           ))}
         </div>
@@ -342,9 +342,9 @@ function CategoriesBanner() {
   const cards = data.categoryCards;
   if (!cards.length) return null;
   return (
-    <section className="py-8 bg-white">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-4 grid-rows-2 gap-3" style={{ height: 320 }}>
+        <div className="grid grid-cols-4 grid-rows-2 gap-3" style={{ height: 460 }}>
           {/* Big card — first one */}
           <Link href={`/categoria/${cards[0].slug}`}
             className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform block"
@@ -379,34 +379,34 @@ function FeaturedCategory() {
     : data.products;
   if (products.length === 0) return null;
   return (
-    <section className="py-8 bg-white">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-black text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between mb-7">
+          <h2 className="text-2xl font-black text-gray-900">{title}</h2>
           <Link href="/produtos">
             <span className="inline-flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: PINK }}>
               Ver mais <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs" style={{ background: PINK }}><ChevronRight size={12} /></span>
             </span>
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
+        <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {products.map((p) => (
-            <div key={p.id} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+            <div key={p.id} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
               <div className="relative">
                 {p.badge && (
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
                 )}
-                <div style={{ height: 130, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }} />
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
-              <div className="p-3">
-                <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
-                <p className="text-[11px] text-gray-400 mb-1">{p.ml}</p>
-                <Stars n={p.stars} size={11} />
-                <p className="text-[10px] text-gray-400 line-through mt-1">{p.old}</p>
-                <p className="font-black text-sm mb-2" style={{ color: PINK }}>{p.price}</p>
-                <BuyBtn />
+              <div className="p-4">
+                <p className="font-bold text-sm text-gray-800 leading-tight mb-1">{p.name}</p>
+                <p className="text-xs text-gray-400 mb-1.5">{p.ml}</p>
+                <Stars n={p.stars} size={13} />
+                <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
+                <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
+                <BuyBtn full />
               </div>
             </div>
           ))}
@@ -420,24 +420,24 @@ function FeaturedCategory() {
 function SalonSection() {
   const { data } = useSite();
   return (
-    <section className="py-10 bg-white">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-2">
+        <h2 className="text-2xl font-black text-center text-gray-900 mb-2">
           {data.sectionTitles.salonSection} <span style={{ color: PINK }}>♥</span>
         </h2>
-        <p className="text-center text-sm text-gray-500 mb-7">{data.sectionTitles.salonSubtitle}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <p className="text-center text-sm text-gray-500 mb-9">{data.sectionTitles.salonSubtitle}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
           {data.salonReviews.map((r) => (
-            <div key={r.id} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
-              <div className="flex items-center gap-2 mb-2">
-                <img src={imgSrc(r.img)} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
+            <div key={r.id} className="border border-gray-100 rounded-2xl p-6 hover:shadow-sm transition">
+              <div className="flex items-center gap-3 mb-3">
+                <img src={imgSrc(r.img)} alt={r.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
                 <div>
-                  <p className="font-bold text-xs text-gray-800">{r.name}</p>
-                  <p className="text-[10px] text-gray-400">{r.role}</p>
+                  <p className="font-bold text-sm text-gray-800">{r.name}</p>
+                  <p className="text-xs text-gray-400">{r.role}</p>
                 </div>
               </div>
-              <Stars n={r.stars} size={12} />
-              <p className="text-xs text-gray-600 mt-2 leading-relaxed">"{r.text}"</p>
+              <Stars n={r.stars} size={14} />
+              <p className="text-sm text-gray-600 mt-3 leading-relaxed">"{r.text}"</p>
             </div>
           ))}
         </div>
@@ -451,9 +451,9 @@ function FAQ() {
   const { data } = useSite();
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" style={{ background: GRAY_BG }} className="py-10">
+    <section id="faq" style={{ background: GRAY_BG }} className="py-16">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-gray-900 mb-6">{data.sectionTitles.faq}</h2>
+        <h2 className="text-2xl font-black text-gray-900 mb-8">{data.sectionTitles.faq}</h2>
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 space-y-2">
             {data.faqs.map((f, i) => (
