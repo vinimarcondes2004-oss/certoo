@@ -98,13 +98,18 @@ export default function Categoria() {
   const { slug } = useParams<{ slug: string }>();
   const logo = data.settings.logo || "logo-pr.png";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
+  const normalize = (str: string) =>
+    str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const products = data.products.filter(p => {
-    const s = (slug || "").toLowerCase();
-    return p.category === slug
-      || (p.extraCategories || []).map(e => e.toLowerCase()).includes(s)
-      || (p.categoryLabel || "").toLowerCase() === s;
+    const s = normalize(slug || "");
+    return normalize(p.category || "") === s
+      || (p.extraCategories || []).some(e => normalize(e) === s)
+      || normalize(p.categoryLabel || "") === s;
   });
-  const primaryMatch = products.find(p => p.category === slug);
+  const primaryMatch = products.find(p =>
+    normalize(p.category || "") === normalize(slug || "") ||
+    normalize(p.categoryLabel || "") === normalize(slug || "")
+  );
   const rawLabel = primaryMatch?.categoryLabel ?? (slug ? slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, " ") : "");
   const label = rawLabel;
 
