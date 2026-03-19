@@ -182,10 +182,10 @@ function toYoutubeEmbed(url: string): string | null {
 function WhoRecommends() {
   const { data } = useSite();
   return (
-    <section className="py-16" style={{ background: GRAY_BG }}>
+    <section className="py-24" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-black text-center text-gray-900 mb-8">{data.sectionTitles.whoRecommends}</h2>
-        <div className="grid grid-cols-4 gap-3 items-start">
+        <h2 className="text-3xl font-black text-center text-gray-900 mb-10">{data.sectionTitles.whoRecommends}</h2>
+        <div className="grid grid-cols-4 gap-4 items-start" style={{ minHeight: 520 }}>
           {data.mosaicPhotos.map((p, i) => {
             const isVideo = p.type === "video";
             const ytEmbed = isVideo && p.videoUrl ? toYoutubeEmbed(p.videoUrl) : null;
