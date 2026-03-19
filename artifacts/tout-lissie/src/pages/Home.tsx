@@ -129,7 +129,7 @@ function Hero() {
 function BestSellers() {
   const { data } = useSite();
   return (
-    <section id="produtos" className="py-16 bg-white">
+    <section id="produtos" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-7">
           <h2 className="text-2xl font-black text-gray-900">{data.sectionTitles.bestSellers}</h2>
@@ -182,7 +182,7 @@ function toYoutubeEmbed(url: string): string | null {
 function WhoRecommends() {
   const { data } = useSite();
   return (
-    <section className="py-16" style={{ background: GRAY_BG }}>
+    <section className="py-24" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-black text-center text-gray-900 mb-8">{data.sectionTitles.whoRecommends}</h2>
         <div className="grid grid-cols-4 gap-3 items-start">
@@ -295,7 +295,7 @@ function ResultadoMagic() {
   const { data } = useSite();
   const rm = data.resultadoMagic;
   return (
-    <section className="py-16" style={{ background: GRAY_BG }}>
+    <section className="py-24" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-black text-center text-gray-900 mb-3">{rm.title}</h2>
         <p className="text-center text-gray-500 text-sm mb-10">{rm.subtitle}</p>
@@ -313,7 +313,7 @@ function ResultadoMagic() {
 function WhoUses() {
   const { data } = useSite();
   return (
-    <section id="quem-usa" className="py-16 bg-white">
+    <section id="quem-usa" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-black text-center text-gray-900 mb-8">{data.sectionTitles.whoUses}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
@@ -342,7 +342,7 @@ function CategoriesBanner() {
   const cards = data.categoryCards;
   if (!cards.length) return null;
   return (
-    <section className="py-16 bg-white">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-4 grid-rows-2 gap-3" style={{ height: 460 }}>
           {/* Big card — first one */}
@@ -384,7 +384,7 @@ function FeaturedCategory() {
     : data.products;
   if (products.length === 0) return null;
   return (
-    <section className="py-16 bg-white">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-7">
           <h2 className="text-2xl font-black text-gray-900">{title}</h2>
@@ -425,7 +425,7 @@ function FeaturedCategory() {
 function SalonSection() {
   const { data } = useSite();
   return (
-    <section className="py-16 bg-white">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-black text-center text-gray-900 mb-2">
           {data.sectionTitles.salonSection} <span style={{ color: PINK }}>♥</span>
@@ -456,7 +456,7 @@ function FAQ() {
   const { data } = useSite();
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <section id="faq" style={{ background: GRAY_BG }} className="py-16">
+    <section id="faq" style={{ background: GRAY_BG }} className="py-24">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-black text-gray-900 mb-8">{data.sectionTitles.faq}</h2>
         <div className="flex flex-col md:flex-row gap-6">
