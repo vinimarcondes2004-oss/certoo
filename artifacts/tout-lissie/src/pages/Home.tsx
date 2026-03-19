@@ -207,26 +207,84 @@ function toYoutubeEmbed(url: string): string | null {
 /* ─── QUEM USA (mosaico de fotos) ─── */
 function WhoRecommends() {
   const { data } = useSite();
+  const photos = data.mosaicPhotos;
+  const track = [...photos, ...photos];
+
   return (
     <section className="py-24" style={{ background: GRAY_BG }}>
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-black text-center text-gray-900 mb-8">{data.sectionTitles.whoRecommends}</h2>
-        <div className="grid grid-cols-4 gap-3 items-start">
-          {data.mosaicPhotos.map((p, i) => {
+      <h2 className="text-2xl font-black text-center text-gray-900 mb-8 px-4">{data.sectionTitles.whoRecommends}</h2>
+
+      <style>{`
+        @keyframes mosaic-scroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .mosaic-slider {
+          overflow: hidden;
+          width: 100%;
+          position: relative;
+        }
+        .mosaic-slider::before,
+        .mosaic-slider::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          width: 120px;
+          height: 100%;
+          z-index: 2;
+          pointer-events: none;
+        }
+        .mosaic-slider::before {
+          left: 0;
+          background: linear-gradient(to right, ${GRAY_BG}, transparent);
+        }
+        .mosaic-slider::after {
+          right: 0;
+          background: linear-gradient(to left, ${GRAY_BG}, transparent);
+        }
+        .mosaic-track {
+          display: flex;
+          width: max-content;
+          animation: mosaic-scroll ${Math.max(photos.length * 5, 30)}s linear infinite;
+        }
+        .mosaic-slider:hover .mosaic-track {
+          animation-play-state: paused;
+        }
+        .mosaic-card {
+          width: 220px;
+          height: 380px;
+          margin: 0 12px;
+          border-radius: 18px;
+          overflow: hidden;
+          background: #000;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+          transition: transform 0.3s;
+          flex-shrink: 0;
+        }
+        .mosaic-card:hover {
+          transform: scale(1.05);
+        }
+        .mosaic-card img,
+        .mosaic-card video {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      `}</style>
+
+      <div className="mosaic-slider">
+        <div className="mosaic-track">
+          {track.map((p, i) => {
             const isVideo = p.type === "video";
             const ytEmbed = isVideo && p.videoUrl ? toYoutubeEmbed(p.videoUrl) : null;
             const isDirectVideo = isVideo && p.videoUrl && !ytEmbed;
-            const ar = p.aspectRatio || "1/1";
             return (
-              <div key={p.id ?? i}
-                className={`rounded-2xl overflow-hidden relative ${p.big ? "col-span-2" : "col-span-1"}`}
-                style={{ aspectRatio: ar }}>
+              <div key={`${p.id ?? i}-${i}`} className="mosaic-card">
                 {isVideo ? (
                   ytEmbed ? (
                     <iframe
                       src={ytEmbed}
-                      className="w-full h-full"
-                      frameBorder="0"
+                      style={{ width: "100%", height: "100%", border: "none" }}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       title={`video-${p.id}`}
@@ -234,16 +292,16 @@ function WhoRecommends() {
                   ) : isDirectVideo ? (
                     <video
                       src={p.videoUrl}
-                      className="w-full h-full object-cover"
-                      controls
+                      autoPlay
+                      muted
+                      loop
                       playsInline
-                      preload="metadata"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">Sem vídeo</div>
+                    <div style={{ width: "100%", height: "100%", background: "#222", display: "flex", alignItems: "center", justifyContent: "center", color: "#666", fontSize: 12 }}>Sem vídeo</div>
                   )
                 ) : (
-                  <img src={imgSrc(p.img)} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
+                  <img src={imgSrc(p.img)} alt="" onError={e => (e.currentTarget.style.display = "none")} />
                 )}
               </div>
             );
