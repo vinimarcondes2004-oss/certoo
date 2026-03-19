@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/Home";
@@ -7,6 +8,46 @@ import SobreNos from "@/pages/SobreNos";
 import RastrearPedido from "@/pages/RastrearPedido";
 
 const queryClient = new QueryClient();
+
+const ALL_IMAGES = [
+  "hero-bg.png",
+  "hero-bg-2.png",
+  "hero-bg-3.png",
+  "logo-pr.png",
+  "product-progressiva.png",
+  "product-pos-quimica.png",
+  "product-hidratacao.png",
+  "product-reparador-pontas.png",
+  "product-finalizador-liss.png",
+  "product-megaliss.png",
+  "product-oil-repair-colorful.png",
+  "product-oil-repair.png",
+  "mosaic-hair.jpg",
+  "mosaic-hair-2.jpg",
+  "mosaic-hair-3.webp",
+  "mosaic-hair-5.jpg",
+  "mosaic-hair-6.jpg",
+  "avatar-1.jpg",
+  "avatar-2.jpg",
+  "avatar-3.jpg",
+  "avatar-4.jpg",
+  "avatar-5.jpg",
+  "avatar-6.jpg",
+  "avatar-7.jpg",
+  "avatar-8.jpg",
+  "before-hair.jpg",
+  "after-hair.jpg",
+];
+
+function useImagePreloader() {
+  useEffect(() => {
+    const base = import.meta.env.BASE_URL;
+    ALL_IMAGES.forEach((name) => {
+      const img = new Image();
+      img.src = `${base}${name}`;
+    });
+  }, []);
+}
 
 function Router() {
   return (
@@ -22,6 +63,8 @@ function Router() {
 }
 
 function App() {
+  useImagePreloader();
+
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>

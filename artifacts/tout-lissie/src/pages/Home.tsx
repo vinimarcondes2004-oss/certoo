@@ -154,6 +154,8 @@ function Hero() {
             src={`${import.meta.env.BASE_URL}${bg}`}
             alt=""
             className="absolute inset-0 w-full h-full object-cover object-center"
+            loading="eager"
+            fetchPriority={i === 0 ? "high" : "low"}
             style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }}
           />
         ))}
