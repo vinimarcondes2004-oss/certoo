@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SiteProvider } from "@/context/SiteContext";
+import { CartProvider } from "@/context/CartContext";
+import { CartDrawer } from "@/components/CartDrawer";
 import Home from "@/pages/Home";
 import Produtos from "@/pages/Produtos";
 import Categoria from "@/pages/Categoria";
@@ -84,9 +86,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SiteProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
+        <CartProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <CartDrawer />
+        </CartProvider>
       </SiteProvider>
     </QueryClientProvider>
   );

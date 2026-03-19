@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { ShoppingCart, Star, Heart, User, Menu, X, ChevronRight, Instagram, Facebook, MessageCircle, Check, Truck, Shield, Zap } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
+import { useCart } from "@/context/CartContext";
 
 const PINK = "#e8006f";
 const DARK_RED = "#c0003d";
@@ -25,6 +26,7 @@ function Stars({ n = 5, size = 14 }: { n?: number; size?: number }) {
 function Header() {
   const [open, setOpen] = useState(false);
   const { data } = useSite();
+  const { totalItems, openCart } = useCart();
   const logo = data.settings.logo || "logo-pr.png";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
   return (
@@ -44,7 +46,14 @@ function Header() {
           <Link href="/#faq" className="hover:text-pink-600 transition">FAQ</Link>
         </nav>
         <div className="flex items-center gap-2">
-          <button className="relative p-1.5"><ShoppingCart size={20} className="text-gray-700" /></button>
+          <button className="relative p-1.5" onClick={openCart}>
+            <ShoppingCart size={20} className="text-gray-700" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: PINK }}>
+                {totalItems > 9 ? "9+" : totalItems}
+              </span>
+            )}
+          </button>
           <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
           <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
         </div>
@@ -123,6 +132,7 @@ function Footer() {
 
 export default function Produto() {
   const { data } = useSite();
+  const { addItem } = useCart();
   const { id } = useParams<{ id: string }>();
   const product = data.products.find(p => p.id === id);
   const [selectedImg, setSelectedImg] = useState(0);
@@ -268,12 +278,25 @@ export default function Produto() {
                   Esgotado
                 </button>
               ) : (
-                <a href={waLink} target="_blank" rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-lg transition hover:opacity-90"
-                  style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
-                  <ShoppingCart size={20} />
-                  Comprar agora
-                </a>
+                <>
+                  <button
+                    onClick={() => {
+                      for (let i = 0; i < qty; i++) {
+                        addItem({ id: product.id, name: product.name, price: product.price, img: product.img, color: product.color });
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-lg transition hover:opacity-90"
+                    style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
+                    <ShoppingCart size={20} />
+                    Adicionar ao carrinho
+                  </button>
+                  <a href={waLink} target="_blank" rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition border-2 hover:bg-pink-50"
+                    style={{ borderColor: PINK, color: PINK }}>
+                    <MessageCircle size={16} />
+                    Comprar pelo WhatsApp
+                  </a>
+                </>
               )}
               <a href={waLink} target="_blank" rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition border-2 hover:bg-pink-50"

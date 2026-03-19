@@ -5,6 +5,7 @@ import {
   Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
+import { useCart } from "@/context/CartContext";
 import { DEFAULT_SECTION_LAYOUT } from "@/lib/siteData";
 
 const PINK = "#e8006f";
@@ -26,10 +27,23 @@ function Stars({ n = 5, size = 12 }: { n?: number; size?: number }) {
   );
 }
 
-function BuyBtn({ label = "Comprar", full }: { label?: string; full?: boolean }) {
+interface BuyBtnProps {
+  label?: string;
+  full?: boolean;
+  product?: { id: string; name: string; price: string; img: string; color: string };
+}
+function BuyBtn({ label = "Comprar", full, product }: BuyBtnProps) {
+  const { addItem } = useCart();
   return (
-    <button style={{ background: PINK }}
-      className={`text-white text-xs font-bold rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap ${full ? "w-full py-2 text-sm" : ""}`}>
+    <button
+      style={{ background: PINK }}
+      className={`text-white text-xs font-bold rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap ${full ? "w-full py-2 text-sm" : ""}`}
+      onClick={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (product) addItem(product);
+      }}
+    >
       {label}
     </button>
   );
@@ -38,6 +52,7 @@ function BuyBtn({ label = "Comprar", full }: { label?: string; full?: boolean })
 /* ─── HEADER ─── */
 function Header() {
   const { data } = useSite();
+  const { totalItems, openCart } = useCart();
   const [open, setOpen] = useState(false);
   const logo = data.settings.logo || "logo-pr.png";
   return (
@@ -62,9 +77,13 @@ function Header() {
             <Search size={14} className="text-gray-400" />
             <input className="bg-transparent text-sm outline-none w-32 text-gray-700" placeholder="Buscar produtos..." />
           </div>
-          <button className="relative p-1.5">
+          <button className="relative p-1.5" onClick={openCart}>
             <ShoppingCart size={20} className="text-gray-700" />
-            <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: PINK }}>0</span>
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: PINK }}>
+                {totalItems > 9 ? "9+" : totalItems}
+              </span>
+            )}
           </button>
           <Link href="/admin" className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></Link>
           <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
@@ -156,7 +175,7 @@ function BestSellers() {
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
                 {p.outOfStock
                   ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
-                  : <BuyBtn full />
+                  : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
                 }
               </div>
             </Link>
@@ -419,7 +438,7 @@ function FeaturedCategory() {
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
                 {p.outOfStock
                   ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
-                  : <BuyBtn full />
+                  : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
                 }
               </div>
             </Link>

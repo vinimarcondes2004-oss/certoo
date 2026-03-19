@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ShoppingCart, Star, Heart, User, Menu, X, Search, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useSite } from "@/context/SiteContext";
+import { useCart } from "@/context/CartContext";
 
 const PINK = "#e8006f";
 const PINK2 = "#f5007a";
@@ -20,10 +21,18 @@ function Stars({ n = 5, size = 12 }: { n?: number; size?: number }) {
   );
 }
 
-function BuyBtn() {
+function BuyBtn({ product }: { product?: { id: string; name: string; price: string; img: string; color: string } }) {
+  const { addItem } = useCart();
   return (
-    <button style={{ background: PINK }}
-      className="w-full text-white text-xs font-bold rounded-full px-4 py-2 hover:opacity-90 transition">
+    <button
+      style={{ background: PINK }}
+      className="w-full text-white text-xs font-bold rounded-full px-4 py-2 hover:opacity-90 transition"
+      onClick={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (product) addItem(product);
+      }}
+    >
       Comprar
     </button>
   );
@@ -54,6 +63,7 @@ function AnnouncementBar() {
 function Header() {
   const [open, setOpen] = useState(false);
   const { data } = useSite();
+  const { totalItems, openCart } = useCart();
   const logo = data.settings.logo || "logo-pr.png";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
   return (
@@ -80,8 +90,13 @@ function Header() {
             <input className="bg-transparent text-sm outline-none w-32 text-gray-700"
               placeholder="Buscar produtos..." />
           </div>
-          <button className="relative p-1.5">
+          <button className="relative p-1.5" onClick={openCart}>
             <ShoppingCart size={20} className="text-gray-700" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: PINK }}>
+                {totalItems > 9 ? "9+" : totalItems}
+              </span>
+            )}
           </button>
           <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
           <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
@@ -194,7 +209,7 @@ export default function Produtos() {
                   <p className="text-[10px] text-gray-400 line-through mt-1">{p.old}</p>
                   <p className="font-black text-sm mb-3" style={{ color: PINK }}>{p.price}</p>
                   <div className="mt-auto">
-                    <BuyBtn />
+                    <BuyBtn product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
                   </div>
                 </div>
               </Link>
