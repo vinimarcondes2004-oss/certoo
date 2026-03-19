@@ -1156,6 +1156,22 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
 ];
 
+function SaveIndicator() {
+  const { saveStatus } = useSite();
+  if (saveStatus === "idle") return null;
+  const config = {
+    saving: { bg: "bg-yellow-50 border-yellow-200", dot: "bg-yellow-400 animate-pulse", text: "text-yellow-700", label: "Salvando..." },
+    saved:  { bg: "bg-green-50 border-green-200",  dot: "bg-green-500",                text: "text-green-700",  label: "Salvo para todos ✓" },
+    error:  { bg: "bg-red-50 border-red-200",      dot: "bg-red-500",                  text: "text-red-700",    label: "Erro ao salvar" },
+  }[saveStatus];
+  return (
+    <div className={`mx-3 mb-2 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${config.bg}`}>
+      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.dot}`} />
+      <span className={config.text}>{config.label}</span>
+    </div>
+  );
+}
+
 export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem("admin_auth") === "1");
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -1177,6 +1193,7 @@ export default function Admin() {
             </button>
           ))}
         </nav>
+        <SaveIndicator />
         <div className="p-3 border-t border-gray-100">
           <Link href="/"><button className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition"><Eye size={15} /> Ver site</button></Link>
           <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition mt-1"><LogOut size={15} /> Sair</button>

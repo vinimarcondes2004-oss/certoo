@@ -268,30 +268,33 @@ export const defaultSiteData: SiteData = {
 const STORAGE_KEY = "pr_site_data";
 const PASSWORD_KEY = "pr_admin_password";
 
+export function mergeWithDefaults(parsed: Partial<SiteData>): SiteData {
+  return {
+    ...defaultSiteData,
+    ...parsed,
+    settings: { ...defaultSiteData.settings, ...(parsed.settings ?? {}) },
+    sectionTitles: { ...defaultSiteData.sectionTitles, ...(parsed.sectionTitles ?? {}) },
+    eleganceBanner: { ...defaultSiteData.eleganceBanner, ...(parsed.eleganceBanner ?? {}) },
+    resultadoMagic: { ...defaultSiteData.resultadoMagic, ...(parsed.resultadoMagic ?? {}) },
+    sobreNos: {
+      ...defaultSiteData.sobreNos,
+      ...(parsed.sobreNos ?? {}),
+      values: parsed.sobreNos?.values ?? defaultSiteData.sobreNos.values,
+    },
+    mosaicPhotos: Array.isArray(parsed.mosaicPhotos) ? parsed.mosaicPhotos : defaultSiteData.mosaicPhotos,
+    categoryCards: Array.isArray(parsed.categoryCards) ? parsed.categoryCards : defaultSiteData.categoryCards,
+    footerLinks: Array.isArray(parsed.footerLinks) ? parsed.footerLinks : defaultSiteData.footerLinks,
+    sectionLayout: (Array.isArray(parsed.sectionLayout) && parsed.sectionLayout.length > 0)
+      ? parsed.sectionLayout
+      : defaultSiteData.sectionLayout,
+  };
+}
+
 export function loadSiteData(): SiteData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as Partial<SiteData>;
-      return {
-        ...defaultSiteData,
-        ...parsed,
-        settings: { ...defaultSiteData.settings, ...(parsed.settings ?? {}) },
-        sectionTitles: { ...defaultSiteData.sectionTitles, ...(parsed.sectionTitles ?? {}) },
-        eleganceBanner: { ...defaultSiteData.eleganceBanner, ...(parsed.eleganceBanner ?? {}) },
-        resultadoMagic: { ...defaultSiteData.resultadoMagic, ...(parsed.resultadoMagic ?? {}) },
-        sobreNos: {
-          ...defaultSiteData.sobreNos,
-          ...(parsed.sobreNos ?? {}),
-          values: parsed.sobreNos?.values ?? defaultSiteData.sobreNos.values,
-        },
-        mosaicPhotos: Array.isArray(parsed.mosaicPhotos) ? parsed.mosaicPhotos : defaultSiteData.mosaicPhotos,
-        categoryCards: Array.isArray(parsed.categoryCards) ? parsed.categoryCards : defaultSiteData.categoryCards,
-        footerLinks: Array.isArray(parsed.footerLinks) ? parsed.footerLinks : defaultSiteData.footerLinks,
-        sectionLayout: (Array.isArray(parsed.sectionLayout) && parsed.sectionLayout.length > 0)
-          ? parsed.sectionLayout
-          : defaultSiteData.sectionLayout,
-      };
+      return mergeWithDefaults(JSON.parse(raw) as Partial<SiteData>);
     }
   } catch {}
   return defaultSiteData;
