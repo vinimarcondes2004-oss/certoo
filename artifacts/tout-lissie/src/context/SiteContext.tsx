@@ -35,15 +35,22 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | null>(null);
 
+const UNSAVED_KEY = "pr_has_unsaved";
+
 export function SiteProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<SiteData>(loadSiteData);
   const [synced, setSynced] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [hasUnsaved, setHasUnsaved] = useState(false);
+  const [hasUnsaved, setHasUnsaved] = useState(() => localStorage.getItem(UNSAVED_KEY) === "1");
   const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestData = useRef<SiteData>(data);
 
   useEffect(() => {
+    const pendingUnsaved = localStorage.getItem(UNSAVED_KEY) === "1";
+    if (pendingUnsaved) {
+      setSynced(true);
+      return;
+    }
     fetchSiteData().then(serverData => {
       const resolved = serverData ?? mergeWithDefaults({});
       setData(resolved);
@@ -60,6 +67,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       latestData.current = next;
       return next;
     });
+    localStorage.setItem(UNSAVED_KEY, "1");
     setHasUnsaved(true);
   }
 
@@ -69,6 +77,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     try {
       await pushSiteData(latestData.current);
       setSaveStatus("saved");
+      localStorage.removeItem(UNSAVED_KEY);
       setHasUnsaved(false);
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
     } catch {
