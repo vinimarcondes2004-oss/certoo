@@ -97,15 +97,19 @@ function Header() {
   );
 }
 
-const categories = ["Todos", "Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits", "Progressiva"];
-
 export default function Produtos() {
   const { data } = useSite();
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [search, setSearch] = useState("");
 
+  const categories = ["Todos", ...Array.from(new Set(
+    data.products.map(p => p.categoryLabel).filter(Boolean)
+  ))];
+
   const filtered = data.products.filter(p => {
-    const matchCat = activeCategory === "Todos" || p.categoryLabel === activeCategory;
+    const matchCat = activeCategory === "Todos"
+      || p.categoryLabel === activeCategory
+      || (p.extraCategories || []).some(e => e.toLowerCase() === activeCategory.toLowerCase());
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });

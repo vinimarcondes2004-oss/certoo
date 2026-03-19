@@ -214,6 +214,44 @@ function ProductsTab() {
             </div>
           </div>
 
+          {/* Abas da página Produtos */}
+          {(() => {
+            const allLabels = Array.from(new Set(
+              data.products.map(p => p.categoryLabel).filter(Boolean)
+            ));
+            if (allLabels.length === 0) return null;
+            return (
+              <div>
+                <p className="text-[11px] font-semibold text-gray-400 uppercase mb-2">Abas da página Produtos</p>
+                <div className="space-y-2">
+                  {allLabels.map(label => {
+                    const isMain = (editing.categoryLabel || "") === label;
+                    const extras = editing.extraCategories || [];
+                    const inExtra = extras.some(e => e.toLowerCase() === label.toLowerCase());
+                    const checked = isMain || inExtra;
+                    return (
+                      <label key={label} className={`flex items-center gap-2.5 ${isMain ? "opacity-70" : "cursor-pointer group"}`}>
+                        <input type="checkbox"
+                          checked={checked}
+                          disabled={isMain}
+                          onChange={e => {
+                            if (isMain) return;
+                            const base = extras.filter(x => x.toLowerCase() !== label.toLowerCase());
+                            setEditing({ ...editing, extraCategories: e.target.checked ? [...base, label.toLowerCase()] : base });
+                          }}
+                          className="w-4 h-4 rounded accent-pink-500" />
+                        <span className={`text-sm text-gray-700 ${!isMain && "group-hover:text-gray-900"}`}>
+                          {label}
+                          {isMain && <span className="ml-1 text-[10px] text-gray-400">(aba principal)</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Páginas de categoria */}
           {data.categoryCards.length > 0 && (
             <div>
