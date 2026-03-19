@@ -4,7 +4,6 @@ import { ShoppingCart, Star, Heart, User, Menu, X, ChevronRight, Instagram, Face
 import { useSite } from "@/context/SiteContext";
 
 const PINK = "#e8006f";
-const PINK2 = "#f5007a";
 const DARK_RED = "#c0003d";
 
 const imgSrc = (img: string) =>
@@ -22,26 +21,6 @@ function Stars({ n = 5, size = 14 }: { n?: number; size?: number }) {
   );
 }
 
-function AnnouncementBar() {
-  const { data } = useSite();
-  return (
-    <div style={{ background: `linear-gradient(90deg, ${DARK_RED}, ${PINK2})` }}
-      className="py-2 px-4 flex items-center justify-between gap-4 text-white text-xs">
-      <div className="hidden md:flex items-center gap-6 font-medium">
-        {(data.settings.announcementText || "").split("•").map((t, i) => (
-          <span key={i}>{t.trim()}</span>
-        ))}
-      </div>
-      <div className="flex md:hidden items-center gap-2 font-medium flex-1">
-        <span>{data.settings.announcementText}</span>
-      </div>
-      <button style={{ background: "white", color: PINK }}
-        className="font-black text-xs rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap flex-shrink-0">
-        {data.settings.announcementButton || "APROVEITE AGORA!"}
-      </button>
-    </div>
-  );
-}
 
 function Header() {
   const [open, setOpen] = useState(false);
@@ -151,7 +130,6 @@ export default function Produto() {
   if (!product) {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <AnnouncementBar />
         <Header />
         <div className="flex-1 flex flex-col items-center justify-center py-20 text-center">
           <p className="text-2xl font-black text-gray-800 mb-2">Produto não encontrado</p>
@@ -187,7 +165,6 @@ export default function Produto() {
 
   return (
     <div className="min-h-screen bg-white">
-      <AnnouncementBar />
       <Header />
 
       {/* Breadcrumb */}
