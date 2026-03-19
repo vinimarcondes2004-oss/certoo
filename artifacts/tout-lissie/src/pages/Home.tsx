@@ -525,19 +525,29 @@ function Footer() {
 }
 
 /* ─── PAGE ─── */
+const SECTION_MAP: Record<string, React.FC> = {
+  hero: Hero,
+  categories: CategoriesBanner,
+  bestSellers: BestSellers,
+  mosaico: WhoRecommends,
+  elegance: EleganceBanner,
+  resultadoMagic: ResultadoMagic,
+  reviews: WhoUses,
+  salon: SalonSection,
+  faq: FAQ,
+};
+
 export default function Home() {
+  const { data } = useSite();
+  const layout = data.sectionLayout;
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <Hero />
-      <BestSellers />
-      <WhoRecommends />
-      <EleganceBanner />
-      <ResultadoMagic />
-      <WhoUses />
-      <CategoriesBanner />
-      <SalonSection />
-      <FAQ />
+      {layout.map(s => {
+        if (!s.visible) return null;
+        const Comp = SECTION_MAP[s.id];
+        return Comp ? <Comp key={s.id} /> : null;
+      })}
       <Footer />
     </div>
   );

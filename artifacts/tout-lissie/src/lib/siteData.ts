@@ -106,6 +106,12 @@ export interface FooterLink {
   column: "products" | "company" | "support";
 }
 
+export interface SectionConfig {
+  id: string;
+  label: string;
+  visible: boolean;
+}
+
 export interface SiteSettings {
   siteName: string;
   logo: string;
@@ -134,6 +140,7 @@ export interface SiteData {
   sectionTitles: SectionTitles;
   sobreNos: SobreNosPage;
   footerLinks: FooterLink[];
+  sectionLayout: SectionConfig[];
   settings: SiteSettings;
 }
 
@@ -229,6 +236,17 @@ export const defaultSiteData: SiteData = {
     { id: "5", label: "Sobre nós", href: "/sobre-nos", column: "company" },
     { id: "6", label: "Rastrear pedido", href: "/rastrear-pedido", column: "support" },
   ],
+  sectionLayout: [
+    { id: "hero", label: "Hero / Slides", visible: true },
+    { id: "categories", label: "Cards de Categoria", visible: true },
+    { id: "bestSellers", label: "Mais Vendidos", visible: true },
+    { id: "mosaico", label: "Mosaico 'Quem usa'", visible: true },
+    { id: "elegance", label: "Banner Elegance", visible: true },
+    { id: "resultadoMagic", label: "Antes & Depois", visible: true },
+    { id: "reviews", label: "Avaliações de Clientes", visible: true },
+    { id: "salon", label: "Seção Salões", visible: true },
+    { id: "faq", label: "FAQ", visible: true },
+  ],
   settings: {
     siteName: "PR Profissional",
     logo: "logo-pr.png",
@@ -268,6 +286,7 @@ export function loadSiteData(): SiteData {
         mosaicPhotos: parsed.mosaicPhotos ?? defaultSiteData.mosaicPhotos,
         categoryCards: parsed.categoryCards ?? defaultSiteData.categoryCards,
         footerLinks: parsed.footerLinks ?? defaultSiteData.footerLinks,
+        sectionLayout: parsed.sectionLayout ?? defaultSiteData.sectionLayout,
       };
     }
   } catch {}

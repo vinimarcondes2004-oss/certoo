@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
-  Upload, FileText, ArrowUp, ArrowDown
+  Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
@@ -917,6 +917,97 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
   );
 }
 
+/* ─── LAYOUT TAB ─── */
+function LayoutTab() {
+  const { data, updateData } = useSite();
+  const layout = data.sectionLayout;
+
+  function move(i: number, dir: -1 | 1) {
+    const arr = [...layout];
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    updateData({ sectionLayout: arr });
+  }
+
+  function toggle(i: number) {
+    const arr = layout.map((s, idx) => idx === i ? { ...s, visible: !s.visible } : s);
+    updateData({ sectionLayout: arr });
+  }
+
+  const ICONS: Record<string, string> = {
+    hero: "🖼️", categories: "🗂️", bestSellers: "⭐", mosaico: "🎨",
+    elegance: "✨", resultadoMagic: "💫", reviews: "💬", salon: "💇", faq: "❓",
+  };
+
+  return (
+    <div className="max-w-lg">
+      <h3 className="font-black text-lg text-gray-800 mb-1">Layout da Página Inicial</h3>
+      <p className="text-sm text-gray-500 mb-6">Reordene as seções e ative ou desative cada uma. O cabeçalho e rodapé são fixos.</p>
+
+      {/* Fixed top indicator */}
+      <div className="flex items-center gap-3 bg-gray-100 rounded-2xl p-3.5 mb-2 opacity-60">
+        <div className="w-9 h-9 rounded-xl bg-gray-300 flex items-center justify-center text-base">🔝</div>
+        <div className="flex-1">
+          <p className="font-bold text-sm text-gray-700">Cabeçalho (fixo)</p>
+          <p className="text-xs text-gray-400">Sempre no topo</p>
+        </div>
+        <span className="text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-semibold">Fixo</span>
+      </div>
+
+      {/* Sortable sections */}
+      <div className="space-y-2 mb-2">
+        {layout.map((s, i) => (
+          <div key={s.id}
+            className={`flex items-center gap-3 rounded-2xl p-3.5 border-2 transition ${s.visible ? "bg-white border-gray-100" : "bg-gray-50 border-gray-100 opacity-60"}`}>
+            {/* Position arrows */}
+            <div className="flex flex-col gap-0.5 flex-shrink-0">
+              <button onClick={() => move(i, -1)} disabled={i === 0}
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
+                <ArrowUp size={12} />
+              </button>
+              <button onClick={() => move(i, 1)} disabled={i === layout.length - 1}
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
+                <ArrowDown size={12} />
+              </button>
+            </div>
+
+            {/* Icon */}
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${s.visible ? "bg-pink-50" : "bg-gray-200"}`}>
+              {ICONS[s.id] ?? "📄"}
+            </div>
+
+            {/* Label + position */}
+            <div className="flex-1 min-w-0">
+              <p className={`font-bold text-sm ${s.visible ? "text-gray-800" : "text-gray-400"}`}>{s.label}</p>
+              <p className="text-xs text-gray-400">Posição {i + 1}</p>
+            </div>
+
+            {/* Visible toggle */}
+            <button onClick={() => toggle(i)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition flex-shrink-0 ${s.visible ? "text-white border-transparent" : "text-gray-400 border-gray-200 bg-white hover:bg-gray-50"}`}
+              style={s.visible ? { background: PINK } : {}}>
+              {s.visible ? <><Eye size={12} /> Visível</> : <><EyeOff size={12} /> Oculto</>}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Fixed bottom indicator */}
+      <div className="flex items-center gap-3 bg-gray-100 rounded-2xl p-3.5 opacity-60">
+        <div className="w-9 h-9 rounded-xl bg-gray-300 flex items-center justify-center text-base">🔚</div>
+        <div className="flex-1">
+          <p className="font-bold text-sm text-gray-700">Rodapé (fixo)</p>
+          <p className="text-xs text-gray-400">Sempre no fim</p>
+        </div>
+        <span className="text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-semibold">Fixo</span>
+      </div>
+
+      <p className="text-xs text-gray-400 mt-4">Alterações salvas automaticamente e aplicadas no site imediatamente.</p>
+    </div>
+  );
+}
+
 /* ─── DASHBOARD ─── */
 function Dashboard() {
   const { data } = useSite();
@@ -954,7 +1045,7 @@ function Dashboard() {
 }
 
 /* ─── MAIN ─── */
-type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "settings";
+type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "layout" | "settings";
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
@@ -963,6 +1054,7 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "reviews", label: "Avaliações", icon: <MessageSquare size={17} /> },
   { id: "faq", label: "FAQ", icon: <MessageSquare size={17} /> },
   { id: "content", label: "Conteúdo", icon: <FileText size={17} /> },
+  { id: "layout", label: "Layout", icon: <Layers size={17} /> },
   { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
 ];
 
@@ -999,6 +1091,7 @@ export default function Admin() {
         {tab === "reviews" && <ReviewsTab />}
         {tab === "faq" && <FaqTab />}
         {tab === "content" && <ContentTab />}
+        {tab === "layout" && <LayoutTab />}
         {tab === "settings" && <SettingsTab onLogout={logout} />}
       </main>
     </div>
