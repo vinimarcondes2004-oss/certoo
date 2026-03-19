@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, ReactNode } fro
 import { SiteData, loadSiteData, saveSiteData, mergeWithDefaults } from "@/lib/siteData";
 
 const API_URL = "/api/site-data";
+const AUTO_SAVE_DELAY = 1500;
 
 async function fetchSiteData(): Promise<SiteData | null> {
   try {
@@ -35,22 +36,16 @@ interface SiteContextType {
 
 const SiteContext = createContext<SiteContextType | null>(null);
 
-const UNSAVED_KEY = "pr_has_unsaved";
-
 export function SiteProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<SiteData>(loadSiteData);
   const [synced, setSynced] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [hasUnsaved, setHasUnsaved] = useState(() => localStorage.getItem(UNSAVED_KEY) === "1");
+  const [hasUnsaved, setHasUnsaved] = useState(false);
   const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestData = useRef<SiteData>(data);
 
   useEffect(() => {
-    const pendingUnsaved = localStorage.getItem(UNSAVED_KEY) === "1";
-    if (pendingUnsaved) {
-      setSynced(true);
-      return;
-    }
     fetchSiteData().then(serverData => {
       const resolved = serverData ?? mergeWithDefaults({});
       setData(resolved);
@@ -60,6 +55,23 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  function triggerAutoSave() {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      if (statusTimer.current) clearTimeout(statusTimer.current);
+      setSaveStatus("saving");
+      try {
+        await pushSiteData(latestData.current);
+        setSaveStatus("saved");
+        setHasUnsaved(false);
+        statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
+      } catch {
+        setSaveStatus("error");
+        statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
+      }
+    }, AUTO_SAVE_DELAY);
+  }
+
   function updateData(updates: Partial<SiteData>) {
     setData(prev => {
       const next = { ...prev, ...updates };
@@ -67,17 +79,17 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       latestData.current = next;
       return next;
     });
-    localStorage.setItem(UNSAVED_KEY, "1");
     setHasUnsaved(true);
+    triggerAutoSave();
   }
 
   async function saveToServer() {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     if (statusTimer.current) clearTimeout(statusTimer.current);
     setSaveStatus("saving");
     try {
       await pushSiteData(latestData.current);
       setSaveStatus("saved");
-      localStorage.removeItem(UNSAVED_KEY);
       setHasUnsaved(false);
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
     } catch {
