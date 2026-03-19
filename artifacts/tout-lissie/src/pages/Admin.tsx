@@ -423,7 +423,7 @@ function ContentTab() {
     setEditMosaic(null);
   }
   function addMosaic() {
-    const newP: MosaicPhoto = { id: generateId(), img: "", big: false };
+    const newP: MosaicPhoto = { id: generateId(), type: "image", img: "", big: false, aspectRatio: "1/1" };
     updateData({ mosaicPhotos: [...data.mosaicPhotos, newP] });
   }
   function removeMosaic(id: string) {
@@ -590,15 +590,50 @@ function ContentTab() {
                   <p className="text-xs text-gray-400 mt-1">Cole o link do YouTube ou um link direto de vídeo (.mp4).</p>
                 </Field>
               )}
-              <Field label="Tamanho">
+              <Field label="Largura">
                 <div className="flex gap-3">
                   {([false, true] as const).map(b => (
                     <button key={String(b)} type="button" onClick={() => setEditMosaic({ ...editMosaic, big: b })}
                       className={`flex-1 py-2 rounded-lg border text-sm font-semibold transition ${editMosaic.big === b ? "text-white border-transparent" : "border-gray-200 text-gray-500"}`}
                       style={editMosaic.big === b ? { background: PINK } : {}}>
-                      {b ? "Grande (2x2)" : "Normal (1x1)"}
+                      {b ? "Larga (2 colunas)" : "Normal (1 coluna)"}
                     </button>
                   ))}
+                </div>
+              </Field>
+              <Field label="Proporção da imagem / vídeo">
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { label: "1:1", value: "1/1", preview: "aspect-square", desc: "Quadrado" },
+                    { label: "16:9", value: "16/9", preview: "", desc: "Paisagem (YouTube)" },
+                    { label: "9:16", value: "9/16", preview: "", desc: "Retrato (Stories)" },
+                    { label: "4:3", value: "4/3", preview: "", desc: "Foto clássica" },
+                    { label: "3:4", value: "3/4", preview: "", desc: "Retrato clássico" },
+                    { label: "3:2", value: "3/2", preview: "", desc: "Paisagem larga" },
+                  ] as const).map(opt => {
+                    const selected = (editMosaic.aspectRatio ?? "1/1") === opt.value;
+                    return (
+                      <button key={opt.value} type="button"
+                        onClick={() => setEditMosaic({ ...editMosaic, aspectRatio: opt.value })}
+                        className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl border text-xs font-semibold transition ${selected ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
+                        style={selected ? { background: PINK } : {}}>
+                        <div className="flex items-center justify-center w-10 h-7"
+                          style={{ aspectRatio: opt.value.replace("/", "/"), width: 36, height: "auto" }}>
+                          <div className="bg-current opacity-30 rounded"
+                            style={{ width: "100%", aspectRatio: opt.value, minHeight: 4, maxHeight: 28, maxWidth: 36 }} />
+                        </div>
+                        <span>{opt.label}</span>
+                        <span className={`text-[9px] font-normal ${selected ? "text-white/80" : "text-gray-400"}`}>{opt.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-gray-400">Personalizado:</span>
+                  <input className="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none"
+                    value={editMosaic.aspectRatio ?? "1/1"}
+                    onChange={e => setEditMosaic({ ...editMosaic, aspectRatio: e.target.value })}
+                    placeholder="ex: 16/9" />
                 </div>
               </Field>
               <div className="flex gap-3">
@@ -628,9 +663,10 @@ function ContentTab() {
                       ) : (
                         <p className="text-xs text-gray-500">{p.img ? (p.img.startsWith("data:") ? "(imagem enviada)" : p.img) : "(sem imagem)"}</p>
                       )}
-                      <div className="flex gap-1.5 mt-0.5">
+                      <div className="flex gap-1.5 mt-0.5 flex-wrap">
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${(p.type ?? "image") === "video" ? "bg-purple-100 text-purple-600" : "bg-blue-100 text-blue-600"}`}>{(p.type ?? "image") === "video" ? "Vídeo" : "Foto"}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Grande" : "Normal"}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Larga" : "Normal"}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-600">{(p.aspectRatio ?? "1/1").replace("/", ":")}</span>
                       </div>
                     </div>
                     <div className="flex gap-2">

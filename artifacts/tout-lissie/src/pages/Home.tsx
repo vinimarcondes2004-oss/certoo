@@ -184,13 +184,16 @@ function WhoRecommends() {
     <section className="py-8" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-6">{data.sectionTitles.whoRecommends}</h2>
-        <div className="grid grid-cols-4 gap-2" style={{ gridAutoRows: "140px" }}>
+        <div className="grid grid-cols-4 gap-2 items-start">
           {data.mosaicPhotos.map((p, i) => {
             const isVideo = p.type === "video";
             const ytEmbed = isVideo && p.videoUrl ? toYoutubeEmbed(p.videoUrl) : null;
             const isDirectVideo = isVideo && p.videoUrl && !ytEmbed;
+            const ar = p.aspectRatio || "1/1";
             return (
-              <div key={p.id ?? i} className={`rounded-2xl overflow-hidden relative ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
+              <div key={p.id ?? i}
+                className={`rounded-2xl overflow-hidden relative ${p.big ? "col-span-2" : "col-span-1"}`}
+                style={{ aspectRatio: ar }}>
                 {isVideo ? (
                   ytEmbed ? (
                     <iframe

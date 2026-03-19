@@ -42,6 +42,7 @@ export interface MosaicPhoto {
   img: string;
   videoUrl?: string;
   big: boolean;
+  aspectRatio?: string;
 }
 
 export interface CategoryCard {
