@@ -104,7 +104,9 @@ export default function Categoria() {
       || (p.extraCategories || []).map(e => e.toLowerCase()).includes(s)
       || (p.categoryLabel || "").toLowerCase() === s;
   });
-  const label = products[0]?.categoryLabel ?? slug?.replace(/-/g, " ");
+  const primaryMatch = products.find(p => p.category === slug);
+  const rawLabel = primaryMatch?.categoryLabel ?? (slug ? slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, " ") : "");
+  const label = rawLabel;
 
   return (
     <div className="min-h-screen bg-white">
