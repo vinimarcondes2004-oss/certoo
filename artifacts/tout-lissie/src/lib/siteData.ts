@@ -36,13 +36,57 @@ export interface FaqItem {
   a: string;
 }
 
+export interface MosaicPhoto {
+  id: string;
+  img: string;
+  big: boolean;
+}
+
+export interface CategoryCard {
+  id: string;
+  label: string;
+  slug: string;
+  img: string;
+  color: string;
+}
+
+export interface EleganceBanner {
+  img: string;
+  tagline: string;
+  title: string;
+  titleHighlight: string;
+  subtitle: string;
+  buttonText: string;
+}
+
+export interface ResultadoMagic {
+  title: string;
+  subtitle: string;
+  beforeImg: string;
+  afterImg: string;
+}
+
+export interface SectionTitles {
+  bestSellers: string;
+  whoRecommends: string;
+  whoUses: string;
+  salonSection: string;
+  salonSubtitle: string;
+  faq: string;
+  faqCta: string;
+  faqCtaSubtitle: string;
+}
+
 export interface SiteSettings {
   siteName: string;
+  logo: string;
   whatsapp: string;
   email: string;
   primaryColor: string;
   announcementText: string;
+  announcementButton: string;
   footerAbout: string;
+  footerCopyright: string;
 }
 
 export interface SiteData {
@@ -51,6 +95,11 @@ export interface SiteData {
   reviews: Review[];
   salonReviews: Review[];
   faqs: FaqItem[];
+  mosaicPhotos: MosaicPhoto[];
+  categoryCards: CategoryCard[];
+  eleganceBanner: EleganceBanner;
+  resultadoMagic: ResultadoMagic;
+  sectionTitles: SectionTitles;
   settings: SiteSettings;
 }
 
@@ -86,13 +135,53 @@ export const defaultSiteData: SiteData = {
     { id: "4", q: "Posso trocar ou devolver?", a: "Sim! Oferecemos 30 dias para troca ou devolução sem complicação." },
     { id: "5", q: "Os produtos são testados em animais?", a: "Não! Somos 100% cruelty-free." },
   ],
+  mosaicPhotos: [
+    { id: "1", img: "mosaic-hair.jpg", big: true },
+    { id: "2", img: "mosaic-hair-2.jpg", big: false },
+    { id: "3", img: "mosaic-hair-3.webp", big: false },
+    { id: "4", img: "mosaic-hair-6.jpg", big: false },
+    { id: "5", img: "mosaic-hair-5.jpg", big: false },
+  ],
+  categoryCards: [
+    { id: "1", label: "Shampoo e máscara", slug: "shampoo-e-mascara", img: "product-pos-quimica.png", color: "#d0eaf8" },
+    { id: "2", label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-oil-repair.png", color: "#d5f0e0" },
+    { id: "3", label: "Progressiva sem formol", slug: "progressiva-sem-formol", img: "product-progressiva.png", color: "#fde8f0" },
+    { id: "4", label: "Finalizadores", slug: "finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec" },
+  ],
+  eleganceBanner: {
+    img: "product-oil-repair-colorful.png",
+    tagline: "A elegância que",
+    title: "seus fios",
+    titleHighlight: "merecem",
+    subtitle: "Cabelos lindos • Fios saudáveis • Resultado garantido",
+    buttonText: "Descubra Agora",
+  },
+  resultadoMagic: {
+    title: "Resultado Magic",
+    subtitle: "Veja a transformação real",
+    beforeImg: "before-hair.jpg",
+    afterImg: "after-hair.jpg",
+  },
+  sectionTitles: {
+    bestSellers: "Mais Vendidos",
+    whoRecommends: "Quem usa Profissional recomenda",
+    whoUses: "Quem usa Profissional recomenda! 💖",
+    salonSection: "Profissional a queridinha dos salões ♥",
+    salonSubtitle: "Profissionais que confiam na qualidade Profissional",
+    faq: "FAQ",
+    faqCta: "Ficou alguma dúvida?",
+    faqCtaSubtitle: "Nossa equipe está disponível para te ajudar segunda a sexta, das 8h às 18h.",
+  },
   settings: {
     siteName: "PR Profissional",
+    logo: "logo-pr.png",
     whatsapp: "5511953770968",
     email: "Prprofissional0111@gmail.com",
     primaryColor: "#e8006f",
     announcementText: "Pegue instantaneamente • Proteja os fios • Resultados visíveis",
+    announcementButton: "APROVEITE AGORA!",
     footerAbout: "A marca favorita de quem cuida do cabelo com amor e dedicação.",
+    footerCopyright: "© 2026 Profissional. Todos os direitos reservados.",
   },
 };
 
@@ -103,8 +192,17 @@ export function loadSiteData(): SiteData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as SiteData;
-      return { ...defaultSiteData, ...parsed };
+      const parsed = JSON.parse(raw) as Partial<SiteData>;
+      return {
+        ...defaultSiteData,
+        ...parsed,
+        settings: { ...defaultSiteData.settings, ...(parsed.settings ?? {}) },
+        sectionTitles: { ...defaultSiteData.sectionTitles, ...(parsed.sectionTitles ?? {}) },
+        eleganceBanner: { ...defaultSiteData.eleganceBanner, ...(parsed.eleganceBanner ?? {}) },
+        resultadoMagic: { ...defaultSiteData.resultadoMagic, ...(parsed.resultadoMagic ?? {}) },
+        mosaicPhotos: parsed.mosaicPhotos ?? defaultSiteData.mosaicPhotos,
+        categoryCards: parsed.categoryCards ?? defaultSiteData.categoryCards,
+      };
     }
   } catch {}
   return defaultSiteData;

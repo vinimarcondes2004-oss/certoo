@@ -2,17 +2,21 @@ import { useState, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
-  Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft, Upload
+  Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
+  Upload, FileText, ArrowUp, ArrowDown
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
-import { getAdminPassword, setAdminPassword, generateId, Product, Review, FaqItem } from "@/lib/siteData";
+import {
+  getAdminPassword, setAdminPassword, generateId,
+  Product, Review, FaqItem, MosaicPhoto, CategoryCard,
+} from "@/lib/siteData";
 
 const PINK = "#e8006f";
 
+/* ─── LOGIN ─── */
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [pw, setPw] = useState("");
   const [error, setError] = useState(false);
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (pw === getAdminPassword()) {
@@ -23,28 +27,20 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
       setTimeout(() => setError(false), 2000);
     }
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#fdf0f6" }}>
       <div className="bg-white rounded-3xl shadow-xl p-10 w-full max-w-sm text-center">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-          style={{ background: PINK }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: PINK }}>
           <Lock size={28} className="text-white" />
         </div>
         <h1 className="font-black text-2xl text-gray-900 mb-1">Área Admin</h1>
         <p className="text-gray-400 text-sm mb-7">PR Profissional</p>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            placeholder="Senha"
-            value={pw}
+          <input type="password" placeholder="Senha" value={pw}
             onChange={e => setPw(e.target.value)}
-            className={`w-full border-2 rounded-xl px-4 py-3 text-sm outline-none transition ${error ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-pink-400"}`}
-          />
+            className={`w-full border-2 rounded-xl px-4 py-3 text-sm outline-none transition ${error ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-pink-400"}`} />
           {error && <p className="text-red-500 text-xs">Senha incorreta</p>}
-          <button type="submit"
-            className="w-full text-white font-bold rounded-xl py-3 text-sm transition hover:opacity-90"
-            style={{ background: PINK }}>
+          <button type="submit" className="w-full text-white font-bold rounded-xl py-3 text-sm transition hover:opacity-90" style={{ background: PINK }}>
             Entrar
           </button>
         </form>
@@ -58,6 +54,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   );
 }
 
+/* ─── HELPERS ─── */
 function StarsInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
     <div className="flex gap-1">
@@ -82,46 +79,35 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-400 transition";
 const textareaCls = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-400 transition resize-none";
 
+function imgSrc(v: string) {
+  if (!v) return "";
+  return v.startsWith("data:") || v.startsWith("http") ? v : `${import.meta.env.BASE_URL}${v}`;
+}
+
 function ImagePicker({ value, onChange, label = "Imagem" }: { value: string; onChange: (v: string) => void; label?: string }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-
   const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      onChange(ev.target?.result as string);
-      setLoading(false);
-    };
+    reader.onload = (ev) => { onChange(ev.target?.result as string); setLoading(false); };
     reader.readAsDataURL(file);
     e.target.value = "";
   }, [onChange]);
-
-  const preview = value
-    ? (value.startsWith("data:") || value.startsWith("http")
-        ? value
-        : `${import.meta.env.BASE_URL}${value}`)
-    : null;
-
+  const preview = value ? imgSrc(value) : null;
   return (
     <Field label={label}>
       <div className="space-y-2">
         <div className="flex gap-2">
-          <input
-            className={inputCls + " flex-1"}
+          <input className={inputCls + " flex-1"}
             value={value.startsWith("data:") ? "(imagem enviada)" : value}
             onChange={e => onChange(e.target.value)}
             placeholder="nome-do-arquivo.png ou URL"
-            readOnly={value.startsWith("data:")}
-          />
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-dashed border-gray-300 text-sm font-semibold text-gray-500 hover:border-pink-400 hover:text-pink-500 transition whitespace-nowrap"
-          >
+            readOnly={value.startsWith("data:")} />
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-dashed border-gray-300 text-sm font-semibold text-gray-500 hover:border-pink-400 hover:text-pink-500 transition whitespace-nowrap">
             {loading ? <span className="animate-spin text-xs">⏳</span> : <Upload size={14} />}
             {loading ? "Carregando..." : "Escolher arquivo"}
           </button>
@@ -129,18 +115,10 @@ function ImagePicker({ value, onChange, label = "Imagem" }: { value: string; onC
         </div>
         {preview && (
           <div className="rounded-xl overflow-hidden border border-gray-100 h-28 flex items-center justify-center bg-gray-50 relative">
-            <img
-              src={preview}
-              alt=""
-              className="h-24 object-contain"
-              onError={e => (e.currentTarget.style.display = "none")}
-            />
+            <img src={preview} alt="" className="h-24 object-contain" onError={e => (e.currentTarget.style.display = "none")} />
             {value.startsWith("data:") && (
-              <button
-                type="button"
-                onClick={() => onChange("")}
-                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center hover:bg-red-500 transition"
-              >
+              <button type="button" onClick={() => onChange("")}
+                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center hover:bg-red-500 transition">
                 <X size={10} />
               </button>
             )}
@@ -151,62 +129,63 @@ function ImagePicker({ value, onChange, label = "Imagem" }: { value: string; onC
   );
 }
 
+/* ─── SECTION HEADER ─── */
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="mb-5">
+      <h3 className="font-black text-base text-gray-800">{title}</h3>
+      {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+    </div>
+  );
+}
+
+/* ─── PRODUCTS TAB ─── */
 function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
   const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK };
-
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(p: Product) { setEditing({ ...p }); setAdding(false); }
   function cancel() { setEditing(null); }
-
   function save() {
     if (!editing) return;
-    const updated = adding
-      ? [...data.products, editing]
-      : data.products.map(p => p.id === editing.id ? editing : p);
-    updateData({ products: updated });
+    updateData({ products: adding ? [...data.products, editing] : data.products.map(p => p.id === editing.id ? editing : p) });
     setEditing(null);
   }
-
   function remove(id: string) {
     if (!confirm("Remover este produto?")) return;
     updateData({ products: data.products.filter(p => p.id !== id) });
   }
-
-  if (editing) {
-    return (
-      <div className="max-w-xl">
-        <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Novo Produto" : "Editar Produto"}</h3>
-        <div className="space-y-4">
-          <Field label="Nome"><input className={inputCls} value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Volume/Tamanho"><input className={inputCls} value={editing.ml} onChange={e => setEditing({ ...editing, ml: e.target.value })} placeholder="300ml" /></Field>
-            <Field label="Badge"><input className={inputCls} value={editing.badge} onChange={e => setEditing({ ...editing, badge: e.target.value })} placeholder="Mais Vendido" /></Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Preço"><input className={inputCls} value={editing.price} onChange={e => setEditing({ ...editing, price: e.target.value })} placeholder="R$ 80,00" /></Field>
-            <Field label="Preço antigo"><input className={inputCls} value={editing.old} onChange={e => setEditing({ ...editing, old: e.target.value })} placeholder="R$ 120,00" /></Field>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Categoria (slug)"><input className={inputCls} value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
-            <Field label="Categoria (label)"><input className={inputCls} value={editing.categoryLabel} onChange={e => setEditing({ ...editing, categoryLabel: e.target.value })} placeholder="Shampoos" /></Field>
-          </div>
-          <ImagePicker label="Imagem do produto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
-          <Field label="Cor do card (hex)"><input className={inputCls} value={editing.color} onChange={e => setEditing({ ...editing, color: e.target.value })} placeholder="#e8006f" /></Field>
-          <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
-          <div className="flex gap-3 pt-2">
-            <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
-              <Save size={15} /> Salvar
-            </button>
-            <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-          </div>
+  if (editing) return (
+    <div className="max-w-xl">
+      <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Novo Produto" : "Editar Produto"}</h3>
+      <div className="space-y-4">
+        <Field label="Nome"><input className={inputCls} value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Volume/Tamanho"><input className={inputCls} value={editing.ml} onChange={e => setEditing({ ...editing, ml: e.target.value })} placeholder="300ml" /></Field>
+          <Field label="Badge"><input className={inputCls} value={editing.badge} onChange={e => setEditing({ ...editing, badge: e.target.value })} placeholder="Mais Vendido" /></Field>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Preço"><input className={inputCls} value={editing.price} onChange={e => setEditing({ ...editing, price: e.target.value })} placeholder="R$ 80,00" /></Field>
+          <Field label="Preço antigo"><input className={inputCls} value={editing.old} onChange={e => setEditing({ ...editing, old: e.target.value })} placeholder="R$ 120,00" /></Field>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Categoria (slug)"><input className={inputCls} value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
+          <Field label="Categoria (label)"><input className={inputCls} value={editing.categoryLabel} onChange={e => setEditing({ ...editing, categoryLabel: e.target.value })} placeholder="Shampoos" /></Field>
+        </div>
+        <ImagePicker label="Imagem do produto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
+        <Field label="Cor do card (hex)"><input className={inputCls} value={editing.color} onChange={e => setEditing({ ...editing, color: e.target.value })} placeholder="#e8006f" /></Field>
+        <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
+        <div className="flex gap-3 pt-2">
+          <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+            <Save size={15} /> Salvar
+          </button>
+          <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
         </div>
       </div>
-    );
-  }
-
+    </div>
+  );
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -218,20 +197,15 @@ function ProductsTab() {
       <div className="space-y-3">
         {data.products.map(p => (
           <div key={p.id} className="flex items-center gap-4 bg-gray-50 rounded-2xl p-3 border border-gray-100">
-            <img src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`} alt={p.name}
-              className="w-14 h-14 object-contain flex-shrink-0 rounded-lg bg-white" onError={e => (e.currentTarget.style.display = "none")} />
+            <img src={imgSrc(p.img)} alt={p.name} className="w-14 h-14 object-contain flex-shrink-0 rounded-lg bg-white" onError={e => (e.currentTarget.style.display = "none")} />
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-gray-800 truncate">{p.name}</p>
               <p className="text-xs text-gray-400">{p.ml} · {p.categoryLabel}</p>
               <p className="text-xs font-black" style={{ color: PINK }}>{p.price}</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => startEdit(p)} className="p-2 rounded-lg hover:bg-white transition border border-gray-200">
-                <Pencil size={14} className="text-gray-500" />
-              </button>
-              <button onClick={() => remove(p.id)} className="p-2 rounded-lg hover:bg-red-50 transition border border-gray-200">
-                <Trash2 size={14} className="text-red-400" />
-              </button>
+              <button onClick={() => startEdit(p)} className="p-2 rounded-lg hover:bg-white transition border border-gray-200"><Pencil size={14} className="text-gray-500" /></button>
+              <button onClick={() => remove(p.id)} className="p-2 rounded-lg hover:bg-red-50 transition border border-gray-200"><Trash2 size={14} className="text-red-400" /></button>
             </div>
           </div>
         ))}
@@ -240,14 +214,13 @@ function ProductsTab() {
   );
 }
 
+/* ─── HERO TAB ─── */
 function HeroTab() {
   const { data, updateData } = useSite();
   const slides = data.heroSlides;
-
   function update(id: string, field: string, value: string) {
     updateData({ heroSlides: slides.map(s => s.id === id ? { ...s, [field]: value } : s) });
   }
-
   return (
     <div>
       <h3 className="font-black text-lg text-gray-800 mb-6">Slides do Hero</h3>
@@ -269,8 +242,7 @@ function HeroTab() {
                 <ImagePicker label="Imagem de fundo" value={s.img} onChange={v => update(s.id, "img", v)} />
               </div>
               <div className="rounded-xl overflow-hidden bg-gray-200 h-44 flex items-center justify-center relative">
-                <img src={s.img.startsWith("http") ? s.img : `${import.meta.env.BASE_URL}${s.img}`} alt=""
-                  className="absolute inset-0 w-full h-full object-cover" onError={e => (e.currentTarget.style.opacity = "0")} />
+                <img src={imgSrc(s.img)} alt="" className="absolute inset-0 w-full h-full object-cover" onError={e => (e.currentTarget.style.opacity = "0")} />
                 <span className="relative z-10 text-white font-bold text-xs bg-black/40 px-3 py-1 rounded-full">Preview</span>
               </div>
             </div>
@@ -282,6 +254,7 @@ function HeroTab() {
   );
 }
 
+/* ─── REVIEWS TAB ─── */
 function ReviewsTab() {
   const { data, updateData } = useSite();
   const [section, setSection] = useState<"reviews" | "salon">("reviews");
@@ -289,53 +262,44 @@ function ReviewsTab() {
   const [adding, setAdding] = useState(false);
   const blank: Review = { id: "", name: "", img: "", stars: 5, text: "", date: "", role: "" };
   const items = section === "reviews" ? data.reviews : data.salonReviews;
-
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(r: Review) { setEditing({ ...r }); setAdding(false); }
   function cancel() { setEditing(null); }
-
   function save() {
     if (!editing) return;
     const key = section === "reviews" ? "reviews" : "salonReviews";
     const list = data[key] as Review[];
-    const updated = adding ? [...list, editing] : list.map(r => r.id === editing.id ? editing : r);
-    updateData({ [key]: updated });
+    updateData({ [key]: adding ? [...list, editing] : list.map(r => r.id === editing.id ? editing : r) });
     setEditing(null);
   }
-
   function remove(id: string) {
     if (!confirm("Remover esta avaliação?")) return;
     const key = section === "reviews" ? "reviews" : "salonReviews";
-    const list = data[key] as Review[];
-    updateData({ [key]: list.filter(r => r.id !== id) });
+    updateData({ [key]: (data[key] as Review[]).filter(r => r.id !== id) });
   }
-
-  if (editing) {
-    return (
-      <div className="max-w-lg">
-        <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Nova Avaliação" : "Editar Avaliação"}</h3>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Nome"><input className={inputCls} value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
-            <Field label="Data"><input className={inputCls} value={editing.date} onChange={e => setEditing({ ...editing, date: e.target.value })} placeholder="15 mar 2026" /></Field>
-          </div>
-          {section === "salon" && (
-            <Field label="Cargo / Salão"><input className={inputCls} value={editing.role ?? ""} onChange={e => setEditing({ ...editing, role: e.target.value })} placeholder="Cabeleireira profissional" /></Field>
-          )}
-          <ImagePicker label="Foto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
-          <Field label="Depoimento"><textarea className={textareaCls} rows={3} value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })} /></Field>
-          <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
-          <div className="flex gap-3 pt-2">
-            <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
-              <Save size={15} /> Salvar
-            </button>
-            <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-          </div>
+  if (editing) return (
+    <div className="max-w-lg">
+      <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Nova Avaliação" : "Editar Avaliação"}</h3>
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Nome"><input className={inputCls} value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
+          <Field label="Data"><input className={inputCls} value={editing.date} onChange={e => setEditing({ ...editing, date: e.target.value })} placeholder="15 mar 2026" /></Field>
+        </div>
+        {section === "salon" && (
+          <Field label="Cargo / Salão"><input className={inputCls} value={editing.role ?? ""} onChange={e => setEditing({ ...editing, role: e.target.value })} placeholder="Cabeleireira profissional" /></Field>
+        )}
+        <ImagePicker label="Foto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
+        <Field label="Depoimento"><textarea className={textareaCls} rows={3} value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })} /></Field>
+        <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
+        <div className="flex gap-3 pt-2">
+          <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+            <Save size={15} /> Salvar
+          </button>
+          <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
         </div>
       </div>
-    );
-  }
-
+    </div>
+  );
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -355,8 +319,7 @@ function ReviewsTab() {
       <div className="space-y-3">
         {items.map(r => (
           <div key={r.id} className="flex items-center gap-4 bg-gray-50 rounded-2xl p-3 border border-gray-100">
-            <img src={r.img.startsWith("http") ? r.img : `${import.meta.env.BASE_URL}${r.img}`} alt={r.name}
-              className="w-10 h-10 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
+            <img src={imgSrc(r.img)} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-gray-800">{r.name} {r.role && <span className="font-normal text-gray-400">· {r.role}</span>}</p>
               <p className="text-xs text-gray-500 truncate">"{r.text}"</p>
@@ -372,19 +335,18 @@ function ReviewsTab() {
   );
 }
 
+/* ─── FAQ TAB ─── */
 function FaqTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<FaqItem | null>(null);
   const [adding, setAdding] = useState(false);
   const blank: FaqItem = { id: "", q: "", a: "" };
-
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(f: FaqItem) { setEditing({ ...f }); setAdding(false); }
   function cancel() { setEditing(null); }
   function save() {
     if (!editing) return;
-    const updated = adding ? [...data.faqs, editing] : data.faqs.map(f => f.id === editing.id ? editing : f);
-    updateData({ faqs: updated });
+    updateData({ faqs: adding ? [...data.faqs, editing] : data.faqs.map(f => f.id === editing.id ? editing : f) });
     setEditing(null);
   }
   function remove(id: string) {
@@ -397,25 +359,21 @@ function FaqTab() {
     [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
     updateData({ faqs: arr });
   }
-
-  if (editing) {
-    return (
-      <div className="max-w-lg">
-        <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Nova Pergunta" : "Editar Pergunta"}</h3>
-        <div className="space-y-4">
-          <Field label="Pergunta"><input className={inputCls} value={editing.q} onChange={e => setEditing({ ...editing, q: e.target.value })} /></Field>
-          <Field label="Resposta"><textarea className={textareaCls} rows={4} value={editing.a} onChange={e => setEditing({ ...editing, a: e.target.value })} /></Field>
-          <div className="flex gap-3 pt-2">
-            <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
-              <Save size={15} /> Salvar
-            </button>
-            <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
-          </div>
+  if (editing) return (
+    <div className="max-w-lg">
+      <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Nova Pergunta" : "Editar Pergunta"}</h3>
+      <div className="space-y-4">
+        <Field label="Pergunta"><input className={inputCls} value={editing.q} onChange={e => setEditing({ ...editing, q: e.target.value })} /></Field>
+        <Field label="Resposta"><textarea className={textareaCls} rows={4} value={editing.a} onChange={e => setEditing({ ...editing, a: e.target.value })} /></Field>
+        <div className="flex gap-3 pt-2">
+          <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+            <Save size={15} /> Salvar
+          </button>
+          <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
         </div>
       </div>
-    );
-  }
-
+    </div>
+  );
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -448,12 +406,248 @@ function FaqTab() {
   );
 }
 
+/* ─── CONTEÚDO TAB ─── */
+function ContentTab() {
+  const { data, updateData } = useSite();
+  const [section, setSection] = useState<"texts" | "logo" | "elegance" | "resultado" | "mosaic" | "categories">("texts");
+
+  const st = data.sectionTitles;
+  const eb = data.eleganceBanner;
+  const rm = data.resultadoMagic;
+
+  /* Mosaic helpers */
+  const [editMosaic, setEditMosaic] = useState<MosaicPhoto | null>(null);
+  function saveMosaic() {
+    if (!editMosaic) return;
+    updateData({ mosaicPhotos: data.mosaicPhotos.map(p => p.id === editMosaic.id ? editMosaic : p) });
+    setEditMosaic(null);
+  }
+  function addMosaic() {
+    const newP: MosaicPhoto = { id: generateId(), img: "", big: false };
+    updateData({ mosaicPhotos: [...data.mosaicPhotos, newP] });
+  }
+  function removeMosaic(id: string) {
+    if (!confirm("Remover esta foto?")) return;
+    updateData({ mosaicPhotos: data.mosaicPhotos.filter(p => p.id !== id) });
+  }
+  function moveMosaic(i: number, dir: -1 | 1) {
+    const arr = [...data.mosaicPhotos];
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    updateData({ mosaicPhotos: arr });
+  }
+
+  /* Category card helpers */
+  const [editCat, setEditCat] = useState<CategoryCard | null>(null);
+  function saveCat() {
+    if (!editCat) return;
+    updateData({ categoryCards: data.categoryCards.map(c => c.id === editCat.id ? editCat : c) });
+    setEditCat(null);
+  }
+  function addCat() {
+    const newC: CategoryCard = { id: generateId(), label: "", slug: "", img: "", color: "#fce4ec" };
+    updateData({ categoryCards: [...data.categoryCards, newC] });
+  }
+  function removeCat(id: string) {
+    if (!confirm("Remover este card?")) return;
+    updateData({ categoryCards: data.categoryCards.filter(c => c.id !== id) });
+  }
+
+  const subTabs = [
+    { id: "texts", label: "Textos das seções" },
+    { id: "logo", label: "Logo" },
+    { id: "elegance", label: "Banner Elegance" },
+    { id: "resultado", label: "Antes & Depois" },
+    { id: "mosaic", label: "Mosaico de fotos" },
+    { id: "categories", label: "Cards de categoria" },
+  ] as const;
+
+  return (
+    <div>
+      <h3 className="font-black text-lg text-gray-800 mb-4">Conteúdo do Site</h3>
+      {/* Sub-tab pills */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {subTabs.map(t => (
+          <button key={t.id} onClick={() => setSection(t.id)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${section === t.id ? "text-white border-transparent" : "text-gray-500 border-gray-200 bg-white hover:bg-gray-50"}`}
+            style={section === t.id ? { background: PINK, borderColor: PINK } : {}}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── TEXTOS DAS SEÇÕES ── */}
+      {section === "texts" && (
+        <div className="max-w-xl space-y-4">
+          <SectionHeader title="Títulos das seções" subtitle="Edite os cabeçalhos exibidos no site" />
+          <Field label="Título 'Mais Vendidos'"><input className={inputCls} value={st.bestSellers} onChange={e => updateData({ sectionTitles: { ...st, bestSellers: e.target.value } })} /></Field>
+          <Field label="Título 'Quem usa - mosaico'"><input className={inputCls} value={st.whoRecommends} onChange={e => updateData({ sectionTitles: { ...st, whoRecommends: e.target.value } })} /></Field>
+          <Field label="Título 'Quem usa - avaliações'"><input className={inputCls} value={st.whoUses} onChange={e => updateData({ sectionTitles: { ...st, whoUses: e.target.value } })} /></Field>
+          <Field label="Título 'Salões'"><input className={inputCls} value={st.salonSection} onChange={e => updateData({ sectionTitles: { ...st, salonSection: e.target.value } })} /></Field>
+          <Field label="Subtítulo 'Salões'"><input className={inputCls} value={st.salonSubtitle} onChange={e => updateData({ sectionTitles: { ...st, salonSubtitle: e.target.value } })} /></Field>
+          <Field label="Título do FAQ"><input className={inputCls} value={st.faq} onChange={e => updateData({ sectionTitles: { ...st, faq: e.target.value } })} /></Field>
+          <Field label="FAQ - Título CTA (card rosa)"><input className={inputCls} value={st.faqCta} onChange={e => updateData({ sectionTitles: { ...st, faqCta: e.target.value } })} /></Field>
+          <Field label="FAQ - Subtítulo CTA"><textarea className={textareaCls} rows={2} value={st.faqCtaSubtitle} onChange={e => updateData({ sectionTitles: { ...st, faqCtaSubtitle: e.target.value } })} /></Field>
+          <p className="text-xs text-gray-400">Alterações salvas automaticamente.</p>
+        </div>
+      )}
+
+      {/* ── LOGO ── */}
+      {section === "logo" && (
+        <div className="max-w-md space-y-4">
+          <SectionHeader title="Logo do site" subtitle="Aparece no cabeçalho e rodapé" />
+          <ImagePicker label="Arquivo do logo" value={data.settings.logo ?? ""} onChange={v => updateData({ settings: { ...data.settings, logo: v } })} />
+          {(data.settings.logo) && (
+            <div className="bg-gray-900 rounded-2xl p-6 flex items-center justify-center">
+              <img src={imgSrc(data.settings.logo)} alt="Logo preview" className="h-14 w-auto object-contain" onError={e => (e.currentTarget.style.display = "none")} />
+            </div>
+          )}
+          <p className="text-xs text-gray-400">O logo também aparece no rodapé do site.</p>
+        </div>
+      )}
+
+      {/* ── BANNER ELEGANCE ── */}
+      {section === "elegance" && (
+        <div className="max-w-xl space-y-4">
+          <SectionHeader title="Banner Elegance" subtitle="A grande seção escura com imagem de fundo" />
+          <Field label="Linha pequena (acima do título)"><input className={inputCls} value={eb.tagline} onChange={e => updateData({ eleganceBanner: { ...eb, tagline: e.target.value } })} /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Título (normal)"><input className={inputCls} value={eb.title} onChange={e => updateData({ eleganceBanner: { ...eb, title: e.target.value } })} /></Field>
+            <Field label="Título (destaque rosa)"><input className={inputCls} value={eb.titleHighlight} onChange={e => updateData({ eleganceBanner: { ...eb, titleHighlight: e.target.value } })} /></Field>
+          </div>
+          <Field label="Subtítulo"><input className={inputCls} value={eb.subtitle} onChange={e => updateData({ eleganceBanner: { ...eb, subtitle: e.target.value } })} /></Field>
+          <Field label="Texto do botão"><input className={inputCls} value={eb.buttonText} onChange={e => updateData({ eleganceBanner: { ...eb, buttonText: e.target.value } })} /></Field>
+          <ImagePicker label="Imagem de fundo" value={eb.img} onChange={v => updateData({ eleganceBanner: { ...eb, img: v } })} />
+        </div>
+      )}
+
+      {/* ── ANTES & DEPOIS ── */}
+      {section === "resultado" && (
+        <div className="max-w-xl space-y-4">
+          <SectionHeader title="Seção Antes & Depois" subtitle="O slider de transformação" />
+          <Field label="Título"><input className={inputCls} value={rm.title} onChange={e => updateData({ resultadoMagic: { ...rm, title: e.target.value } })} /></Field>
+          <Field label="Subtítulo"><input className={inputCls} value={rm.subtitle} onChange={e => updateData({ resultadoMagic: { ...rm, subtitle: e.target.value } })} /></Field>
+          <ImagePicker label="Foto ANTES" value={rm.beforeImg} onChange={v => updateData({ resultadoMagic: { ...rm, beforeImg: v } })} />
+          <ImagePicker label="Foto DEPOIS" value={rm.afterImg} onChange={v => updateData({ resultadoMagic: { ...rm, afterImg: v } })} />
+        </div>
+      )}
+
+      {/* ── MOSAICO DE FOTOS ── */}
+      {section === "mosaic" && (
+        <div>
+          <SectionHeader title="Mosaico de fotos" subtitle="As fotos exibidas na seção 'Quem usa'" />
+          {editMosaic ? (
+            <div className="max-w-md space-y-4">
+              <h4 className="font-bold text-sm text-gray-700">Editar foto</h4>
+              <ImagePicker label="Foto" value={editMosaic.img} onChange={v => setEditMosaic({ ...editMosaic, img: v })} />
+              <Field label="Tamanho">
+                <div className="flex gap-3">
+                  {([false, true] as const).map(b => (
+                    <button key={String(b)} type="button" onClick={() => setEditMosaic({ ...editMosaic, big: b })}
+                      className={`flex-1 py-2 rounded-lg border text-sm font-semibold transition ${editMosaic.big === b ? "text-white border-transparent" : "border-gray-200 text-gray-500"}`}
+                      style={editMosaic.big === b ? { background: PINK } : {}}>
+                      {b ? "Grande (2x2)" : "Normal (1x1)"}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <div className="flex gap-3">
+                <button onClick={saveMosaic} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+                  <Save size={15} /> Salvar
+                </button>
+                <button onClick={() => setEditMosaic(null)} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="space-y-3 mb-4">
+                {data.mosaicPhotos.map((p, i) => (
+                  <div key={p.id} className="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                    <div className="flex flex-col gap-1">
+                      <button onClick={() => moveMosaic(i, -1)} disabled={i === 0} className="text-gray-300 hover:text-gray-600 disabled:opacity-30"><ArrowUp size={13} /></button>
+                      <button onClick={() => moveMosaic(i, 1)} disabled={i === data.mosaicPhotos.length - 1} className="text-gray-300 hover:text-gray-600 disabled:opacity-30"><ArrowDown size={13} /></button>
+                    </div>
+                    <img src={imgSrc(p.img)} alt="" className="w-14 h-14 object-cover rounded-xl flex-shrink-0 bg-gray-200" onError={e => (e.currentTarget.style.display = "none")} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500">{p.img ? (p.img.startsWith("data:") ? "(imagem enviada)" : p.img) : "(sem imagem)"}</p>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Grande" : "Normal"}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditMosaic({ ...p })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={13} className="text-gray-500" /></button>
+                      <button onClick={() => removeMosaic(p.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200"><Trash2 size={13} className="text-red-400" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={addMosaic} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
+                <Plus size={15} /> Adicionar foto
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── CARDS DE CATEGORIA ── */}
+      {section === "categories" && (
+        <div>
+          <SectionHeader title="Cards de categoria" subtitle="Os cards do banner de categorias" />
+          {editCat ? (
+            <div className="max-w-md space-y-4">
+              <h4 className="font-bold text-sm text-gray-700">Editar card</h4>
+              <Field label="Nome da categoria"><input className={inputCls} value={editCat.label} onChange={e => setEditCat({ ...editCat, label: e.target.value })} /></Field>
+              <Field label="Slug (URL)"><input className={inputCls} value={editCat.slug} onChange={e => setEditCat({ ...editCat, slug: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
+              <ImagePicker label="Imagem do card" value={editCat.img} onChange={v => setEditCat({ ...editCat, img: v })} />
+              <Field label="Cor de fundo (hex)">
+                <div className="flex gap-2 items-center">
+                  <input type="color" value={editCat.color} onChange={e => setEditCat({ ...editCat, color: e.target.value })} className="w-10 h-10 rounded-lg border border-gray-200 p-0.5 cursor-pointer" />
+                  <input className={inputCls} value={editCat.color} onChange={e => setEditCat({ ...editCat, color: e.target.value })} />
+                </div>
+              </Field>
+              <div className="flex gap-3">
+                <button onClick={saveCat} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+                  <Save size={15} /> Salvar
+                </button>
+                <button onClick={() => setEditCat(null)} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="space-y-3 mb-4">
+                {data.categoryCards.map((c, i) => (
+                  <div key={c.id} className="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                    <span className="text-xs font-bold text-gray-400 w-5 text-center">{i + 1}</span>
+                    <img src={imgSrc(c.img)} alt={c.label} className="w-12 h-12 object-contain rounded-lg flex-shrink-0 bg-white" onError={e => (e.currentTarget.style.display = "none")} />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-gray-800">{c.label || "(sem nome)"}</p>
+                      <p className="text-xs text-gray-400">/categoria/{c.slug}</p>
+                    </div>
+                    <div className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0" style={{ background: c.color }} />
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditCat({ ...c })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={13} className="text-gray-500" /></button>
+                      <button onClick={() => removeCat(c.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200"><Trash2 size={13} className="text-red-400" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={addCat} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
+                <Plus size={15} /> Adicionar categoria
+              </button>
+              <p className="text-xs text-gray-400 mt-3">O primeiro card aparece maior (2×2). Os demais ocupam meia largura.</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── SETTINGS TAB ─── */
 function SettingsTab({ onLogout }: { onLogout: () => void }) {
   const { data, updateData } = useSite();
   const [s, setS] = useState(data.settings);
   const [newPw, setNewPw] = useState("");
   const [pwOk, setPwOk] = useState(false);
-
   function saveSettings() {
     updateData({ settings: s });
     if (newPw.length >= 4) {
@@ -463,7 +657,6 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
       setTimeout(() => setPwOk(false), 2000);
     }
   }
-
   return (
     <div className="max-w-xl space-y-6">
       <h3 className="font-black text-lg text-gray-800">Configurações do Site</h3>
@@ -471,23 +664,22 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
         <Field label="Nome do site"><input className={inputCls} value={s.siteName} onChange={e => setS({ ...s, siteName: e.target.value })} /></Field>
         <Field label="WhatsApp (somente números)"><input className={inputCls} value={s.whatsapp} onChange={e => setS({ ...s, whatsapp: e.target.value })} placeholder="5511999999999" /></Field>
         <Field label="E-mail de contato"><input className={inputCls} value={s.email} onChange={e => setS({ ...s, email: e.target.value })} /></Field>
-        <Field label="Texto do banner de anúncio"><input className={inputCls} value={s.announcementText} onChange={e => setS({ ...s, announcementText: e.target.value })} /></Field>
+        <Field label="Texto do banner de anúncio (topo)"><input className={inputCls} value={s.announcementText} onChange={e => setS({ ...s, announcementText: e.target.value })} /></Field>
+        <Field label="Botão do banner de anúncio"><input className={inputCls} value={s.announcementButton ?? ""} onChange={e => setS({ ...s, announcementButton: e.target.value })} placeholder="APROVEITE AGORA!" /></Field>
         <Field label="Texto sobre a marca (rodapé)"><textarea className={textareaCls} rows={2} value={s.footerAbout} onChange={e => setS({ ...s, footerAbout: e.target.value })} /></Field>
+        <Field label="Copyright (rodapé)"><input className={inputCls} value={s.footerCopyright ?? ""} onChange={e => setS({ ...s, footerCopyright: e.target.value })} placeholder="© 2026 Profissional." /></Field>
         <Field label="Cor principal (hex)">
           <div className="flex gap-2 items-center">
-            <input type="color" value={s.primaryColor} onChange={e => setS({ ...s, primaryColor: e.target.value })}
-              className="w-10 h-10 rounded-lg border border-gray-200 p-0.5 cursor-pointer" />
+            <input type="color" value={s.primaryColor} onChange={e => setS({ ...s, primaryColor: e.target.value })} className="w-10 h-10 rounded-lg border border-gray-200 p-0.5 cursor-pointer" />
             <input className={inputCls} value={s.primaryColor} onChange={e => setS({ ...s, primaryColor: e.target.value })} />
           </div>
         </Field>
       </div>
-
       <div className="border-t border-gray-100 pt-5 space-y-3">
         <p className="font-bold text-sm text-gray-700">Alterar senha do admin</p>
         <input type="password" placeholder="Nova senha (mínimo 4 caracteres)" className={inputCls} value={newPw} onChange={e => setNewPw(e.target.value)} />
         {pwOk && <p className="text-green-600 text-xs">Senha alterada com sucesso!</p>}
       </div>
-
       <div className="flex gap-3">
         <button onClick={saveSettings} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
           <Save size={15} /> Salvar Configurações
@@ -500,17 +692,7 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "settings";
-
-const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
-  { id: "products", label: "Produtos", icon: <Package size={17} /> },
-  { id: "hero", label: "Hero / Banner", icon: <Image size={17} /> },
-  { id: "reviews", label: "Avaliações", icon: <MessageSquare size={17} /> },
-  { id: "faq", label: "FAQ", icon: <MessageSquare size={17} /> },
-  { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
-];
-
+/* ─── DASHBOARD ─── */
 function Dashboard() {
   const { data } = useSite();
   const cards = [
@@ -519,6 +701,7 @@ function Dashboard() {
     { label: "Avaliações salões", value: data.salonReviews.length, color: "#8e24aa" },
     { label: "Slides do hero", value: data.heroSlides.length, color: PINK },
     { label: "Perguntas FAQ", value: data.faqs.length, color: "#f5a623" },
+    { label: "Fotos mosaico", value: data.mosaicPhotos.length, color: "#00897b" },
   ];
   return (
     <div>
@@ -539,30 +722,32 @@ function Dashboard() {
         </div>
       </div>
       <div className="mt-4 flex gap-3">
-        <Link href="/">
-          <button className="flex items-center gap-2 text-sm font-semibold border border-gray-200 rounded-xl px-4 py-2.5 hover:bg-gray-50 transition text-gray-600">
-            <Eye size={15} /> Ver site
-          </button>
-        </Link>
+        <Link href="/"><button className="flex items-center gap-2 text-sm font-semibold border border-gray-200 rounded-xl px-4 py-2.5 hover:bg-gray-50 transition text-gray-600"><Eye size={15} /> Ver site</button></Link>
       </div>
     </div>
   );
 }
 
+/* ─── MAIN ─── */
+type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "settings";
+
+const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
+  { id: "products", label: "Produtos", icon: <Package size={17} /> },
+  { id: "hero", label: "Hero / Slides", icon: <Image size={17} /> },
+  { id: "reviews", label: "Avaliações", icon: <MessageSquare size={17} /> },
+  { id: "faq", label: "FAQ", icon: <MessageSquare size={17} /> },
+  { id: "content", label: "Conteúdo", icon: <FileText size={17} /> },
+  { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
+];
+
 export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem("admin_auth") === "1");
   const [tab, setTab] = useState<Tab>("dashboard");
-
-  function logout() {
-    sessionStorage.removeItem("admin_auth");
-    setAuthed(false);
-  }
-
+  function logout() { sessionStorage.removeItem("admin_auth"); setAuthed(false); }
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
       <aside className="w-56 bg-white border-r border-gray-100 flex flex-col min-h-screen flex-shrink-0">
         <div className="p-5 border-b border-gray-100">
           <p className="font-black text-base text-gray-900">Admin Panel</p>
@@ -578,24 +763,17 @@ export default function Admin() {
           ))}
         </nav>
         <div className="p-3 border-t border-gray-100">
-          <Link href="/">
-            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition">
-              <Eye size={15} /> Ver site
-            </button>
-          </Link>
-          <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition mt-1">
-            <LogOut size={15} /> Sair
-          </button>
+          <Link href="/"><button className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition"><Eye size={15} /> Ver site</button></Link>
+          <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition mt-1"><LogOut size={15} /> Sair</button>
         </div>
       </aside>
-
-      {/* Main */}
       <main className="flex-1 p-8 overflow-auto">
         {tab === "dashboard" && <Dashboard />}
         {tab === "products" && <ProductsTab />}
         {tab === "hero" && <HeroTab />}
         {tab === "reviews" && <ReviewsTab />}
         {tab === "faq" && <FaqTab />}
+        {tab === "content" && <ContentTab />}
         {tab === "settings" && <SettingsTab onLogout={logout} />}
       </main>
     </div>

@@ -7,19 +7,19 @@ import {
 import { useSite } from "@/context/SiteContext";
 
 const PINK = "#e8006f";
-const PINK2 = "#f5007a";
-const PINK_LIGHT = "#fce4f0";
-const DARK_RED = "#c0003d";
 const GRAY_BG = "#f8f8f8";
+
+function imgSrc(v: string) {
+  if (!v) return "";
+  return v.startsWith("data:") || v.startsWith("http") ? v : `${import.meta.env.BASE_URL}${v}`;
+}
 
 /* ─── helpers ─── */
 function Stars({ n = 5, size = 12 }: { n?: number; size?: number }) {
   return (
     <span className="flex items-center gap-0.5">
       {[1,2,3,4,5].map(i => (
-        <Star key={i} size={size}
-          fill={i <= n ? "#f5a623" : "none"}
-          stroke={i <= n ? "#f5a623" : "#ddd"} />
+        <Star key={i} size={size} fill={i <= n ? "#f5a623" : "none"} stroke={i <= n ? "#f5a623" : "#ddd"} />
       ))}
     </span>
   );
@@ -27,63 +27,18 @@ function Stars({ n = 5, size = 12 }: { n?: number; size?: number }) {
 
 function BuyBtn({ label = "Comprar", full }: { label?: string; full?: boolean }) {
   return (
-    <button
-      style={{ background: PINK }}
-      className={`text-white text-xs font-bold rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap ${full ? "w-full py-2 text-sm" : ""}`}
-    >
+    <button style={{ background: PINK }}
+      className={`text-white text-xs font-bold rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap ${full ? "w-full py-2 text-sm" : ""}`}>
       {label}
     </button>
   );
 }
 
-/* Placeholder product bottle illustration */
-function Bottle({ color = PINK, w = 48, h = 80 }: { color?: string; w?: number; h?: number }) {
-  return (
-    <div style={{ width: w, height: h, position: "relative", flexShrink: 0 }}>
-      <div style={{
-        position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-        width: w * 0.45, height: h * 0.18,
-        background: color, borderRadius: "4px 4px 0 0", opacity: 0.9,
-      }} />
-      <div style={{
-        position: "absolute", top: h * 0.16, left: 0, right: 0, bottom: 0,
-        background: `linear-gradient(160deg, ${color}cc, ${color})`,
-        borderRadius: "8px 8px 12px 12px",
-      }}>
-        <div style={{
-          position: "absolute", top: "20%", left: "15%", right: "15%", height: "40%",
-          background: "rgba(255,255,255,0.18)", borderRadius: 4,
-        }} />
-        <div style={{
-          position: "absolute", bottom: "12%", left: "10%", right: "10%", height: "18%",
-          background: "rgba(255,255,255,0.12)", borderRadius: 3,
-        }} />
-      </div>
-    </div>
-  );
-}
-
-/* Product image card */
-function ProductImg({ color = PINK, height = 140 }: { color?: string; height?: number }) {
-  return (
-    <div style={{
-      height,
-      background: `linear-gradient(145deg, ${color}18, ${color}35)`,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      overflow: "hidden",
-    }}>
-      <img
-        src={`${import.meta.env.BASE_URL}product-megaliss.png`}
-        alt="Produto"
-        style={{ height: height * 0.92, width: "auto", objectFit: "contain" }}
-      />
-    </div>
-  );
-}
-
 /* ─── HEADER ─── */
 function Header() {
+  const { data } = useSite();
   const [open, setOpen] = useState(false);
+  const logo = data.settings.logo || "logo-pr.png";
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
@@ -91,29 +46,24 @@ function Header() {
           <button className="md:hidden" onClick={() => setOpen(!open)}>
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
-          {/* Logo */}
-          <div className="flex items-center">
-            <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
-          </div>
+          <Link href="/" className="flex items-center">
+            <img src={imgSrc(logo)} alt={data.settings.siteName} className="h-10 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
+          </Link>
         </div>
-
         <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-gray-600">
-          <a href="#" className="hover:text-pink-600 transition">Início</a>
+          <Link href="/" className="hover:text-pink-600 transition">Início</Link>
           <Link href="/produtos" className="hover:text-pink-600 transition">Produtos</Link>
           <a href="#quem-usa" className="hover:text-pink-600 transition">Quem usa</a>
           <a href="#faq" className="hover:text-pink-600 transition">FAQ</a>
         </nav>
-
         <div className="flex items-center gap-2">
           <div className="hidden md:flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1.5 bg-gray-50">
             <Search size={14} className="text-gray-400" />
-            <input className="bg-transparent text-sm outline-none w-32 text-gray-700"
-              placeholder="Buscar produtos..." />
+            <input className="bg-transparent text-sm outline-none w-32 text-gray-700" placeholder="Buscar produtos..." />
           </div>
           <button className="relative p-1.5">
             <ShoppingCart size={20} className="text-gray-700" />
-            <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
-              style={{ background: PINK }}>0</span>
+            <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: PINK }}>0</span>
           </button>
           <Link href="/admin" className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></Link>
           <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
@@ -121,7 +71,7 @@ function Header() {
       </div>
       {open && (
         <div className="md:hidden border-t px-4 py-3 flex flex-col gap-3 text-sm font-medium bg-white">
-          <a href="#" className="py-1 text-gray-700">Início</a>
+          <Link href="/" className="py-1 text-gray-700">Início</Link>
           <Link href="/produtos" className="py-1 text-gray-700">Produtos</Link>
           <a href="#quem-usa" className="py-1 text-gray-700">Quem usa</a>
           <a href="#faq" className="py-1 text-gray-700">FAQ</a>
@@ -136,73 +86,41 @@ function Hero() {
   const { data } = useSite();
   const slides = data.heroSlides;
   const [current, setCurrent] = useState(0);
-
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent(c => (c + 1) % slides.length);
-    }, 3500);
+    const timer = setInterval(() => { setCurrent(c => (c + 1) % slides.length); }, 3500);
     return () => clearInterval(timer);
   }, [slides.length]);
-
   const slide = slides[current] ?? slides[0];
-
   return (
-    <>
-      {/* Main hero */}
-      <section className="relative overflow-hidden" style={{ minHeight: 700 }}>
-        {/* All background images rendered; active one fades in */}
-        {slides.map((s, i) => (
-          <img
-            key={s.id}
-            src={s.img.startsWith("http") ? s.img : `${import.meta.env.BASE_URL}${s.img}`}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            loading="eager"
-            fetchPriority={i === 0 ? "high" : "low"}
-            style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }}
-          />
+    <section className="relative overflow-hidden" style={{ minHeight: 700 }}>
+      {slides.map((s, i) => (
+        <img key={s.id} src={imgSrc(s.img)} alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          loading={i === 0 ? "eager" : "lazy"}
+          style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }} />
+      ))}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
+        <div className="flex-1 text-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">{slide?.subtitle}</p>
+          <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
+            {(slide?.title ?? "").split("\n").map((line, i) => <span key={i}>{line}{i < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
+          </h1>
+          <a href="#produtos">
+            <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
+              {slide?.buttonText}
+            </button>
+          </a>
+        </div>
+        <div className="flex-1 hidden md:block" />
+      </div>
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {slides.map((_, i) => (
+          <button key={i} onClick={() => setCurrent(i)} className="rounded-full transition-all"
+            style={{ width: i === current ? 24 : 8, height: 8, background: i === current ? "white" : "rgba(255,255,255,0.5)" }} />
         ))}
-        {/* Gradient overlay so text is readable on the left */}
-        <div className="absolute inset-0"
-          style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
-
-        {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
-          <div className="flex-1 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">
-              {slide?.subtitle}
-            </p>
-            <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
-              {(slide?.title ?? "").split("\n").map((line, i) => <span key={i}>{line}{i < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
-            </h1>
-            <a href="#produtos">
-              <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition"
-                style={{ color: PINK }}>
-                {slide?.buttonText}
-              </button>
-            </a>
-          </div>
-          {/* Spacer so text doesn't overlap face */}
-          <div className="flex-1 hidden md:block" />
-        </div>
-
-        {/* Slide indicators */}
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className="rounded-full transition-all"
-              style={{
-                width: i === current ? 24 : 8,
-                height: 8,
-                background: i === current ? "white" : "rgba(255,255,255,0.5)",
-              }}
-            />
-          ))}
-        </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
 
@@ -213,7 +131,7 @@ function BestSellers() {
     <section id="produtos" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-black text-gray-900">Mais Vendidos</h2>
+          <h2 className="text-xl font-black text-gray-900">{data.sectionTitles.bestSellers}</h2>
           <Link href="/produtos" style={{ color: PINK }} className="text-sm font-semibold flex items-center gap-0.5 hover:underline">
             Ver todos <ChevronRight size={15} />
           </Link>
@@ -222,19 +140,9 @@ function BestSellers() {
           {data.products.map((p) => (
             <div key={p.id} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
               <div className="relative">
-                <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background: PINK }}>{p.badge}</span>
-                <div style={{
-                  height: 130,
-                  background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  overflow: "hidden",
-                }}>
-                  <img
-                    src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`}
-                    alt={p.name}
-                    style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }}
-                  />
+                <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
+                <div style={{ height: 130, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
               <div className="p-3">
@@ -253,26 +161,17 @@ function BestSellers() {
   );
 }
 
-/* ─── QUEM USA TOUT RECOMENDA (photo mosaic) ─── */
-const mosaicPhotos = [
-  { bg: "#fce4f0", emoji: null, img: "mosaic-hair.jpg", big: true, scale: "scale-110" },
-  { bg: "#e3f2fd", emoji: null, img: "mosaic-hair-2.jpg", big: false, scale: "scale-100" },
-  { bg: "#f3e5f5", emoji: null, img: "mosaic-hair-3.webp", big: false, scale: "scale-100" },
-  { bg: "#e0f7fa", emoji: null, img: "mosaic-hair-6.jpg", big: false, scale: "scale-100" },
-  { bg: "#fff8e1", emoji: null, img: "mosaic-hair-5.jpg", big: false, scale: "scale-100" },
-];
-
+/* ─── QUEM USA (mosaico de fotos) ─── */
 function WhoRecommends() {
+  const { data } = useSite();
   return (
     <section className="py-8" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Profissional recomenda</h2>
-        {/* Mosaic grid */}
+        <h2 className="text-xl font-black text-center text-gray-900 mb-6">{data.sectionTitles.whoRecommends}</h2>
         <div className="grid grid-cols-4 gap-2" style={{ gridAutoRows: "140px" }}>
-          {mosaicPhotos.map((p, i) => (
-            <div key={i}
-              className={`rounded-2xl overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
-              <img src={`${import.meta.env.BASE_URL}${p.img}`} alt="" className={`w-full h-full object-cover ${p.scale ?? "scale-100"}`} />
+          {data.mosaicPhotos.map((p, i) => (
+            <div key={p.id ?? i} className={`rounded-2xl overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
+              <img src={imgSrc(p.img)} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
             </div>
           ))}
         </div>
@@ -283,23 +182,23 @@ function WhoRecommends() {
 
 /* ─── ELEGANCE BANNER ─── */
 function EleganceBanner() {
+  const { data } = useSite();
+  const eb = data.eleganceBanner;
   return (
     <section className="relative overflow-hidden flex items-center" style={{ minHeight: 720 }}>
-      <img
-        src={`${import.meta.env.BASE_URL}product-oil-repair-colorful.png`}
-        alt="Oil Repair"
+      <img src={imgSrc(eb.img)} alt="Banner"
         className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-      />
+        onError={e => (e.currentTarget.style.display = "none")} />
       <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.82) 0%, rgba(61,0,32,0.70) 50%, rgba(0,0,0,0.10) 100%)" }} />
       <div className="w-full max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center gap-8 relative z-10">
         <div className="flex-1">
-          <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">A elegância que</p>
+          <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">{eb.tagline}</p>
           <h2 className="text-white font-black text-4xl md:text-5xl leading-tight mb-3">
-            seus fios <span style={{ color: "#ff88bb" }}>merecem</span>
+            {eb.title} <span style={{ color: "#ff88bb" }}>{eb.titleHighlight}</span>
           </h2>
-          <p className="text-white/60 text-sm mb-6">Cabelos lindos • Fios saudáveis • Resultado garantido</p>
+          <p className="text-white/60 text-sm mb-6">{eb.subtitle}</p>
           <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
-            Descubra Agora
+            {eb.buttonText}
           </button>
         </div>
       </div>
@@ -312,31 +211,20 @@ function BeforeAfterSlider({ before, after }: { before: string; after: string })
   const [pos, setPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
-
   const updatePos = useCallback((clientX: number) => {
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const pct = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
-    setPos(pct);
+    setPos(Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100)));
   }, []);
-
-  const onMouseDown = () => { dragging.current = true; };
-  const onMouseMove = (e: React.MouseEvent) => { if (dragging.current) updatePos(e.clientX); };
-  const onMouseUp = () => { dragging.current = false; };
-  const onTouchMove = (e: React.TouchEvent) => updatePos(e.touches[0].clientX);
-
   return (
-    <div
-      ref={containerRef}
-      className="relative select-none overflow-hidden rounded-2xl"
+    <div ref={containerRef} className="relative select-none overflow-hidden rounded-2xl"
       style={{ width: 300, height: 420, cursor: "ew-resize" }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-      onTouchMove={onTouchMove}
-    >
+      onMouseDown={() => { dragging.current = true; }}
+      onMouseMove={e => { if (dragging.current) updatePos(e.clientX); }}
+      onMouseUp={() => { dragging.current = false; }}
+      onMouseLeave={() => { dragging.current = false; }}
+      onTouchMove={e => updatePos(e.touches[0].clientX)}>
       <img src={after} alt="Depois" className="absolute inset-0 w-full h-full object-cover object-top" />
       <div className="absolute inset-0 overflow-hidden" style={{ width: `${pos}%` }}>
         <img src={before} alt="Antes" className="absolute inset-0 w-full h-full object-cover object-top" style={{ width: 300 }} />
@@ -356,14 +244,16 @@ function BeforeAfterSlider({ before, after }: { before: string; after: string })
 
 /* ─── RESULTADO MAGIC ─── */
 function ResultadoMagic() {
+  const { data } = useSite();
+  const rm = data.resultadoMagic;
   return (
     <section className="py-10" style={{ background: GRAY_BG }}>
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-2">Resultado Magic</h2>
-        <p className="text-center text-gray-500 text-sm mb-8">Veja a transformação real</p>
+        <h2 className="text-xl font-black text-center text-gray-900 mb-2">{rm.title}</h2>
+        <p className="text-center text-gray-500 text-sm mb-8">{rm.subtitle}</p>
         <div className="flex flex-col md:flex-row items-center justify-center gap-6">
           <div className="flex-shrink-0">
-            <BeforeAfterSlider before={`${import.meta.env.BASE_URL}before-hair.jpg`} after={`${import.meta.env.BASE_URL}after-hair.jpg`} />
+            <BeforeAfterSlider before={imgSrc(rm.beforeImg)} after={imgSrc(rm.afterImg)} />
           </div>
         </div>
       </div>
@@ -371,18 +261,18 @@ function ResultadoMagic() {
   );
 }
 
-/* ─── QUEM USA TOUT RECOMENDA (reviews) ─── */
+/* ─── QUEM USA (avaliações) ─── */
 function WhoUses() {
   const { data } = useSite();
   return (
     <section id="quem-usa" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Profissional recomenda! 💖</h2>
+        <h2 className="text-xl font-black text-center text-gray-900 mb-6">{data.sectionTitles.whoUses}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {data.reviews.map((r) => (
             <div key={r.id} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <img src={r.img.startsWith("http") ? r.img : `${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                <img src={imgSrc(r.img)} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.date}</p>
@@ -398,36 +288,29 @@ function WhoUses() {
   );
 }
 
-
 /* ─── CATEGORIES BANNER ─── */
-const categoryCards = [
-  { label: "Shampoo e máscara", slug: "shampoo-e-mascara", img: "product-pos-quimica.png", color: "#d0eaf8", textColor: "#1a5276", big: true },
-  { label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-oil-repair.png", color: "#d5f0e0", textColor: "#1a5c2e", big: false },
-  { label: "Progressiva sem formol", slug: "progressiva-sem-formol", img: "product-progressiva.png", color: "#fde8f0", textColor: "#7b1040", big: false },
-  { label: "Finalizadores", slug: "finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec", textColor: "#880e4f", big: false },
-];
-
 function CategoriesBanner() {
+  const { data } = useSite();
+  const cards = data.categoryCards;
+  if (!cards.length) return null;
   return (
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-4 grid-rows-2 gap-3" style={{ height: 320 }}>
-          {/* Big card left — spans 2 cols, 2 rows */}
-          <Link href={`/categoria/${categoryCards[0].slug}`}
+          {/* Big card — first one */}
+          <Link href={`/categoria/${cards[0].slug}`}
             className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform block"
-            style={{ background: categoryCards[0].color }}>
-            <img src={`${import.meta.env.BASE_URL}${categoryCards[0].img}`} alt={categoryCards[0].label}
-              className="absolute inset-0 w-full h-full object-cover" />
+            style={{ background: cards[0].color }}>
+            <img src={imgSrc(cards[0].img)} alt={cards[0].label} className="absolute inset-0 w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl" />
-            <span className="absolute bottom-4 left-4 text-white font-black text-xl drop-shadow">{categoryCards[0].label}</span>
+            <span className="absolute bottom-4 left-4 text-white font-black text-xl drop-shadow">{cards[0].label}</span>
           </Link>
-          {/* Right: 2 stacked cards filling right half */}
-          {categoryCards.slice(1, 3).map((cat, i) => (
+          {/* Remaining cards */}
+          {cards.slice(1, 3).map((cat, i) => (
             <Link key={i} href={`/categoria/${cat.slug}`}
               className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform block"
               style={{ background: cat.color }}>
-              <img src={`${import.meta.env.BASE_URL}${cat.img}`} alt={cat.label}
-                className="absolute inset-0 w-full h-full object-cover" />
+              <img src={imgSrc(cat.img)} alt={cat.label} className="absolute inset-0 w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
               <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{cat.label}</span>
             </Link>
@@ -438,21 +321,21 @@ function CategoriesBanner() {
   );
 }
 
-/* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
+/* ─── SALÕES ─── */
 function SalonSection() {
   const { data } = useSite();
   return (
     <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-2">
-          Profissional a queridinha dos salões <span style={{ color: PINK }}>♥</span>
+          {data.sectionTitles.salonSection} <span style={{ color: PINK }}>♥</span>
         </h2>
-        <p className="text-center text-sm text-gray-500 mb-7">Profissionais que confiam na qualidade Profissional</p>
+        <p className="text-center text-sm text-gray-500 mb-7">{data.sectionTitles.salonSubtitle}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {data.salonReviews.map((r) => (
             <div key={r.id} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <img src={r.img.startsWith("http") ? r.img : `${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                <img src={imgSrc(r.img)} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.role}</p>
@@ -475,38 +358,26 @@ function FAQ() {
   return (
     <section id="faq" style={{ background: GRAY_BG }} className="py-10">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-xl font-black text-gray-900 mb-6">FAQ</h2>
+        <h2 className="text-xl font-black text-gray-900 mb-6">{data.sectionTitles.faq}</h2>
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Accordion */}
           <div className="flex-1 space-y-2">
             {data.faqs.map((f, i) => (
               <div key={f.id} className="bg-white rounded-xl overflow-hidden border border-gray-100">
-                <button
-                  className="w-full flex items-center justify-between px-5 py-3.5 text-left"
+                <button className="w-full flex items-center justify-between px-5 py-3.5 text-left"
                   onClick={() => setOpen(open === i ? null : i)}>
                   <span className="font-semibold text-sm text-gray-800">{f.q}</span>
-                  {open === i
-                    ? <ChevronUp size={16} style={{ color: PINK }} className="flex-shrink-0" />
-                    : <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />}
+                  {open === i ? <ChevronUp size={16} style={{ color: PINK }} className="flex-shrink-0" /> : <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />}
                 </button>
-                {open === i && (
-                  <div className="px-5 pb-4">
-                    <p className="text-sm text-gray-600 leading-relaxed">{f.a}</p>
-                  </div>
-                )}
+                {open === i && <div className="px-5 pb-4"><p className="text-sm text-gray-600 leading-relaxed">{f.a}</p></div>}
               </div>
             ))}
           </div>
-
-          {/* Right CTA card */}
           <div className="md:w-72 flex-shrink-0">
             <div style={{ background: `linear-gradient(135deg, ${PINK}, #ff6bb3)` }}
               className="rounded-2xl p-6 text-white h-full flex flex-col justify-between min-h-[280px]">
               <div>
-                <h3 className="font-black text-xl mb-2">Ficou alguma dúvida?</h3>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  Nossa equipe está disponível para te ajudar segunda a sexta, das 8h às 18h.
-                </p>
+                <h3 className="font-black text-xl mb-2">{data.sectionTitles.faqCta}</h3>
+                <p className="text-white/80 text-sm leading-relaxed">{data.sectionTitles.faqCtaSubtitle}</p>
               </div>
               <div className="space-y-2 mt-6">
                 <a href={`https://wa.me/${data.settings.whatsapp}`} target="_blank" rel="noopener noreferrer"
@@ -514,9 +385,7 @@ function FAQ() {
                   style={{ color: PINK }}>
                   <MessageCircle size={16} /> Falar pelo WhatsApp
                 </a>
-                <a href={`https://mail.google.com/mail/?view=cm&to=${data.settings.email}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <a href={`https://mail.google.com/mail/?view=cm&to=${data.settings.email}`} target="_blank" rel="noopener noreferrer"
                   className="w-full border-2 border-white text-white font-bold rounded-full py-2.5 text-sm hover:bg-white/10 transition flex items-center justify-center">
                   Enviar e-mail
                 </a>
@@ -531,21 +400,20 @@ function FAQ() {
 
 /* ─── FOOTER ─── */
 function Footer() {
+  const { data } = useSite();
+  const logo = data.settings.logo || "logo-pr.png";
   return (
     <footer style={{ background: PINK }} className="text-white">
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
+              <img src={imgSrc(logo)} alt={data.settings.siteName} className="h-10 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
             </div>
-            <p className="text-white/75 text-sm leading-relaxed mb-4">
-              A marca favorita de quem cuida do cabelo com amor e dedicação. 
-            </p>
+            <p className="text-white/75 text-sm leading-relaxed mb-4">{data.settings.footerAbout}</p>
             <div className="flex gap-3">
               {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
-                <a key={i} href="#"
-                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                <a key={i} href="#" className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
                   <Icon size={15} />
                 </a>
               ))}
@@ -567,25 +435,19 @@ function Footer() {
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Empresa</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              {[{ label: "Sobre nós", href: "/sobre-nos" }].map(item => (
-                <li key={item.label}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
-              ))}
+              <li><Link href="/sobre-nos" className="hover:text-white transition">Sobre nós</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Suporte</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              {[
-                { label: "Rastrear pedido", href: "/rastrear-pedido" },
-              ].map(item => (
-                <li key={item.label}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
-              ))}
+              <li><Link href="/rastrear-pedido" className="hover:text-white transition">Rastrear pedido</Link></li>
             </ul>
           </div>
         </div>
         <div className="border-t border-white/20 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <p className="text-white/60 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
+            <p className="text-white/60 text-xs">{data.settings.footerCopyright || `© 2026 ${data.settings.siteName}. Todos os direitos reservados.`}</p>
             <Link href="/admin" className="text-white/30 text-xs hover:text-white/60 transition">Admin</Link>
           </div>
           <div className="flex items-center gap-2">
