@@ -149,7 +149,7 @@ export default function Categoria() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {products.map((p, i) => (
-              <div key={p.id} className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
+              <Link key={p.id} href={`/produto/${p.id}`} className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col block">
                 <div className="relative">
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: PINK }}>{p.badge}</span>
@@ -169,7 +169,7 @@ export default function Categoria() {
                     <BuyBtn />
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

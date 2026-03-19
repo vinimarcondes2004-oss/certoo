@@ -139,7 +139,7 @@ function BestSellers() {
         </div>
         <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {data.products.filter(p => p.showInBestSellers !== false).map((p) => (
-            <div key={p.id} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition block">
               <div className="relative">
                 <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
                 <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
@@ -154,7 +154,7 @@ function BestSellers() {
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
                 <BuyBtn full />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -396,7 +396,7 @@ function FeaturedCategory() {
         </div>
         <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {products.map((p) => (
-            <div key={p.id} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition block">
               <div className="relative">
                 {p.badge && (
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
@@ -413,7 +413,7 @@ function FeaturedCategory() {
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
                 <BuyBtn full />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

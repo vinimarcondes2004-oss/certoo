@@ -12,6 +12,11 @@ export interface Product {
   color: string;
   extraCategories?: string[];
   showInBestSellers?: boolean;
+  extraImgs?: string[];
+  description?: string;
+  benefits?: string[];
+  howToUse?: string;
+  ingredients?: string;
 }
 
 export interface HeroSlide {

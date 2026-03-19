@@ -8,6 +8,7 @@ import Categoria from "@/pages/Categoria";
 import SobreNos from "@/pages/SobreNos";
 import RastrearPedido from "@/pages/RastrearPedido";
 import Admin from "@/pages/Admin";
+import Produto from "@/pages/Produto";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/produtos" component={Produtos} />
       <Route path="/categoria/:slug" component={Categoria} />
+      <Route path="/produto/:id" component={Produto} />
       <Route path="/sobre-nos" component={SobreNos} />
       <Route path="/rastrear-pedido" component={RastrearPedido} />
       <Route path="*" component={Home} />
