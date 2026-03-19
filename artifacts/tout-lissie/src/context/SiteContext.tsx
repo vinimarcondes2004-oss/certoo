@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { SiteData, loadSiteData, saveSiteData, mergeWithDefaults } from "@/lib/siteData";
 
 const API_URL = "/api/site-data";
-const AUTO_SAVE_DELAY = 1500;
 
 async function fetchSiteData(): Promise<SiteData | null> {
   try {
@@ -42,43 +41,29 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const [synced, setSynced] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error" | "no-server-data">("idle");
   const [hasUnsaved, setHasUnsaved] = useState(false);
+
   const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestData = useRef<SiteData>(data);
+  const savedSnapshot = useRef<SiteData | null>(null);
 
   useEffect(() => {
     fetchSiteData().then(async serverData => {
       if (serverData) {
         setData(serverData);
         latestData.current = serverData;
+        savedSnapshot.current = serverData;
         saveSiteData(serverData);
       } else {
         try {
           await pushSiteData(latestData.current);
+          savedSnapshot.current = latestData.current;
         } catch {}
       }
       setSynced(true);
     });
   }, []);
 
-  function triggerAutoSave() {
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(async () => {
-      if (statusTimer.current) clearTimeout(statusTimer.current);
-      setSaveStatus("saving");
-      try {
-        await pushSiteData(latestData.current);
-        setSaveStatus("saved");
-        setHasUnsaved(false);
-        statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
-      } catch {
-        setSaveStatus("error");
-        statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
-      }
-    }, AUTO_SAVE_DELAY);
-  }
-
-  function updateData(updates: Partial<SiteData>) {
+  const updateData = useCallback((updates: Partial<SiteData>) => {
     setData(prev => {
       const next = { ...prev, ...updates };
       saveSiteData(next);
@@ -86,15 +71,14 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       return next;
     });
     setHasUnsaved(true);
-    triggerAutoSave();
-  }
+  }, []);
 
-  async function saveToServer() {
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+  const saveToServer = useCallback(async () => {
     if (statusTimer.current) clearTimeout(statusTimer.current);
     setSaveStatus("saving");
     try {
       await pushSiteData(latestData.current);
+      savedSnapshot.current = latestData.current;
       setSaveStatus("saved");
       setHasUnsaved(false);
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
@@ -102,25 +86,25 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       setSaveStatus("error");
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
     }
-  }
+  }, []);
 
-  async function reloadFromServer() {
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+  const reloadFromServer = useCallback(async () => {
     if (statusTimer.current) clearTimeout(statusTimer.current);
-    setSaveStatus("saving");
-    const serverData = await fetchSiteData();
-    if (!serverData) {
+
+    const snapshot = savedSnapshot.current;
+    if (!snapshot) {
       setSaveStatus("no-server-data");
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
       return;
     }
-    setData(serverData);
-    latestData.current = serverData;
-    saveSiteData(serverData);
+
+    setData(snapshot);
+    latestData.current = snapshot;
+    saveSiteData(snapshot);
     setHasUnsaved(false);
     setSaveStatus("saved");
     statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
-  }
+  }, []);
 
   return (
     <SiteContext.Provider value={{ data, updateData, saveToServer, reloadFromServer, synced, saveStatus, hasUnsaved }}>
