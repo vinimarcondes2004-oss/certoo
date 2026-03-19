@@ -402,6 +402,14 @@ function FAQ() {
 function Footer() {
   const { data } = useSite();
   const logo = data.settings.logo || "logo-pr.png";
+  const instaUrl = data.settings.instagram || "";
+  const fbUrl = data.settings.facebook || "";
+  const waUrl = `https://wa.me/${data.settings.whatsapp}`;
+  const productLinks = data.footerLinks.filter(l => l.column === "products");
+  const companyLinks = data.footerLinks.filter(l => l.column === "company");
+  const supportLinks = data.footerLinks.filter(l => l.column === "support");
+  const paymentMethods = (data.settings.paymentMethods || "Visa,Master,Pix,Boleto").split(",").map(s => s.trim()).filter(Boolean);
+
   return (
     <footer style={{ background: PINK }} className="text-white">
       <div className="max-w-7xl mx-auto px-4 py-10">
@@ -412,36 +420,43 @@ function Footer() {
             </div>
             <p className="text-white/75 text-sm leading-relaxed mb-4">{data.settings.footerAbout}</p>
             <div className="flex gap-3">
-              {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
-                <a key={i} href="#" className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
-                  <Icon size={15} />
+              {instaUrl && (
+                <a href={instaUrl} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                  <Instagram size={15} />
                 </a>
-              ))}
+              )}
+              {fbUrl && (
+                <a href={fbUrl} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                  <Facebook size={15} />
+                </a>
+              )}
+              <a href={waUrl} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                <MessageCircle size={15} />
+              </a>
             </div>
           </div>
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Produtos</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              {[
-                { label: "Shampoos", href: "/categoria/shampoo-e-mascara" },
-                { label: "Máscaras", href: "/categoria/shampoo-e-mascara" },
-                { label: "Reparador de pontas", href: "/categoria/reparador-de-pontas" },
-                { label: "Kits", href: "/categoria/shampoo-e-mascara" },
-              ].map(item => (
-                <li key={item.label}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
+              {productLinks.map(item => (
+                <li key={item.id}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
               ))}
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Empresa</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              <li><Link href="/sobre-nos" className="hover:text-white transition">Sobre nós</Link></li>
+              {companyLinks.map(item => (
+                <li key={item.id}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
+              ))}
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Suporte</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
-              <li><Link href="/rastrear-pedido" className="hover:text-white transition">Rastrear pedido</Link></li>
+              {supportLinks.map(item => (
+                <li key={item.id}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
+              ))}
             </ul>
           </div>
         </div>
@@ -450,9 +465,9 @@ function Footer() {
             <p className="text-white/60 text-xs">{data.settings.footerCopyright || `© 2026 ${data.settings.siteName}. Todos os direitos reservados.`}</p>
             <Link href="/admin" className="text-white/30 text-xs hover:text-white/60 transition">Admin</Link>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-center">
             <span className="text-white/50 text-xs">Pagamentos:</span>
-            {["Visa","Master","Pix","Boleto"].map(p => (
+            {paymentMethods.map(p => (
               <span key={p} className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded font-medium">{p}</span>
             ))}
           </div>

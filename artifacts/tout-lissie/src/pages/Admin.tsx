@@ -8,7 +8,7 @@ import {
 import { useSite } from "@/context/SiteContext";
 import {
   getAdminPassword, setAdminPassword, generateId,
-  Product, Review, FaqItem, MosaicPhoto, CategoryCard,
+  Product, Review, FaqItem, MosaicPhoto, CategoryCard, FooterLink, AboutValue,
 } from "@/lib/siteData";
 
 const PINK = "#e8006f";
@@ -409,7 +409,7 @@ function FaqTab() {
 /* ─── CONTEÚDO TAB ─── */
 function ContentTab() {
   const { data, updateData } = useSite();
-  const [section, setSection] = useState<"texts" | "logo" | "elegance" | "resultado" | "mosaic" | "categories">("texts");
+  const [section, setSection] = useState<"texts" | "logo" | "elegance" | "resultado" | "mosaic" | "categories" | "sobre" | "footer">("texts");
 
   const st = data.sectionTitles;
   const eb = data.eleganceBanner;
@@ -454,6 +454,34 @@ function ContentTab() {
     updateData({ categoryCards: data.categoryCards.filter(c => c.id !== id) });
   }
 
+  /* About values helpers */
+  const [editVal, setEditVal] = useState<AboutValue | null>(null);
+  function saveVal() {
+    if (!editVal) return;
+    const sn = data.sobreNos;
+    const exists = sn.values.find(v => v.id === editVal.id);
+    updateData({ sobreNos: { ...sn, values: exists ? sn.values.map(v => v.id === editVal.id ? editVal : v) : [...sn.values, editVal] } });
+    setEditVal(null);
+  }
+  function removeVal(id: string) {
+    if (!confirm("Remover este valor?")) return;
+    const sn = data.sobreNos;
+    updateData({ sobreNos: { ...sn, values: sn.values.filter(v => v.id !== id) } });
+  }
+
+  /* Footer link helpers */
+  const [editLink, setEditLink] = useState<FooterLink | null>(null);
+  function saveLink() {
+    if (!editLink) return;
+    const exists = data.footerLinks.find(l => l.id === editLink.id);
+    updateData({ footerLinks: exists ? data.footerLinks.map(l => l.id === editLink.id ? editLink : l) : [...data.footerLinks, editLink] });
+    setEditLink(null);
+  }
+  function removeLink(id: string) {
+    if (!confirm("Remover este link?")) return;
+    updateData({ footerLinks: data.footerLinks.filter(l => l.id !== id) });
+  }
+
   const subTabs = [
     { id: "texts", label: "Textos das seções" },
     { id: "logo", label: "Logo" },
@@ -461,6 +489,8 @@ function ContentTab() {
     { id: "resultado", label: "Antes & Depois" },
     { id: "mosaic", label: "Mosaico de fotos" },
     { id: "categories", label: "Cards de categoria" },
+    { id: "sobre", label: "Página Sobre nós" },
+    { id: "footer", label: "Links do rodapé" },
   ] as const;
 
   return (
@@ -638,6 +668,129 @@ function ContentTab() {
           )}
         </div>
       )}
+
+      {/* ── SOBRE NÓS ── */}
+      {section === "sobre" && (
+        <div className="max-w-xl">
+          <SectionHeader title="Página Sobre nós" subtitle="Textos da página /sobre-nos" />
+          {editVal ? (
+            <div className="space-y-4">
+              <h4 className="font-bold text-sm text-gray-700">Editar valor</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Ícone (emoji)"><input className={inputCls} value={editVal.icon} onChange={e => setEditVal({ ...editVal, icon: e.target.value })} placeholder="🌿" /></Field>
+                <Field label="Título"><input className={inputCls} value={editVal.title} onChange={e => setEditVal({ ...editVal, title: e.target.value })} /></Field>
+              </div>
+              <Field label="Descrição"><textarea className={textareaCls} rows={2} value={editVal.desc} onChange={e => setEditVal({ ...editVal, desc: e.target.value })} /></Field>
+              <div className="flex gap-3">
+                <button onClick={saveVal} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}><Save size={15} /> Salvar</button>
+                <button onClick={() => setEditVal(null)} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {(() => {
+                const sn = data.sobreNos;
+                return (
+                  <>
+                    <Field label="Tagline (acima do título)"><input className={inputCls} value={sn.heroTagline} onChange={e => updateData({ sobreNos: { ...sn, heroTagline: e.target.value } })} /></Field>
+                    <Field label="Título principal"><input className={inputCls} value={sn.heroTitle} onChange={e => updateData({ sobreNos: { ...sn, heroTitle: e.target.value } })} /></Field>
+                    <Field label="Subtítulo do hero"><input className={inputCls} value={sn.heroSubtitle} onChange={e => updateData({ sobreNos: { ...sn, heroSubtitle: e.target.value } })} /></Field>
+                    <Field label="Texto em destaque (verde)"><input className={inputCls} value={sn.highlight} onChange={e => updateData({ sobreNos: { ...sn, highlight: e.target.value } })} /></Field>
+                    <Field label="Parágrafo 1"><textarea className={textareaCls} rows={3} value={sn.paragraph1} onChange={e => updateData({ sobreNos: { ...sn, paragraph1: e.target.value } })} /></Field>
+                    <Field label="Parágrafo 2"><textarea className={textareaCls} rows={3} value={sn.paragraph2} onChange={e => updateData({ sobreNos: { ...sn, paragraph2: e.target.value } })} /></Field>
+                    <Field label="Mensagem final"><input className={inputCls} value={sn.finalMessage} onChange={e => updateData({ sobreNos: { ...sn, finalMessage: e.target.value } })} /></Field>
+                    <Field label="Texto do botão CTA"><input className={inputCls} value={sn.ctaText} onChange={e => updateData({ sobreNos: { ...sn, ctaText: e.target.value } })} /></Field>
+                    <div className="border-t border-gray-100 pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="font-bold text-sm text-gray-700">Valores / Cards</p>
+                        <button onClick={() => setEditVal({ id: generateId(), icon: "🌿", title: "", desc: "" })}
+                          className="text-white text-xs font-bold rounded-xl px-3 py-1.5 flex items-center gap-1 hover:opacity-90 transition" style={{ background: PINK }}>
+                          <Plus size={12} /> Adicionar
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {sn.values.map(v => (
+                          <div key={v.id} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                            <span className="text-2xl flex-shrink-0">{v.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-sm text-gray-800">{v.title}</p>
+                              <p className="text-xs text-gray-500 truncate">{v.desc}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <button onClick={() => setEditVal({ ...v })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={12} className="text-gray-500" /></button>
+                              <button onClick={() => removeVal(v.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200"><Trash2 size={12} className="text-red-400" /></button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400">Alterações salvas automaticamente.</p>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── LINKS DO RODAPÉ ── */}
+      {section === "footer" && (
+        <div className="max-w-xl">
+          <SectionHeader title="Links do rodapé" subtitle="Os links que aparecem nas colunas do rodapé" />
+          {editLink ? (
+            <div className="space-y-4">
+              <h4 className="font-bold text-sm text-gray-700">Editar link</h4>
+              <Field label="Texto do link"><input className={inputCls} value={editLink.label} onChange={e => setEditLink({ ...editLink, label: e.target.value })} /></Field>
+              <Field label="URL (ex: /sobre-nos)"><input className={inputCls} value={editLink.href} onChange={e => setEditLink({ ...editLink, href: e.target.value })} placeholder="/sobre-nos" /></Field>
+              <Field label="Coluna">
+                <div className="flex gap-2">
+                  {(["products", "company", "support"] as const).map(col => (
+                    <button key={col} type="button" onClick={() => setEditLink({ ...editLink, column: col })}
+                      className={`flex-1 py-2 rounded-lg border text-xs font-semibold transition ${editLink.column === col ? "text-white border-transparent" : "border-gray-200 text-gray-500"}`}
+                      style={editLink.column === col ? { background: PINK } : {}}>
+                      {col === "products" ? "Produtos" : col === "company" ? "Empresa" : "Suporte"}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <div className="flex gap-3">
+                <button onClick={saveLink} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}><Save size={15} /> Salvar</button>
+                <button onClick={() => setEditLink(null)} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {(["products", "company", "support"] as const).map(col => {
+                const colLinks = data.footerLinks.filter(l => l.column === col);
+                const colLabel = col === "products" ? "Produtos" : col === "company" ? "Empresa" : "Suporte";
+                return (
+                  <div key={col} className="mb-5">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{colLabel}</p>
+                    <div className="space-y-2">
+                      {colLinks.map(l => (
+                        <div key={l.id} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm text-gray-800">{l.label}</p>
+                            <p className="text-xs text-gray-400">{l.href}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button onClick={() => setEditLink({ ...l })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={12} className="text-gray-500" /></button>
+                            <button onClick={() => removeLink(l.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200"><Trash2 size={12} className="text-red-400" /></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+              <button onClick={() => setEditLink({ id: generateId(), label: "", href: "/", column: "products" })}
+                className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
+                <Plus size={15} /> Adicionar link
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -663,11 +816,17 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
       <div className="space-y-4">
         <Field label="Nome do site"><input className={inputCls} value={s.siteName} onChange={e => setS({ ...s, siteName: e.target.value })} /></Field>
         <Field label="WhatsApp (somente números)"><input className={inputCls} value={s.whatsapp} onChange={e => setS({ ...s, whatsapp: e.target.value })} placeholder="5511999999999" /></Field>
+        <Field label="Instagram (URL completa)"><input className={inputCls} value={s.instagram ?? ""} onChange={e => setS({ ...s, instagram: e.target.value })} placeholder="https://instagram.com/suaconta" /></Field>
+        <Field label="Facebook (URL completa)"><input className={inputCls} value={s.facebook ?? ""} onChange={e => setS({ ...s, facebook: e.target.value })} placeholder="https://facebook.com/suapagina" /></Field>
         <Field label="E-mail de contato"><input className={inputCls} value={s.email} onChange={e => setS({ ...s, email: e.target.value })} /></Field>
         <Field label="Texto do banner de anúncio (topo)"><input className={inputCls} value={s.announcementText} onChange={e => setS({ ...s, announcementText: e.target.value })} /></Field>
         <Field label="Botão do banner de anúncio"><input className={inputCls} value={s.announcementButton ?? ""} onChange={e => setS({ ...s, announcementButton: e.target.value })} placeholder="APROVEITE AGORA!" /></Field>
         <Field label="Texto sobre a marca (rodapé)"><textarea className={textareaCls} rows={2} value={s.footerAbout} onChange={e => setS({ ...s, footerAbout: e.target.value })} /></Field>
         <Field label="Copyright (rodapé)"><input className={inputCls} value={s.footerCopyright ?? ""} onChange={e => setS({ ...s, footerCopyright: e.target.value })} placeholder="© 2026 Profissional." /></Field>
+        <Field label="Formas de pagamento (separadas por vírgula)">
+          <input className={inputCls} value={s.paymentMethods ?? ""} onChange={e => setS({ ...s, paymentMethods: e.target.value })} placeholder="Visa,Master,Pix,Boleto" />
+          <p className="text-xs text-gray-400 mt-1">Digite os nomes separados por vírgula. Ex: Visa,Master,Pix,Boleto</p>
+        </Field>
         <Field label="Cor principal (hex)">
           <div className="flex gap-2 items-center">
             <input type="color" value={s.primaryColor} onChange={e => setS({ ...s, primaryColor: e.target.value })} className="w-10 h-10 rounded-lg border border-gray-200 p-0.5 cursor-pointer" />

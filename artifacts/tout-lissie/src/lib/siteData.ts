@@ -77,16 +77,45 @@ export interface SectionTitles {
   faqCtaSubtitle: string;
 }
 
+export interface AboutValue {
+  id: string;
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+export interface SobreNosPage {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroTagline: string;
+  highlight: string;
+  paragraph1: string;
+  paragraph2: string;
+  finalMessage: string;
+  ctaText: string;
+  values: AboutValue[];
+}
+
+export interface FooterLink {
+  id: string;
+  label: string;
+  href: string;
+  column: "products" | "company" | "support";
+}
+
 export interface SiteSettings {
   siteName: string;
   logo: string;
   whatsapp: string;
+  instagram: string;
+  facebook: string;
   email: string;
   primaryColor: string;
   announcementText: string;
   announcementButton: string;
   footerAbout: string;
   footerCopyright: string;
+  paymentMethods: string;
 }
 
 export interface SiteData {
@@ -100,6 +129,8 @@ export interface SiteData {
   eleganceBanner: EleganceBanner;
   resultadoMagic: ResultadoMagic;
   sectionTitles: SectionTitles;
+  sobreNos: SobreNosPage;
+  footerLinks: FooterLink[];
   settings: SiteSettings;
 }
 
@@ -172,16 +203,42 @@ export const defaultSiteData: SiteData = {
     faqCta: "Ficou alguma dúvida?",
     faqCtaSubtitle: "Nossa equipe está disponível para te ajudar segunda a sexta, das 8h às 18h.",
   },
+  sobreNos: {
+    heroTagline: "Sobre nós",
+    heroTitle: "Cuidado que vai além da estética",
+    heroSubtitle: "É sobre autoestima, confiança e bem-estar em todos os momentos do seu dia.",
+    highlight: "autoestima, confiança e bem-estar",
+    paragraph1: "Somos apaixonados por transformar rotinas simples em experiências incríveis. Por isso, desenvolvemos produtos pensados para todos os tipos de cabelo, unindo tecnologia, qualidade profissional e resultados reais que você pode ver e sentir.",
+    paragraph2: "Nossa missão é levar até você o cuidado que antes só existia nos salões, de forma prática, acessível e eficaz. Cada fórmula é criada com atenção aos detalhes, para entregar brilho, maciez e saúde aos seus fios.",
+    finalMessage: "Aqui, cada cliente é única — e o seu cabelo merece esse cuidado especial. ✨",
+    ctaText: "Conheça nossos produtos",
+    values: [
+      { id: "1", icon: "🌿", title: "Qualidade", desc: "Fórmulas com ingredientes selecionados e tecnologia profissional." },
+      { id: "2", icon: "💚", title: "Acessibilidade", desc: "O melhor cuidado ao alcance de todas as mulheres." },
+      { id: "3", icon: "✨", title: "Resultado", desc: "Brilho, maciez e saúde visíveis desde a primeira aplicação." },
+    ],
+  },
+  footerLinks: [
+    { id: "1", label: "Shampoos", href: "/categoria/shampoo-e-mascara", column: "products" },
+    { id: "2", label: "Máscaras", href: "/categoria/shampoo-e-mascara", column: "products" },
+    { id: "3", label: "Reparador de pontas", href: "/categoria/reparador-de-pontas", column: "products" },
+    { id: "4", label: "Kits", href: "/categoria/shampoo-e-mascara", column: "products" },
+    { id: "5", label: "Sobre nós", href: "/sobre-nos", column: "company" },
+    { id: "6", label: "Rastrear pedido", href: "/rastrear-pedido", column: "support" },
+  ],
   settings: {
     siteName: "PR Profissional",
     logo: "logo-pr.png",
     whatsapp: "5511953770968",
+    instagram: "",
+    facebook: "",
     email: "Prprofissional0111@gmail.com",
     primaryColor: "#e8006f",
     announcementText: "Pegue instantaneamente • Proteja os fios • Resultados visíveis",
     announcementButton: "APROVEITE AGORA!",
     footerAbout: "A marca favorita de quem cuida do cabelo com amor e dedicação.",
     footerCopyright: "© 2026 Profissional. Todos os direitos reservados.",
+    paymentMethods: "Visa,Master,Pix,Boleto",
   },
 };
 
@@ -200,8 +257,14 @@ export function loadSiteData(): SiteData {
         sectionTitles: { ...defaultSiteData.sectionTitles, ...(parsed.sectionTitles ?? {}) },
         eleganceBanner: { ...defaultSiteData.eleganceBanner, ...(parsed.eleganceBanner ?? {}) },
         resultadoMagic: { ...defaultSiteData.resultadoMagic, ...(parsed.resultadoMagic ?? {}) },
+        sobreNos: {
+          ...defaultSiteData.sobreNos,
+          ...(parsed.sobreNos ?? {}),
+          values: parsed.sobreNos?.values ?? defaultSiteData.sobreNos.values,
+        },
         mosaicPhotos: parsed.mosaicPhotos ?? defaultSiteData.mosaicPhotos,
         categoryCards: parsed.categoryCards ?? defaultSiteData.categoryCards,
+        footerLinks: parsed.footerLinks ?? defaultSiteData.footerLinks,
       };
     }
   } catch {}
