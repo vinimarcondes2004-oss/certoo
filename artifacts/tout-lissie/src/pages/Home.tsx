@@ -456,16 +456,51 @@ function FeaturedCategory() {
 /* ─── SALÕES ─── */
 function SalonSection() {
   const { data } = useSite();
+  const reviews = data.salonReviews;
+  const track = [...reviews, ...reviews];
+
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="py-24 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-9">
         <h2 className="text-2xl font-black text-center text-gray-900 mb-2">
           {data.sectionTitles.salonSection} <span style={{ color: PINK }}>♥</span>
         </h2>
-        <p className="text-center text-sm text-gray-500 mb-9">{data.sectionTitles.salonSubtitle}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-          {data.salonReviews.map((r) => (
-            <div key={r.id} className="border border-gray-100 rounded-2xl p-6 hover:shadow-sm transition">
+        <p className="text-center text-sm text-gray-500">{data.sectionTitles.salonSubtitle}</p>
+      </div>
+
+      <style>{`
+        @keyframes salon-scroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .salon-track {
+          display: flex;
+          gap: 20px;
+          width: max-content;
+          animation: salon-scroll ${reviews.length * 4}s linear infinite;
+        }
+        .salon-track:hover {
+          animation-play-state: paused;
+        }
+        .salon-card {
+          width: 260px;
+          flex-shrink: 0;
+          border: 1px solid #f0f0f0;
+          border-radius: 16px;
+          padding: 24px;
+          background: #fff;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+          transition: box-shadow 0.2s;
+        }
+        .salon-card:hover {
+          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+      `}</style>
+
+      <div className="w-full overflow-hidden px-4">
+        <div className="salon-track">
+          {track.map((r, i) => (
+            <div key={`${r.id}-${i}`} className="salon-card">
               <div className="flex items-center gap-3 mb-3">
                 <img src={imgSrc(r.img)} alt={r.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" onError={e => (e.currentTarget.style.display = "none")} />
                 <div>
