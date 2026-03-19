@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
-  Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff
+  Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff, ChevronUp, ChevronDown
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
@@ -146,7 +146,26 @@ function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
+  const [newCat, setNewCat] = useState("");
   const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [], showInBestSellers: true };
+
+  const cats = data.productPageCategories || [];
+  function addCat() {
+    const v = newCat.trim();
+    if (!v || cats.includes(v)) return;
+    updateData({ productPageCategories: [...cats, v] });
+    setNewCat("");
+  }
+  function removeCat(i: number) {
+    updateData({ productPageCategories: cats.filter((_, idx) => idx !== i) });
+  }
+  function moveCat(i: number, dir: -1 | 1) {
+    const arr = [...cats];
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    updateData({ productPageCategories: arr });
+  }
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(p: Product) { setEditing({ ...p }); setAdding(false); }
   function cancel() { setEditing(null); }
@@ -281,6 +300,63 @@ function ProductsTab() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ─── Filtros da Página de Produtos ─── */}
+      <div className="mt-10">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-black text-base text-gray-800">Filtros da Página de Produtos</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Botões de categoria que aparecem na página "/produtos"</p>
+          </div>
+        </div>
+
+        {/* Preview dos botões */}
+        <div className="flex flex-wrap gap-2 mb-5 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <span className="px-4 py-1.5 rounded-full text-sm font-semibold text-white" style={{ background: PINK }}>Todos</span>
+          {cats.map(cat => (
+            <span key={cat} className="px-4 py-1.5 rounded-full text-sm font-semibold border border-gray-200 text-gray-600 bg-white">{cat}</span>
+          ))}
+        </div>
+
+        {/* Lista gerenciável */}
+        <div className="space-y-2 mb-4">
+          {cats.map((cat, i) => (
+            <div key={i} className="flex items-center gap-2 bg-white border border-gray-100 rounded-xl px-3 py-2">
+              <div className="flex flex-col gap-0.5">
+                <button onClick={() => moveCat(i, -1)} disabled={i === 0}
+                  className="p-0.5 hover:bg-gray-100 rounded disabled:opacity-30 transition">
+                  <ChevronUp size={13} className="text-gray-400" />
+                </button>
+                <button onClick={() => moveCat(i, 1)} disabled={i === cats.length - 1}
+                  className="p-0.5 hover:bg-gray-100 rounded disabled:opacity-30 transition">
+                  <ChevronDown size={13} className="text-gray-400" />
+                </button>
+              </div>
+              <span className="flex-1 text-sm font-semibold text-gray-700">{cat}</span>
+              <button onClick={() => removeCat(i)}
+                className="p-1.5 rounded-lg hover:bg-red-50 transition border border-gray-100">
+                <Trash2 size={13} className="text-red-400" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Adicionar nova categoria */}
+        <div className="flex gap-2">
+          <input
+            className={inputCls + " flex-1"}
+            placeholder="Nome do filtro (ex: Óleos, Kits...)"
+            value={newCat}
+            onChange={e => setNewCat(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && addCat()}
+          />
+          <button onClick={addCat}
+            className="text-white font-bold rounded-xl px-4 py-2 text-sm hover:opacity-90 transition flex items-center gap-1.5"
+            style={{ background: PINK }}>
+            <Plus size={14} /> Adicionar
+          </button>
+        </div>
       </div>
     </div>
   );

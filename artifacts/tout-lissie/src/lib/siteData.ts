@@ -146,6 +146,7 @@ export interface SiteData {
   footerLinks: FooterLink[];
   sectionLayout: SectionConfig[];
   settings: SiteSettings;
+  productPageCategories: string[];
 }
 
 export const DEFAULT_SECTION_LAYOUT: SectionConfig[] = [
@@ -270,6 +271,7 @@ export const defaultSiteData: SiteData = {
     footerCopyright: "© 2026 Profissional. Todos os direitos reservados.",
     paymentMethods: "Visa,Master,Pix,Boleto",
   },
+  productPageCategories: ["Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits", "Progressiva"],
 };
 
 const STORAGE_KEY = "pr_site_data";
@@ -291,6 +293,7 @@ export function mergeWithDefaults(parsed: Partial<SiteData>): SiteData {
     mosaicPhotos: Array.isArray(parsed.mosaicPhotos) ? parsed.mosaicPhotos : defaultSiteData.mosaicPhotos,
     categoryCards: Array.isArray(parsed.categoryCards) ? parsed.categoryCards : defaultSiteData.categoryCards,
     footerLinks: Array.isArray(parsed.footerLinks) ? parsed.footerLinks : defaultSiteData.footerLinks,
+    productPageCategories: Array.isArray(parsed.productPageCategories) ? parsed.productPageCategories : defaultSiteData.productPageCategories,
     sectionLayout: (() => {
       if (!Array.isArray(parsed.sectionLayout) || parsed.sectionLayout.length === 0) {
         return defaultSiteData.sectionLayout;
