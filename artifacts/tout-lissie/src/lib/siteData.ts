@@ -10,6 +10,7 @@ export interface Product {
   category: string;
   categoryLabel: string;
   color: string;
+  extraCategories?: string[];
 }
 
 export interface HeroSlide {

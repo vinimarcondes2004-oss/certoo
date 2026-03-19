@@ -68,10 +68,11 @@ function StarsInput({ value, onChange }: { value: number; onChange: (n: number) 
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+      {hint && <p className="text-xs text-gray-400 mb-1">{hint}</p>}
       {children}
     </div>
   );
@@ -145,7 +146,7 @@ function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
-  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK };
+  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [] };
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(p: Product) { setEditing({ ...p }); setAdding(false); }
   function cancel() { setEditing(null); }
@@ -175,6 +176,12 @@ function ProductsTab() {
           <Field label="Categoria (slug)"><input className={inputCls} value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
           <Field label="Categoria (label)"><input className={inputCls} value={editing.categoryLabel} onChange={e => setEditing({ ...editing, categoryLabel: e.target.value })} placeholder="Shampoos" /></Field>
         </div>
+        <Field label="Categorias extras (separe por vírgula)" hint="Ex: kits,finalizadores — aparece nessas seções também">
+          <input className={inputCls}
+            value={(editing.extraCategories || []).join(", ")}
+            onChange={e => setEditing({ ...editing, extraCategories: e.target.value.split(",").map(s => s.trim().toLowerCase()).filter(Boolean) })}
+            placeholder="kits, finalizadores" />
+        </Field>
         <ImagePicker label="Imagem do produto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
         <Field label="Cor do card (hex)"><input className={inputCls} value={editing.color} onChange={e => setEditing({ ...editing, color: e.target.value })} placeholder="#e8006f" /></Field>
         <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>

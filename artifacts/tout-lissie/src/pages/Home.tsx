@@ -375,7 +375,12 @@ function FeaturedCategory() {
   const title = data.sectionTitles.featuredTitle || "Kits";
   const cat = (data.sectionTitles.featuredCategory || "").trim().toLowerCase();
   const products = cat
-    ? data.products.filter(p => (p.category || "").toLowerCase() === cat || (p.categoryLabel || "").toLowerCase() === cat)
+    ? data.products.filter(p => {
+        const c = cat.toLowerCase();
+        return (p.category || "").toLowerCase() === c
+          || (p.categoryLabel || "").toLowerCase() === c
+          || (p.extraCategories || []).some(e => e.toLowerCase() === c);
+      })
     : data.products;
   if (products.length === 0) return null;
   return (

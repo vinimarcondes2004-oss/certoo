@@ -93,7 +93,9 @@ function Header() {
 export default function Categoria() {
   const { data } = useSite();
   const { slug } = useParams<{ slug: string }>();
-  const products = data.products.filter(p => p.category === slug);
+  const products = data.products.filter(p =>
+    p.category === slug || (p.extraCategories || []).includes(slug || "")
+  );
   const label = products[0]?.categoryLabel ?? slug?.replace(/-/g, " ");
 
   return (
