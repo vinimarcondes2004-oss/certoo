@@ -135,16 +135,11 @@ const heroBgs = ["hero-bg.png", "hero-bg-2.png", "hero-bg-3.png"];
 
 function Hero() {
   const [current, setCurrent] = useState(0);
-  const [fading, setFading] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setFading(true);
-      setTimeout(() => {
-        setCurrent(c => (c + 1) % heroBgs.length);
-        setFading(false);
-      }, 600);
-    }, 3000);
+      setCurrent(c => (c + 1) % heroBgs.length);
+    }, 3500);
     return () => clearInterval(timer);
   }, []);
 
@@ -152,13 +147,16 @@ function Hero() {
     <>
       {/* Main hero */}
       <section className="relative overflow-hidden" style={{ minHeight: 700 }}>
-        {/* Full-cover background image with fade transition */}
-        <img
-          src={`${import.meta.env.BASE_URL}${heroBgs[current]}`}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ transition: "opacity 0.6s ease", opacity: fading ? 0 : 1 }}
-        />
+        {/* All 3 background images rendered; active one fades in */}
+        {heroBgs.map((bg, i) => (
+          <img
+            key={bg}
+            src={`${import.meta.env.BASE_URL}${bg}`}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }}
+          />
+        ))}
         {/* Gradient overlay so text is readable on the left */}
         <div className="absolute inset-0"
           style={{ background: "linear-gradient(90deg, rgba(180,0,60,0.82) 0%, rgba(220,0,80,0.65) 40%, rgba(0,0,0,0.05) 100%)" }} />
@@ -182,8 +180,23 @@ function Hero() {
           {/* Spacer so text doesn't overlap face */}
           <div className="flex-1 hidden md:block" />
         </div>
-      </section>
 
+        {/* Slide indicators */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {heroBgs.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className="rounded-full transition-all"
+              style={{
+                width: i === current ? 24 : 8,
+                height: 8,
+                background: i === current ? "white" : "rgba(255,255,255,0.5)",
+              }}
+            />
+          ))}
+        </div>
+      </section>
     </>
   );
 }
