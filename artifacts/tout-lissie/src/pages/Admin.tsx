@@ -1273,9 +1273,16 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 function SaveIndicator() {
-  const { saveStatus, hasUnsaved, saveToServer } = useSite();
+  const { saveStatus, hasUnsaved, saveToServer, reloadFromServer } = useSite();
+  const [confirmRevert, setConfirmRevert] = useState(false);
 
   const isSaving = saveStatus === "saving";
+
+  function handleRevert() {
+    if (!confirmRevert) { setConfirmRevert(true); setTimeout(() => setConfirmRevert(false), 3000); return; }
+    setConfirmRevert(false);
+    reloadFromServer();
+  }
 
   const statusBadge = saveStatus !== "idle" ? (
     <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold mx-3 mb-2 ${
@@ -1287,7 +1294,7 @@ function SaveIndicator() {
         saveStatus === "saving" ? "bg-yellow-400 animate-pulse" :
         saveStatus === "saved"  ? "bg-green-500" : "bg-red-500"
       }`} />
-      {saveStatus === "saving" ? "Salvando..." : saveStatus === "saved" ? "Salvo para todos ✓" : "Erro ao salvar"}
+      {saveStatus === "saving" ? "Carregando..." : saveStatus === "saved" ? "Salvo para todos ✓" : "Erro ao salvar"}
     </div>
   ) : null;
 
@@ -1301,6 +1308,15 @@ function SaveIndicator() {
       >
         <Save size={14} />
         {isSaving ? "Salvando..." : hasUnsaved ? "Salvar alterações" : "Sem alterações"}
+      </button>
+      <button
+        onClick={handleRevert}
+        disabled={isSaving}
+        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed border"
+        style={confirmRevert ? { background: "#fff3f3", borderColor: "#fca5a5", color: "#dc2626" } : { background: "#f9fafb", borderColor: "#e5e7eb", color: "#6b7280" }}
+      >
+        <X size={12} />
+        {confirmRevert ? "Confirmar reversão?" : "Reverter para versão salva"}
       </button>
       {hasUnsaved && saveStatus === "idle" && (
         <p className="text-[10px] text-center text-amber-500 font-medium">● Alterações não salvas</p>

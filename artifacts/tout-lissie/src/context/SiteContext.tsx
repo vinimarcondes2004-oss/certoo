@@ -29,6 +29,7 @@ interface SiteContextType {
   data: SiteData;
   updateData: (updates: Partial<SiteData>) => void;
   saveToServer: () => Promise<void>;
+  reloadFromServer: () => Promise<void>;
   synced: boolean;
   saveStatus: "idle" | "saving" | "saved" | "error";
   hasUnsaved: boolean;
@@ -98,8 +99,27 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function reloadFromServer() {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    if (statusTimer.current) clearTimeout(statusTimer.current);
+    setSaveStatus("saving");
+    try {
+      const serverData = await fetchSiteData();
+      const resolved = serverData ?? mergeWithDefaults({});
+      setData(resolved);
+      latestData.current = resolved;
+      saveSiteData(resolved);
+      setHasUnsaved(false);
+      setSaveStatus("saved");
+      statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
+    } catch {
+      setSaveStatus("error");
+      statusTimer.current = setTimeout(() => setSaveStatus("idle"), 3000);
+    }
+  }
+
   return (
-    <SiteContext.Provider value={{ data, updateData, saveToServer, synced, saveStatus, hasUnsaved }}>
+    <SiteContext.Provider value={{ data, updateData, saveToServer, reloadFromServer, synced, saveStatus, hasUnsaved }}>
       {children}
     </SiteContext.Provider>
   );
