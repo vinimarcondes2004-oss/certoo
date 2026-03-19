@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback, Re
 import { SiteData, loadSiteData, saveSiteData, mergeWithDefaults } from "@/lib/siteData";
 
 const API_URL = "/api/site-data";
+const EVENTS_URL = "/api/site-data/events";
 
 async function fetchSiteData(): Promise<SiteData | null> {
   try {
@@ -45,6 +46,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestData = useRef<SiteData>(data);
   const savedSnapshot = useRef<SiteData | null>(null);
+  const hasUnsavedRef = useRef(false);
 
   useEffect(() => {
     fetchSiteData().then(async serverData => {
@@ -63,6 +65,39 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  useEffect(() => {
+    let es: EventSource | null = null;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function connect() {
+      es = new EventSource(EVENTS_URL);
+
+      es.addEventListener("data-changed", () => {
+        if (hasUnsavedRef.current) return;
+        fetchSiteData().then(serverData => {
+          if (!serverData) return;
+          if (hasUnsavedRef.current) return;
+          setData(serverData);
+          latestData.current = serverData;
+          savedSnapshot.current = serverData;
+          saveSiteData(serverData);
+        });
+      });
+
+      es.onerror = () => {
+        es?.close();
+        retryTimer = setTimeout(connect, 5000);
+      };
+    }
+
+    connect();
+
+    return () => {
+      es?.close();
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, []);
+
   const updateData = useCallback((updates: Partial<SiteData>) => {
     setData(prev => {
       const next = { ...prev, ...updates };
@@ -70,6 +105,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       latestData.current = next;
       return next;
     });
+    hasUnsavedRef.current = true;
     setHasUnsaved(true);
   }, []);
 
@@ -80,6 +116,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       await pushSiteData(latestData.current);
       savedSnapshot.current = latestData.current;
       setSaveStatus("saved");
+      hasUnsavedRef.current = false;
       setHasUnsaved(false);
       statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
     } catch {
@@ -101,6 +138,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     setData(snapshot);
     latestData.current = snapshot;
     saveSiteData(snapshot);
+    hasUnsavedRef.current = false;
     setHasUnsaved(false);
     setSaveStatus("saved");
     statusTimer.current = setTimeout(() => setSaveStatus("idle"), 2500);
