@@ -418,6 +418,7 @@ function ContentTab() {
 
   /* Mosaic helpers */
   const [editMosaic, setEditMosaic] = useState<MosaicPhoto | null>(null);
+  const [mosaicView, setMosaicView] = useState<"grid" | "list">("grid");
   function saveMosaic() {
     if (!editMosaic) return;
     updateData({ mosaicPhotos: data.mosaicPhotos.map(p => p.id === editMosaic.id ? editMosaic : p) });
@@ -568,6 +569,21 @@ function ContentTab() {
       {section === "mosaic" && (
         <div>
           <SectionHeader title="Mosaico de fotos e vídeos" subtitle="Fotos e vídeos exibidos na seção 'Quem usa'" />
+          {/* View toggle */}
+          {!editMosaic && (
+            <div className="flex gap-2 mb-4">
+              {(["grid", "list"] as const).map(v => (
+                <button key={v} onClick={() => setMosaicView(v)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition ${mosaicView === v ? "text-white border-transparent" : "text-gray-500 border-gray-200 bg-white"}`}
+                  style={mosaicView === v ? { background: PINK } : {}}>
+                  {v === "grid" ? "⊞ Grade visual" : "☰ Lista"}
+                </button>
+              ))}
+              <span className="text-xs text-gray-400 self-center ml-1">
+                {mosaicView === "grid" ? "Veja como as fotos ficam no site e reordene" : "Visualização em lista"}
+              </span>
+            </div>
+          )}
           {editMosaic ? (
             <div className="max-w-md space-y-4">
               <h4 className="font-bold text-sm text-gray-700">Editar item</h4>
@@ -646,40 +662,119 @@ function ContentTab() {
             </div>
           ) : (
             <div>
-              <div className="space-y-3 mb-4">
-                {data.mosaicPhotos.map((p, i) => (
-                  <div key={p.id} className="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-100">
-                    <div className="flex flex-col gap-1">
-                      <button onClick={() => moveMosaic(i, -1)} disabled={i === 0} className="text-gray-300 hover:text-gray-600 disabled:opacity-30"><ArrowUp size={13} /></button>
-                      <button onClick={() => moveMosaic(i, 1)} disabled={i === data.mosaicPhotos.length - 1} className="text-gray-300 hover:text-gray-600 disabled:opacity-30"><ArrowDown size={13} /></button>
-                    </div>
-                    {(p.type ?? "image") === "video" ? (
-                      <div className="w-14 h-14 rounded-xl bg-gray-800 flex-shrink-0 flex items-center justify-center text-2xl">🎬</div>
-                    ) : (
-                      <img src={imgSrc(p.img)} alt="" className="w-14 h-14 object-cover rounded-xl flex-shrink-0 bg-gray-200" onError={e => (e.currentTarget.style.display = "none")} />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      {(p.type ?? "image") === "video" ? (
-                        <p className="text-xs text-gray-500 truncate">{p.videoUrl || "(sem URL)"}</p>
-                      ) : (
-                        <p className="text-xs text-gray-500">{p.img ? (p.img.startsWith("data:") ? "(imagem enviada)" : p.img) : "(sem imagem)"}</p>
-                      )}
-                      <div className="flex gap-1.5 mt-0.5 flex-wrap">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${(p.type ?? "image") === "video" ? "bg-purple-100 text-purple-600" : "bg-blue-100 text-blue-600"}`}>{(p.type ?? "image") === "video" ? "Vídeo" : "Foto"}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Larga" : "Normal"}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-600">{(p.aspectRatio ?? "1/1").replace("/", ":")}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => setEditMosaic({ ...p })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={13} className="text-gray-500" /></button>
-                      <button onClick={() => removeMosaic(p.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200"><Trash2 size={13} className="text-red-400" /></button>
-                    </div>
+              {/* ── GRADE VISUAL ── */}
+              {mosaicView === "grid" ? (
+                <div>
+                  <div
+                    className="mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 p-3"
+                    style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
+                    {data.mosaicPhotos.map((p, i) => {
+                      const isVideo = (p.type ?? "image") === "video";
+                      const ratio = p.aspectRatio ?? "1/1";
+                      return (
+                        <div key={p.id}
+                          style={{ gridColumn: p.big ? "1 / -1" : undefined }}
+                          className="relative rounded-xl overflow-hidden bg-gray-200 group border-2 border-transparent hover:border-pink-400 transition">
+                          {/* Thumbnail */}
+                          <div style={{ aspectRatio: ratio.replace("/", "/") }}>
+                            {isVideo ? (
+                              <div className="w-full h-full bg-gray-800 flex items-center justify-center text-4xl">🎬</div>
+                            ) : p.img ? (
+                              <img src={imgSrc(p.img)} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-3xl">🖼️</div>
+                            )}
+                          </div>
+
+                          {/* Position badge */}
+                          <div className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/60 text-white text-[11px] font-black flex items-center justify-center">
+                            {i + 1}
+                          </div>
+
+                          {/* Type badge */}
+                          <div className={`absolute top-1.5 right-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-bold ${isVideo ? "bg-purple-500 text-white" : "bg-blue-500 text-white"}`}>
+                            {isVideo ? "VÍD" : "FOTO"}
+                          </div>
+
+                          {/* Hover overlay with action buttons */}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-between p-2">
+                            {/* Move up */}
+                            <button onClick={() => moveMosaic(i, -1)} disabled={i === 0}
+                              className="w-8 h-8 rounded-lg bg-white/90 hover:bg-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition shadow">
+                              <ArrowUp size={16} className="text-gray-700" />
+                            </button>
+                            {/* Edit + Delete row */}
+                            <div className="flex gap-2">
+                              <button onClick={() => setEditMosaic({ ...p })}
+                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/90 hover:bg-white text-xs font-semibold text-gray-700 transition shadow">
+                                <Pencil size={12} /> Editar
+                              </button>
+                              <button onClick={() => removeMosaic(p.id)}
+                                className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-xs font-semibold text-white transition shadow">
+                                <Trash2 size={12} /> Excluir
+                              </button>
+                            </div>
+                            {/* Move down */}
+                            <button onClick={() => moveMosaic(i, 1)} disabled={i === data.mosaicPhotos.length - 1}
+                              className="w-8 h-8 rounded-lg bg-white/90 hover:bg-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition shadow">
+                              <ArrowDown size={16} className="text-gray-700" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-              <button onClick={addMosaic} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
-                <Plus size={15} /> Adicionar item
-              </button>
+                  <p className="text-xs text-gray-400 mb-3">Passe o mouse sobre uma foto para ver as opções de mover, editar ou excluir.</p>
+                  <button onClick={addMosaic} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
+                    <Plus size={15} /> Adicionar item
+                  </button>
+                </div>
+              ) : (
+                /* ── LISTA ── */
+                <div>
+                  <div className="space-y-3 mb-4">
+                    {data.mosaicPhotos.map((p, i) => (
+                      <div key={p.id} className="flex items-center gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                        <div className="flex flex-col gap-1">
+                          <button onClick={() => moveMosaic(i, -1)} disabled={i === 0}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 disabled:opacity-20 transition">
+                            <ArrowUp size={14} />
+                          </button>
+                          <div className="text-center text-[10px] font-bold text-gray-300">{i + 1}</div>
+                          <button onClick={() => moveMosaic(i, 1)} disabled={i === data.mosaicPhotos.length - 1}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 disabled:opacity-20 transition">
+                            <ArrowDown size={14} />
+                          </button>
+                        </div>
+                        {(p.type ?? "image") === "video" ? (
+                          <div className="w-14 h-14 rounded-xl bg-gray-800 flex-shrink-0 flex items-center justify-center text-2xl">🎬</div>
+                        ) : (
+                          <img src={imgSrc(p.img)} alt="" className="w-14 h-14 object-cover rounded-xl flex-shrink-0 bg-gray-200" onError={e => (e.currentTarget.style.display = "none")} />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          {(p.type ?? "image") === "video" ? (
+                            <p className="text-xs text-gray-500 truncate">{p.videoUrl || "(sem URL)"}</p>
+                          ) : (
+                            <p className="text-xs text-gray-500">{p.img ? (p.img.startsWith("data:") ? "(imagem enviada)" : p.img) : "(sem imagem)"}</p>
+                          )}
+                          <div className="flex gap-1.5 mt-0.5 flex-wrap">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${(p.type ?? "image") === "video" ? "bg-purple-100 text-purple-600" : "bg-blue-100 text-blue-600"}`}>{(p.type ?? "image") === "video" ? "Vídeo" : "Foto"}</span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Larga" : "Normal"}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-100 text-amber-600">{(p.aspectRatio ?? "1/1").replace("/", ":")}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => setEditMosaic({ ...p })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={13} className="text-gray-500" /></button>
+                          <button onClick={() => removeMosaic(p.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200"><Trash2 size={13} className="text-red-400" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={addMosaic} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
+                    <Plus size={15} /> Adicionar item
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
