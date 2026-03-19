@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ShoppingCart, Star, Heart, User, Menu, X, Search, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
+import { useSite } from "@/context/SiteContext";
 
 const PINK = "#e8006f";
 const PINK2 = "#f5007a";
@@ -96,22 +97,15 @@ function Header() {
   );
 }
 
-const allProducts = [
-  { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, color: PINK, badge: "Mais Vendido", img: "product-progressiva.png", category: "Progressiva" },
-  { name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 189, color: "#4a90e2", badge: "Top", img: "product-pos-quimica.png", category: "Shampoos" },
-  { name: "Shampoo e máscara de hidratação", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito", img: "product-hidratacao.png", category: "Máscaras" },
-  { name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo", img: "product-reparador-pontas.png", category: "Finalizadores" },
-  { name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque", img: "product-finalizador-liss.png", category: "Kits" },
-];
-
 const categories = ["Todos", "Shampoos", "Condicionadores", "Máscaras", "Finalizadores", "Óleos", "Kits", "Progressiva"];
 
 export default function Produtos() {
+  const { data } = useSite();
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [search, setSearch] = useState("");
 
-  const filtered = allProducts.filter(p => {
-    const matchCat = activeCategory === "Todos" || p.category === activeCategory;
+  const filtered = data.products.filter(p => {
+    const matchCat = activeCategory === "Todos" || p.categoryLabel === activeCategory;
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
@@ -173,13 +167,13 @@ export default function Produtos() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {filtered.map((p, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
+            {filtered.map((p) => (
+              <div key={p.id} className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
                 <div className="relative">
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: PINK }}>{p.badge}</span>
                   <img
-                    src={`${import.meta.env.BASE_URL}${p.img}`}
+                    src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`}
                     alt={p.name}
                     style={{ height: 150, width: "100%", objectFit: "contain" }}
                   />

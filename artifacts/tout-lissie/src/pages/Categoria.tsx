@@ -1,6 +1,7 @@
 import { ShoppingCart, Star, Heart, User, Menu, X, Search, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { useState } from "react";
+import { useSite } from "@/context/SiteContext";
 
 const PINK = "#e8006f";
 const PINK2 = "#f5007a";
@@ -89,24 +90,11 @@ function Header() {
   );
 }
 
-const allProducts = [
-  { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, badge: "Mais Vendido", img: "product-progressiva.png", category: "progressiva-sem-formol" },
-  { name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 189, badge: "Top", img: "product-pos-quimica.png", category: "shampoo-e-mascara" },
-  { name: "Shampoo e máscara de hidratação", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 312, badge: "Favorito", img: "product-hidratacao.png", category: "shampoo-e-mascara" },
-  { name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, n: 156, badge: "Novo", img: "product-oil-repair.png", category: "reparador-de-pontas" },
-  { name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, n: 278, badge: "Destaque", img: "product-finalizador-liss.png", category: "shampoo-e-mascara" },
-];
-
-const slugToLabel: Record<string, string> = {
-  "shampoo-e-mascara": "Shampoo e máscara",
-  "reparador-de-pontas": "Reparador de pontas",
-  "progressiva-sem-formol": "Progressiva sem formol",
-};
-
 export default function Categoria() {
+  const { data } = useSite();
   const { slug } = useParams<{ slug: string }>();
-  const label = slugToLabel[slug] ?? slug;
-  const products = allProducts.filter(p => p.category === slug);
+  const products = data.products.filter(p => p.category === slug);
+  const label = products[0]?.categoryLabel ?? slug?.replace(/-/g, " ");
 
   return (
     <div className="min-h-screen bg-white">
@@ -144,12 +132,12 @@ export default function Categoria() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {products.map((p, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
+              <div key={p.id} className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
                 <div className="relative">
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: PINK }}>{p.badge}</span>
                   <img
-                    src={`${import.meta.env.BASE_URL}${p.img}`}
+                    src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`}
                     alt={p.name}
                     style={{ height: 150, width: "100%", objectFit: "contain" }}
                   />

@@ -4,6 +4,7 @@ import {
   ShoppingCart, Star, ChevronDown, ChevronUp, Search,
   Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
 } from "lucide-react";
+import { useSite } from "@/context/SiteContext";
 
 const PINK = "#e8006f";
 const PINK2 = "#f5007a";
@@ -131,27 +132,29 @@ function Header() {
 }
 
 /* ─── HERO ─── */
-const heroBgs = ["hero-bg.jpg", "hero-bg-2.jpg", "hero-bg-3.jpg"];
-
 function Hero() {
+  const { data } = useSite();
+  const slides = data.heroSlides;
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrent(c => (c + 1) % heroBgs.length);
+      setCurrent(c => (c + 1) % slides.length);
     }, 3500);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
+
+  const slide = slides[current] ?? slides[0];
 
   return (
     <>
       {/* Main hero */}
       <section className="relative overflow-hidden" style={{ minHeight: 700 }}>
-        {/* All 3 background images rendered; active one fades in */}
-        {heroBgs.map((bg, i) => (
+        {/* All background images rendered; active one fades in */}
+        {slides.map((s, i) => (
           <img
-            key={bg}
-            src={`${import.meta.env.BASE_URL}${bg}`}
+            key={s.id}
+            src={s.img.startsWith("http") ? s.img : `${import.meta.env.BASE_URL}${s.img}`}
             alt=""
             className="absolute inset-0 w-full h-full object-cover object-center"
             loading="eager"
@@ -167,15 +170,15 @@ function Hero() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center">
           <div className="flex-1 text-white">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">
-              SMASH, IMEDIATAMENTE
+              {slide?.subtitle}
             </p>
             <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
-              Perfeito para<br />todas as horas<br />do seu dia
+              {(slide?.title ?? "").split("\n").map((line, i) => <span key={i}>{line}{i < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
             </h1>
             <a href="#produtos">
               <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition"
                 style={{ color: PINK }}>
-                APROVEITE AGORA!
+                {slide?.buttonText}
               </button>
             </a>
           </div>
@@ -185,7 +188,7 @@ function Hero() {
 
         {/* Slide indicators */}
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {heroBgs.map((_, i) => (
+          {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
@@ -204,15 +207,8 @@ function Hero() {
 }
 
 /* ─── MAIS VENDIDOS ─── */
-const bestSellers = [
-  { name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, n: 234, color: PINK, badge: "Mais Vendido", img: "product-progressiva.png" },
-  { name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 189, color: "#4a90e2", badge: "Top", img: "product-pos-quimica.png" },
-  { name: "Shampoo e máscara de hidratação", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, n: 312, color: "#ff6b6b", badge: "Favorito", img: "product-hidratacao.png" },
-  { name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, n: 156, color: "#43a047", badge: "Novo", img: "product-reparador-pontas.png" },
-  { name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, n: 278, color: "#8e24aa", badge: "Destaque", img: "product-finalizador-liss.png" },
-];
-
 function BestSellers() {
+  const { data } = useSite();
   return (
     <section id="produtos" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
@@ -223,27 +219,23 @@ function BestSellers() {
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide">
-          {bestSellers.map((p, i) => (
-            <div key={i} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
+          {data.products.map((p) => (
+            <div key={p.id} className="flex-shrink-0 w-44 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
               <div className="relative">
                 <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                   style={{ background: PINK }}>{p.badge}</span>
-                {p.img ? (
-                  <div style={{
-                    height: 130,
-                    background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    overflow: "hidden",
-                  }}>
-                    <img
-                      src={`${import.meta.env.BASE_URL}${p.img}`}
-                      alt={p.name}
-                      style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }}
-                    />
-                  </div>
-                ) : (
-                  <ProductImg color={p.color} height={130} />
-                )}
+                <div style={{
+                  height: 130,
+                  background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  overflow: "hidden",
+                }}>
+                  <img
+                    src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`}
+                    alt={p.name}
+                    style={{ height: 130 * 0.92, width: "auto", objectFit: "contain" }}
+                  />
+                </div>
               </div>
               <div className="p-3">
                 <p className="font-bold text-xs text-gray-800 leading-tight mb-0.5">{p.name}</p>
@@ -380,23 +372,17 @@ function ResultadoMagic() {
 }
 
 /* ─── QUEM USA TOUT RECOMENDA (reviews) ─── */
-const reviews = [
-  { name: "Fernanda K.", img: "avatar-1.jpg", stars: 5, text: "Incrível! Meu cabelo ficou liso, brilhoso e saudável desde a primeira aplicação.", date: "15 mar 2026" },
-  { name: "Beatriz S.", img: "avatar-2.jpg", stars: 5, text: "A máscara é um milagre! Nunca vi resultado tão rápido e duradouro.", date: "12 mar 2026" },
-  { name: "Priscila A.", img: "avatar-3.jpg", stars: 5, text: "O finalizador deixa o cabelo com um brilho incomparável. Recomendo!", date: "10 mar 2026" },
-  { name: "Renata M.", img: "avatar-4.jpg", stars: 5, text: "Uso toda a linha e meu cabelo nunca esteve tão saudável.", date: "8 mar 2026" },
-];
-
 function WhoUses() {
+  const { data } = useSite();
   return (
     <section id="quem-usa" className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-6">Quem usa Profissional recomenda! 💖</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {reviews.map((r, i) => (
-            <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
+          {data.reviews.map((r) => (
+            <div key={r.id} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <img src={`${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                <img src={r.img.startsWith("http") ? r.img : `${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.date}</p>
@@ -453,14 +439,8 @@ function CategoriesBanner() {
 }
 
 /* ─── TOUT LISSIE A QUERIDINHA DOS SALÕES ─── */
-const salonReviews = [
-  { name: "Ana C.", role: "Cabeleireira profissional", img: "avatar-5.jpg", stars: 5, text: "Meus clientes amam os resultados! Uso Profissional em todos os atendimentos." },
-  { name: "Mariana T.", role: "Salão de Beleza SP", img: "avatar-6.jpg", stars: 5, text: "A linha é perfeita para cabelos difíceis. Resultados surpreendentes!" },
-  { name: "Renata P.", role: "Hair Stylist", img: "avatar-7.jpg", stars: 5, text: "Qualidade profissional a um preço acessível. Super recomendo!" },
-  { name: "Luana B.", role: "Salão Chic RJ", img: "avatar-8.jpg", stars: 5, text: "Desde que comecei a usar Profissional, minhas clientes voltam sempre!" },
-];
-
 function SalonSection() {
+  const { data } = useSite();
   return (
     <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4">
@@ -469,10 +449,10 @@ function SalonSection() {
         </h2>
         <p className="text-center text-sm text-gray-500 mb-7">Profissionais que confiam na qualidade Profissional</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {salonReviews.map((r, i) => (
-            <div key={i} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
+          {data.salonReviews.map((r) => (
+            <div key={r.id} className="border border-gray-100 rounded-2xl p-4 hover:shadow-sm transition">
               <div className="flex items-center gap-2 mb-2">
-                <img src={`${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                <img src={r.img.startsWith("http") ? r.img : `${import.meta.env.BASE_URL}${r.img}`} alt={r.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 <div>
                   <p className="font-bold text-xs text-gray-800">{r.name}</p>
                   <p className="text-[10px] text-gray-400">{r.role}</p>
@@ -489,15 +469,8 @@ function SalonSection() {
 }
 
 /* ─── FAQ ─── */
-const faqs = [
-  { q: "Como usar o shampoo Profissional?", a: "Aplique sobre os cabelos molhados, massageie o couro cabeludo por 2 a 3 minutos e enxágue bem. Para melhores resultados, use com o condicionador da linha." },
-  { q: "Os produtos são para todos os tipos de cabelo?", a: "Sim! A linha foi desenvolvida para atender todos os tipos de cabelo — liso, ondulado, cacheado e crespo — com fórmulas específicas para cada necessidade." },
-  { q: "Qual o prazo de entrega?", a: "O prazo varia conforme sua localização. Em geral entregamos em 2 a 7 dias úteis. Pedidos acima de R$150 têm frete grátis." },
-  { q: "Posso trocar ou devolver?", a: "Sim! Oferecemos 30 dias para troca ou devolução sem complicação. Sua satisfação total ou o dinheiro de volta." },
-  { q: "Os produtos são testados em animais?", a: "Não! Somos 100% cruelty-free. Todos os produtos são desenvolvidos sem testes em animais e com ingredientes de origem sustentável." },
-];
-
 function FAQ() {
+  const { data } = useSite();
   const [open, setOpen] = useState<number | null>(null);
   return (
     <section id="faq" style={{ background: GRAY_BG }} className="py-10">
@@ -506,8 +479,8 @@ function FAQ() {
         <div className="flex flex-col md:flex-row gap-6">
           {/* Accordion */}
           <div className="flex-1 space-y-2">
-            {faqs.map((f, i) => (
-              <div key={i} className="bg-white rounded-xl overflow-hidden border border-gray-100">
+            {data.faqs.map((f, i) => (
+              <div key={f.id} className="bg-white rounded-xl overflow-hidden border border-gray-100">
                 <button
                   className="w-full flex items-center justify-between px-5 py-3.5 text-left"
                   onClick={() => setOpen(open === i ? null : i)}>
@@ -536,12 +509,12 @@ function FAQ() {
                 </p>
               </div>
               <div className="space-y-2 mt-6">
-                <a href="https://wa.me/5511953770968" target="_blank" rel="noopener noreferrer"
+                <a href={`https://wa.me/${data.settings.whatsapp}`} target="_blank" rel="noopener noreferrer"
                   className="w-full bg-white font-bold rounded-full py-2.5 text-sm hover:bg-pink-50 transition flex items-center justify-center gap-2"
                   style={{ color: PINK }}>
                   <MessageCircle size={16} /> Falar pelo WhatsApp
                 </a>
-                <a href="https://mail.google.com/mail/?view=cm&to=Prprofissional0111@gmail.com"
+                <a href={`https://mail.google.com/mail/?view=cm&to=${data.settings.email}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full border-2 border-white text-white font-bold rounded-full py-2.5 text-sm hover:bg-white/10 transition flex items-center justify-center">
@@ -611,7 +584,10 @@ function Footer() {
           </div>
         </div>
         <div className="border-t border-white/20 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/60 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-3">
+            <p className="text-white/60 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
+            <Link href="/admin" className="text-white/30 text-xs hover:text-white/60 transition">Admin</Link>
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-white/50 text-xs">Pagamentos:</span>
             {["Visa","Master","Pix","Boleto"].map(p => (

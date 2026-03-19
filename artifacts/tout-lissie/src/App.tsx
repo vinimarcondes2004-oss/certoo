@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SiteProvider } from "@/context/SiteContext";
 import Home from "@/pages/Home";
 import Produtos from "@/pages/Produtos";
 import Categoria from "@/pages/Categoria";
 import SobreNos from "@/pages/SobreNos";
 import RastrearPedido from "@/pages/RastrearPedido";
+import Admin from "@/pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +54,7 @@ function useImagePreloader() {
 function Router() {
   return (
     <Switch>
+      <Route path="/admin" component={Admin} />
       <Route path="/" component={Home} />
       <Route path="/produtos" component={Produtos} />
       <Route path="/categoria/:slug" component={Categoria} />
@@ -67,9 +70,11 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Router />
-      </WouterRouter>
+      <SiteProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <Router />
+        </WouterRouter>
+      </SiteProvider>
     </QueryClientProvider>
   );
 }
