@@ -101,7 +101,7 @@ function Hero() {
           style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }} />
       ))}
       <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.65)" }} />
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 flex flex-col items-center justify-center text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 pt-28 flex flex-col items-center justify-center text-center">
         <div className="text-white">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">{slide?.subtitle}</p>
           <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
