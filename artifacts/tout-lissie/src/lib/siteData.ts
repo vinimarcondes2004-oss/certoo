@@ -17,6 +17,7 @@ export interface Product {
   benefits?: string[];
   howToUse?: string;
   ingredients?: string;
+  outOfStock?: boolean;
 }
 
 export interface HeroSlide {

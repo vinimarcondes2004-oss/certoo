@@ -126,6 +126,7 @@ export default function Produto() {
   const { id } = useParams<{ id: string }>();
   const product = data.products.find(p => p.id === id);
   const [selectedImg, setSelectedImg] = useState(0);
+  const [qty, setQty] = useState(1);
 
   if (!product) {
     return (
@@ -161,7 +162,8 @@ export default function Produto() {
   const defaultDescription = product.description ||
     `${product.name} é um produto profissional desenvolvido para oferecer brilho, maciez e saúde para seus fios. Com fórmula exclusiva, proporciona resultado visível desde a primeira aplicação, ideal para uso diário ou tratamentos intensivos.`;
 
-  const waLink = `https://wa.me/${data.settings.whatsapp}?text=Olá! Tenho interesse no produto: ${product.name}`;
+  const outOfStock = product.outOfStock === true;
+  const waLink = `https://wa.me/${data.settings.whatsapp}?text=Olá! Tenho interesse no produto: ${product.name}${qty > 1 ? ` (quantidade: ${qty})` : ""}`;
 
   return (
     <div className="min-h-screen bg-white">
@@ -231,13 +233,48 @@ export default function Produto() {
               ))}
             </div>
 
-            <div className="flex flex-col gap-3 mt-3">
-              <a href={waLink} target="_blank" rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-lg transition hover:opacity-90"
-                style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
-                <ShoppingCart size={20} />
-                Comprar agora
-              </a>
+            {outOfStock && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 mt-1">
+                <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                <span className="text-red-600 text-sm font-bold">Esgotado no momento</span>
+              </div>
+            )}
+
+            {!outOfStock && (
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-sm font-semibold text-gray-700">Quantidade:</span>
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setQty(q => Math.max(1, q - 1))}
+                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition font-bold text-lg">
+                    −
+                  </button>
+                  <span className="w-10 text-center text-sm font-bold text-gray-900">{qty}</span>
+                  <button
+                    onClick={() => setQty(q => q + 1)}
+                    className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition font-bold text-lg">
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 mt-1">
+              {outOfStock ? (
+                <button disabled
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-lg opacity-50 cursor-not-allowed"
+                  style={{ background: "#aaa" }}>
+                  <ShoppingCart size={20} />
+                  Esgotado
+                </button>
+              ) : (
+                <a href={waLink} target="_blank" rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-lg transition hover:opacity-90"
+                  style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
+                  <ShoppingCart size={20} />
+                  Comprar agora
+                </a>
+              )}
               <a href={waLink} target="_blank" rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition border-2 hover:bg-pink-50"
                 style={{ borderColor: PINK, color: PINK }}>
