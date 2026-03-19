@@ -165,7 +165,10 @@ export const defaultSiteData: SiteData = {
     { id: "2", name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, badge: "Top", img: "product-pos-quimica.png", category: "shampoo-e-mascara", categoryLabel: "Shampoos", color: "#4a90e2" },
     { id: "3", name: "Shampoo e máscara de hidratação", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, badge: "Favorito", img: "product-hidratacao.png", category: "shampoo-e-mascara", categoryLabel: "Máscaras", color: "#ff6b6b" },
     { id: "4", name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, badge: "Novo", img: "product-reparador-pontas.png", category: "reparador-de-pontas", categoryLabel: "Finalizadores", color: "#43a047" },
-    { id: "5", name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, badge: "Destaque", img: "product-finalizador-liss.png", category: "shampoo-e-mascara", categoryLabel: "Kits", color: "#8e24aa" },
+    { id: "5", name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, badge: "Destaque", img: "product-finalizador-liss.png", category: "kits", categoryLabel: "Kits", color: "#8e24aa" },
+    { id: "6", name: "Kit Golden Repair Completo", ml: "3 itens", price: "R$ 189,00", old: "R$ 280,00", stars: 5, badge: "Mais Vendido", img: "product-progressiva.png", category: "kits", categoryLabel: "Kits", color: "#e8006f" },
+    { id: "7", name: "Kit Nutrição Profissional", ml: "2 itens", price: "R$ 130,00", old: "R$ 200,00", stars: 5, badge: "Top", img: "product-hidratacao.png", category: "kits", categoryLabel: "Kits", color: "#ff6b6b" },
+    { id: "8", name: "Kit Reparação & Brilho", ml: "3 itens", price: "R$ 160,00", old: "R$ 240,00", stars: 4, badge: "Novo", img: "product-pos-quimica.png", category: "kits", categoryLabel: "Kits", color: "#4a90e2" },
   ],
   heroSlides: [
     { id: "1", img: "hero-bg.jpg", title: "Perfeito para\ntodas as horas\ndo seu dia", subtitle: "SMASH, IMEDIATAMENTE", buttonText: "APROVEITE AGORA!" },
@@ -274,9 +277,23 @@ const STORAGE_KEY = "pr_site_data";
 const PASSWORD_KEY = "pr_admin_password";
 
 export function mergeWithDefaults(parsed: Partial<SiteData>): SiteData {
+  const mergedProducts = (() => {
+    if (!Array.isArray(parsed.products) || parsed.products.length === 0) {
+      return defaultSiteData.products;
+    }
+    const savedIds = new Set(parsed.products.map(p => p.id));
+    const newDefaults = defaultSiteData.products.filter(p => !savedIds.has(p.id));
+    const updatedSaved = parsed.products.map(p => {
+      const def = defaultSiteData.products.find(d => d.id === p.id);
+      if (def && p.category !== def.category) return { ...p, category: def.category };
+      return p;
+    });
+    return [...updatedSaved, ...newDefaults];
+  })();
   return {
     ...defaultSiteData,
     ...parsed,
+    products: mergedProducts,
     settings: { ...defaultSiteData.settings, ...(parsed.settings ?? {}) },
     sectionTitles: { ...defaultSiteData.sectionTitles, ...(parsed.sectionTitles ?? {}) },
     eleganceBanner: { ...defaultSiteData.eleganceBanner, ...(parsed.eleganceBanner ?? {}) },

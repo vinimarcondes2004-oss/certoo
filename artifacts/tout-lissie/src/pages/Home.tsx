@@ -383,7 +383,7 @@ function FeaturedCategory() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-7">
           <h2 className="text-2xl font-black text-gray-900">{title}</h2>
-          <Link href="/produtos">
+          <Link href={cat ? `/categoria/${cat}` : "/produtos"}>
             <span className="inline-flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: PINK }}>
               Ver mais <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs" style={{ background: PINK }}><ChevronRight size={12} /></span>
             </span>

@@ -45,10 +45,11 @@ export function SiteProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchSiteData().then(serverData => {
-      const resolved = serverData ?? mergeWithDefaults({});
-      setData(resolved);
-      latestData.current = resolved;
-      saveSiteData(resolved);
+      if (serverData) {
+        setData(serverData);
+        latestData.current = serverData;
+        saveSiteData(serverData);
+      }
       setSynced(true);
     });
   }, []);
