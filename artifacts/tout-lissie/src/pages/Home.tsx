@@ -141,8 +141,11 @@ function BestSellers() {
           {data.products.filter(p => p.showInBestSellers !== false).map((p) => (
             <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition block">
               <div className="relative">
-                <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
-                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                {p.outOfStock
+                  ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
+                  : <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
+                }
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
                   <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
@@ -152,7 +155,10 @@ function BestSellers() {
                 <Stars n={p.stars} size={13} />
                 <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
-                <BuyBtn full />
+                {p.outOfStock
+                  ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
+                  : <BuyBtn full />
+                }
               </div>
             </Link>
           ))}
@@ -398,10 +404,11 @@ function FeaturedCategory() {
           {products.map((p) => (
             <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition block">
               <div className="relative">
-                {p.badge && (
-                  <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
-                )}
-                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                {p.outOfStock
+                  ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
+                  : p.badge ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span> : null
+                }
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
                   <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
@@ -411,7 +418,10 @@ function FeaturedCategory() {
                 <Stars n={p.stars} size={13} />
                 <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
-                <BuyBtn full />
+                {p.outOfStock
+                  ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
+                  : <BuyBtn full />
+                }
               </div>
             </Link>
           ))}

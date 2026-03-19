@@ -182,6 +182,18 @@ function ProductsTab() {
 
           {/* Seções da página principal */}
           <div>
+            <p className="text-[11px] font-semibold text-gray-400 uppercase mb-2">Status do produto</p>
+            <div className="space-y-2 mb-4">
+              <label className="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox"
+                  checked={editing.outOfStock === true}
+                  onChange={e => setEditing({ ...editing, outOfStock: e.target.checked })}
+                  className="w-4 h-4 rounded accent-pink-500" />
+                <span className="text-sm text-gray-700 group-hover:text-gray-900">Produto esgotado</span>
+              </label>
+            </div>
+          </div>
+          <div>
             <p className="text-[11px] font-semibold text-gray-400 uppercase mb-2">Seções da página principal</p>
             <div className="space-y-2">
               {/* Mais Vendidos */}
