@@ -331,7 +331,12 @@ export function loadSiteData(): SiteData {
 }
 
 export function saveSiteData(data: SiteData) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // localStorage quota exceeded (e.g. large video uploads) — safe to ignore,
+    // the database is the authoritative source of truth.
+  }
 }
 
 export function getAdminPassword(): string {
