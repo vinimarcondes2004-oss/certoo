@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SiteProvider } from "@/context/SiteContext";
 import Home from "@/pages/Home";
@@ -52,8 +52,18 @@ function useImagePreloader() {
   }, []);
 }
 
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+  return null;
+}
+
 function Router() {
   return (
+    <>
+      <ScrollToTop />
     <Switch>
       <Route path="/admin" component={Admin} />
       <Route path="/" component={Home} />
@@ -64,6 +74,7 @@ function Router() {
       <Route path="/rastrear-pedido" component={RastrearPedido} />
       <Route path="*" component={Home} />
     </Switch>
+    </>
   );
 }
 
