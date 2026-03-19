@@ -38,7 +38,9 @@ export interface FaqItem {
 
 export interface MosaicPhoto {
   id: string;
+  type?: "image" | "video";
   img: string;
+  videoUrl?: string;
   big: boolean;
 }
 

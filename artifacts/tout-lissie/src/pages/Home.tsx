@@ -161,6 +161,22 @@ function BestSellers() {
   );
 }
 
+/* ─── helpers ─── */
+function toYoutubeEmbed(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/embed/${v}?autoplay=0&rel=0`;
+    }
+    if (u.hostname.includes("youtu.be")) {
+      const v = u.pathname.slice(1);
+      if (v) return `https://www.youtube.com/embed/${v}?autoplay=0&rel=0`;
+    }
+  } catch {}
+  return null;
+}
+
 /* ─── QUEM USA (mosaico de fotos) ─── */
 function WhoRecommends() {
   const { data } = useSite();
@@ -169,11 +185,39 @@ function WhoRecommends() {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl font-black text-center text-gray-900 mb-6">{data.sectionTitles.whoRecommends}</h2>
         <div className="grid grid-cols-4 gap-2" style={{ gridAutoRows: "140px" }}>
-          {data.mosaicPhotos.map((p, i) => (
-            <div key={p.id ?? i} className={`rounded-2xl overflow-hidden ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
-              <img src={imgSrc(p.img)} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
-            </div>
-          ))}
+          {data.mosaicPhotos.map((p, i) => {
+            const isVideo = p.type === "video";
+            const ytEmbed = isVideo && p.videoUrl ? toYoutubeEmbed(p.videoUrl) : null;
+            const isDirectVideo = isVideo && p.videoUrl && !ytEmbed;
+            return (
+              <div key={p.id ?? i} className={`rounded-2xl overflow-hidden relative ${p.big ? "row-span-2 col-span-2" : "col-span-1"}`}>
+                {isVideo ? (
+                  ytEmbed ? (
+                    <iframe
+                      src={ytEmbed}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={`video-${p.id}`}
+                    />
+                  ) : isDirectVideo ? (
+                    <video
+                      src={p.videoUrl}
+                      className="w-full h-full object-cover"
+                      controls
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">Sem vídeo</div>
+                  )
+                ) : (
+                  <img src={imgSrc(p.img)} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -566,11 +566,30 @@ function ContentTab() {
       {/* ── MOSAICO DE FOTOS ── */}
       {section === "mosaic" && (
         <div>
-          <SectionHeader title="Mosaico de fotos" subtitle="As fotos exibidas na seção 'Quem usa'" />
+          <SectionHeader title="Mosaico de fotos e vídeos" subtitle="Fotos e vídeos exibidos na seção 'Quem usa'" />
           {editMosaic ? (
             <div className="max-w-md space-y-4">
-              <h4 className="font-bold text-sm text-gray-700">Editar foto</h4>
-              <ImagePicker label="Foto" value={editMosaic.img} onChange={v => setEditMosaic({ ...editMosaic, img: v })} />
+              <h4 className="font-bold text-sm text-gray-700">Editar item</h4>
+              <Field label="Tipo de mídia">
+                <div className="flex gap-2">
+                  {(["image", "video"] as const).map(t => (
+                    <button key={t} type="button"
+                      onClick={() => setEditMosaic({ ...editMosaic, type: t })}
+                      className={`flex-1 py-2 rounded-lg border text-sm font-semibold transition ${(editMosaic.type ?? "image") === t ? "text-white border-transparent" : "border-gray-200 text-gray-500"}`}
+                      style={(editMosaic.type ?? "image") === t ? { background: PINK } : {}}>
+                      {t === "image" ? "🖼️ Foto" : "🎬 Vídeo"}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              {(editMosaic.type ?? "image") === "image" ? (
+                <ImagePicker label="Foto" value={editMosaic.img} onChange={v => setEditMosaic({ ...editMosaic, img: v })} />
+              ) : (
+                <Field label="URL do vídeo">
+                  <input className={inputCls} value={editMosaic.videoUrl ?? ""} onChange={e => setEditMosaic({ ...editMosaic, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=... ou URL do .mp4" />
+                  <p className="text-xs text-gray-400 mt-1">Cole o link do YouTube ou um link direto de vídeo (.mp4).</p>
+                </Field>
+              )}
               <Field label="Tamanho">
                 <div className="flex gap-3">
                   {([false, true] as const).map(b => (
@@ -598,10 +617,21 @@ function ContentTab() {
                       <button onClick={() => moveMosaic(i, -1)} disabled={i === 0} className="text-gray-300 hover:text-gray-600 disabled:opacity-30"><ArrowUp size={13} /></button>
                       <button onClick={() => moveMosaic(i, 1)} disabled={i === data.mosaicPhotos.length - 1} className="text-gray-300 hover:text-gray-600 disabled:opacity-30"><ArrowDown size={13} /></button>
                     </div>
-                    <img src={imgSrc(p.img)} alt="" className="w-14 h-14 object-cover rounded-xl flex-shrink-0 bg-gray-200" onError={e => (e.currentTarget.style.display = "none")} />
+                    {(p.type ?? "image") === "video" ? (
+                      <div className="w-14 h-14 rounded-xl bg-gray-800 flex-shrink-0 flex items-center justify-center text-2xl">🎬</div>
+                    ) : (
+                      <img src={imgSrc(p.img)} alt="" className="w-14 h-14 object-cover rounded-xl flex-shrink-0 bg-gray-200" onError={e => (e.currentTarget.style.display = "none")} />
+                    )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500">{p.img ? (p.img.startsWith("data:") ? "(imagem enviada)" : p.img) : "(sem imagem)"}</p>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Grande" : "Normal"}</span>
+                      {(p.type ?? "image") === "video" ? (
+                        <p className="text-xs text-gray-500 truncate">{p.videoUrl || "(sem URL)"}</p>
+                      ) : (
+                        <p className="text-xs text-gray-500">{p.img ? (p.img.startsWith("data:") ? "(imagem enviada)" : p.img) : "(sem imagem)"}</p>
+                      )}
+                      <div className="flex gap-1.5 mt-0.5">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${(p.type ?? "image") === "video" ? "bg-purple-100 text-purple-600" : "bg-blue-100 text-blue-600"}`}>{(p.type ?? "image") === "video" ? "Vídeo" : "Foto"}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${p.big ? "bg-pink-100 text-pink-600" : "bg-gray-200 text-gray-500"}`}>{p.big ? "Grande" : "Normal"}</span>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => setEditMosaic({ ...p })} className="p-2 rounded-lg hover:bg-white border border-gray-200"><Pencil size={13} className="text-gray-500" /></button>
@@ -611,7 +641,7 @@ function ContentTab() {
                 ))}
               </div>
               <button onClick={addMosaic} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
-                <Plus size={15} /> Adicionar foto
+                <Plus size={15} /> Adicionar item
               </button>
             </div>
           )}
