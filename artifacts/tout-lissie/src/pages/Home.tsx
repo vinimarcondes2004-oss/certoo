@@ -115,7 +115,7 @@ function Header() {
             <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
               style={{ background: PINK }}>0</span>
           </button>
-          <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
+          <Link href="/admin" className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></Link>
           <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
         </div>
       </div>
