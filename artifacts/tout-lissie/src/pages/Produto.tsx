@@ -285,25 +285,6 @@ export default function Produto() {
         </div>
       </section>
 
-      {/* Pink Features Banner */}
-      <section className="py-12 mt-4" style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-white text-center">
-            {[
-              { icon: "✨", title: "Qualidade Premium", desc: "Fórmulas com ingredientes selecionados e tecnologia profissional" },
-              { icon: "💚", title: "100% Testado", desc: "Aprovado por profissionais e clientes satisfeitos" },
-              { icon: "🌟", title: "Qualidade Garantida", desc: "Se não ficar satisfeito, devolvemos o seu dinheiro" },
-            ].map((f, i) => (
-              <div key={i} className="flex flex-col items-center gap-3">
-                <span className="text-4xl">{f.icon}</span>
-                <p className="font-black text-lg">{f.title}</p>
-                <p className="text-white/80 text-sm leading-relaxed max-w-xs">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* About product */}
       <section className="py-14 bg-white">
         <div className="max-w-7xl mx-auto px-4">
