@@ -157,7 +157,7 @@ function BestSellers() {
         </div>
         <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {data.products.filter(p => p.showInBestSellers !== false).map((p) => (
-            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition block">
+            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
               <div className="relative">
                 {p.outOfStock
                   ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
@@ -167,16 +167,18 @@ function BestSellers() {
                   <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
-              <div className="p-4">
+              <div className="p-4 flex flex-col flex-1">
                 <p className="font-bold text-sm text-gray-800 leading-tight mb-1">{p.name}</p>
                 <p className="text-xs text-gray-400 mb-1.5">{p.ml}</p>
                 <Stars n={p.stars} size={13} />
                 <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
-                {p.outOfStock
-                  ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
-                  : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
-                }
+                <div className="mt-auto">
+                  {p.outOfStock
+                    ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
+                    : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
+                  }
+                </div>
               </div>
             </Link>
           ))}
@@ -420,7 +422,7 @@ function FeaturedCategory() {
         </div>
         <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
           {products.map((p) => (
-            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition block">
+            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
               <div className="relative">
                 {p.outOfStock
                   ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
@@ -430,16 +432,18 @@ function FeaturedCategory() {
                   <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
               </div>
-              <div className="p-4">
+              <div className="p-4 flex flex-col flex-1">
                 <p className="font-bold text-sm text-gray-800 leading-tight mb-1">{p.name}</p>
                 <p className="text-xs text-gray-400 mb-1.5">{p.ml}</p>
                 <Stars n={p.stars} size={13} />
                 <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
                 <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
-                {p.outOfStock
-                  ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
-                  : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
-                }
+                <div className="mt-auto">
+                  {p.outOfStock
+                    ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
+                    : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
+                  }
+                </div>
               </div>
             </Link>
           ))}
