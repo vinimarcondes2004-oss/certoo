@@ -52,6 +52,9 @@ function AnnouncementBar() {
 
 function Header() {
   const [open, setOpen] = useState(false);
+  const { data } = useSite();
+  const logo = data.settings.logo || "logo-pr.png";
+  const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
@@ -60,7 +63,7 @@ function Header() {
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
           <Link href="/">
-            <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
+            <img src={logoSrc} alt={data.settings.siteName} className="h-10 w-auto" />
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-gray-600">
@@ -93,6 +96,8 @@ function Header() {
 export default function Categoria() {
   const { data } = useSite();
   const { slug } = useParams<{ slug: string }>();
+  const logo = data.settings.logo || "logo-pr.png";
+  const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
   const products = data.products.filter(p =>
     p.category === slug || (p.extraCategories || []).includes(slug || "")
   );
@@ -163,7 +168,7 @@ export default function Categoria() {
       <footer style={{ background: PINK }} className="text-white">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <img src={`${import.meta.env.BASE_URL}logo-pr.png`} alt="PR Profissional" className="h-10 w-auto" />
+            <img src={logoSrc} alt={data.settings.siteName} className="h-10 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
             <div className="flex gap-3">
               {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
                 <a key={i} href="#"

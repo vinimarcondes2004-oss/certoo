@@ -1087,6 +1087,11 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
     <div className="max-w-xl space-y-6">
       <h3 className="font-black text-lg text-gray-800">Configurações do Site</h3>
       <div className="space-y-4">
+        <div className="rounded-xl border border-gray-200 p-4 space-y-3">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Logo da marca</p>
+          <p className="text-xs text-gray-400">Aparece em: cabeçalho fixo · página Produtos · página de categorias · rodapé · página Sobre nós</p>
+          <ImagePicker label="Logo (PNG com fundo transparente recomendado)" value={s.logo || "logo-pr.png"} onChange={v => setS({ ...s, logo: v })} />
+        </div>
         <Field label="Nome do site"><input className={inputCls} value={s.siteName} onChange={e => setS({ ...s, siteName: e.target.value })} /></Field>
         <Field label="WhatsApp (somente números)"><input className={inputCls} value={s.whatsapp} onChange={e => setS({ ...s, whatsapp: e.target.value })} placeholder="5511999999999" /></Field>
         <Field label="Instagram (URL completa)"><input className={inputCls} value={s.instagram ?? ""} onChange={e => setS({ ...s, instagram: e.target.value })} placeholder="https://instagram.com/suaconta" /></Field>

@@ -12,7 +12,11 @@ export default function SobreNos() {
         <div className="max-w-5xl mx-auto flex items-center gap-4">
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition">← Voltar</Link>
           <span className="text-gray-300">|</span>
-          <span className="font-bold text-gray-800 text-lg tracking-tight">{data.settings.siteName}</span>
+          {(() => {
+            const logo = data.settings.logo || "logo-pr.png";
+            const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
+            return <img src={logoSrc} alt={data.settings.siteName} className="h-9 w-auto" onError={e => (e.currentTarget.style.display = "none")} />;
+          })()}
         </div>
       </header>
 
