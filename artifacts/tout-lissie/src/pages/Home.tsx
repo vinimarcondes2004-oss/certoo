@@ -587,7 +587,7 @@ function Footer() {
                 { label: "Reparador de pontas", href: "/categoria/reparador-de-pontas" },
                 { label: "Kits", href: "/categoria/shampoo-e-mascara" },
               ].map(item => (
-                <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
+                <li key={item.label}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -595,7 +595,7 @@ function Footer() {
             <h4 className="font-bold text-sm mb-3 uppercase tracking-wider text-white/60">Empresa</h4>
             <ul className="space-y-1.5 text-sm text-white/80">
               {[{ label: "Sobre nós", href: "/sobre-nos" }].map(item => (
-                <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
+                <li key={item.label}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -605,7 +605,7 @@ function Footer() {
               {[
                 { label: "Rastrear pedido", href: "/rastrear-pedido" },
               ].map(item => (
-                <li key={item.label}><a href={item.href} className="hover:text-white transition">{item.label}</a></li>
+                <li key={item.label}><Link href={item.href} className="hover:text-white transition">{item.label}</Link></li>
               ))}
             </ul>
           </div>
