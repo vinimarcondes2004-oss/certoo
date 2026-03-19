@@ -368,8 +368,6 @@ function BeforeAfterSlider({ before, after }: { before: string; after: string })
         </div>
         <div className="w-0.5 flex-1" style={{ background: "white" }} />
       </div>
-      <span className="absolute top-3 left-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">ANTES</span>
-      <span className="absolute top-3 right-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">DEPOIS</span>
     </div>
   );
 }
