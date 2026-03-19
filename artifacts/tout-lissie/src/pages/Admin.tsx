@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
-  Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft
+  Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft, Upload
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { getAdminPassword, setAdminPassword, generateId, Product, Review, FaqItem } from "@/lib/siteData";
@@ -82,6 +82,75 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-400 transition";
 const textareaCls = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-pink-400 transition resize-none";
 
+function ImagePicker({ value, onChange, label = "Imagem" }: { value: string; onChange: (v: string) => void; label?: string }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLoading(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      onChange(ev.target?.result as string);
+      setLoading(false);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }, [onChange]);
+
+  const preview = value
+    ? (value.startsWith("data:") || value.startsWith("http")
+        ? value
+        : `${import.meta.env.BASE_URL}${value}`)
+    : null;
+
+  return (
+    <Field label={label}>
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <input
+            className={inputCls + " flex-1"}
+            value={value.startsWith("data:") ? "(imagem enviada)" : value}
+            onChange={e => onChange(e.target.value)}
+            placeholder="nome-do-arquivo.png ou URL"
+            readOnly={value.startsWith("data:")}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-dashed border-gray-300 text-sm font-semibold text-gray-500 hover:border-pink-400 hover:text-pink-500 transition whitespace-nowrap"
+          >
+            {loading ? <span className="animate-spin text-xs">⏳</span> : <Upload size={14} />}
+            {loading ? "Carregando..." : "Escolher arquivo"}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        </div>
+        {preview && (
+          <div className="rounded-xl overflow-hidden border border-gray-100 h-28 flex items-center justify-center bg-gray-50 relative">
+            <img
+              src={preview}
+              alt=""
+              className="h-24 object-contain"
+              onError={e => (e.currentTarget.style.display = "none")}
+            />
+            {value.startsWith("data:") && (
+              <button
+                type="button"
+                onClick={() => onChange("")}
+                className="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center hover:bg-red-500 transition"
+              >
+                <X size={10} />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </Field>
+  );
+}
+
 function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
@@ -124,14 +193,9 @@ function ProductsTab() {
             <Field label="Categoria (slug)"><input className={inputCls} value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
             <Field label="Categoria (label)"><input className={inputCls} value={editing.categoryLabel} onChange={e => setEditing({ ...editing, categoryLabel: e.target.value })} placeholder="Shampoos" /></Field>
           </div>
-          <Field label="Imagem (nome do arquivo ou URL)"><input className={inputCls} value={editing.img} onChange={e => setEditing({ ...editing, img: e.target.value })} placeholder="product-progressiva.png" /></Field>
+          <ImagePicker label="Imagem do produto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
           <Field label="Cor do card (hex)"><input className={inputCls} value={editing.color} onChange={e => setEditing({ ...editing, color: e.target.value })} placeholder="#e8006f" /></Field>
           <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
-          {editing.img && (
-            <div className="rounded-xl overflow-hidden border border-gray-100 h-28 flex items-center justify-center bg-gray-50">
-              <img src={editing.img.startsWith("http") ? editing.img : `${import.meta.env.BASE_URL}${editing.img}`} alt="" className="h-24 object-contain" onError={e => (e.currentTarget.style.display = "none")} />
-            </div>
-          )}
           <div className="flex gap-3 pt-2">
             <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
               <Save size={15} /> Salvar
@@ -202,9 +266,7 @@ function HeroTab() {
                 <Field label="Texto do botão">
                   <input className={inputCls} value={s.buttonText} onChange={e => update(s.id, "buttonText", e.target.value)} />
                 </Field>
-                <Field label="Imagem de fundo (nome do arquivo ou URL)">
-                  <input className={inputCls} value={s.img} onChange={e => update(s.id, "img", e.target.value)} />
-                </Field>
+                <ImagePicker label="Imagem de fundo" value={s.img} onChange={v => update(s.id, "img", v)} />
               </div>
               <div className="rounded-xl overflow-hidden bg-gray-200 h-44 flex items-center justify-center relative">
                 <img src={s.img.startsWith("http") ? s.img : `${import.meta.env.BASE_URL}${s.img}`} alt=""
@@ -260,7 +322,7 @@ function ReviewsTab() {
           {section === "salon" && (
             <Field label="Cargo / Salão"><input className={inputCls} value={editing.role ?? ""} onChange={e => setEditing({ ...editing, role: e.target.value })} placeholder="Cabeleireira profissional" /></Field>
           )}
-          <Field label="Foto (nome do arquivo ou URL)"><input className={inputCls} value={editing.img} onChange={e => setEditing({ ...editing, img: e.target.value })} placeholder="avatar-1.jpg" /></Field>
+          <ImagePicker label="Foto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
           <Field label="Depoimento"><textarea className={textareaCls} rows={3} value={editing.text} onChange={e => setEditing({ ...editing, text: e.target.value })} /></Field>
           <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
           <div className="flex gap-3 pt-2">
