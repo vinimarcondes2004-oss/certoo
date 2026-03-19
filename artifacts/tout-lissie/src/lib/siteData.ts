@@ -144,6 +144,18 @@ export interface SiteData {
   settings: SiteSettings;
 }
 
+export const DEFAULT_SECTION_LAYOUT: SectionConfig[] = [
+  { id: "hero",          label: "Hero / Slides",         visible: true },
+  { id: "categories",   label: "Cards de Categoria",    visible: true },
+  { id: "bestSellers",  label: "Mais Vendidos",          visible: true },
+  { id: "mosaico",      label: "Mosaico 'Quem usa'",    visible: true },
+  { id: "elegance",     label: "Banner Elegance",        visible: true },
+  { id: "resultadoMagic", label: "Antes & Depois",      visible: true },
+  { id: "reviews",      label: "Avaliações de Clientes", visible: true },
+  { id: "salon",        label: "Seção Salões",           visible: true },
+  { id: "faq",          label: "FAQ",                    visible: true },
+];
+
 export const defaultSiteData: SiteData = {
   products: [
     { id: "1", name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, badge: "Mais Vendido", img: "product-progressiva.png", category: "progressiva-sem-formol", categoryLabel: "Progressiva", color: "#e8006f" },
@@ -236,17 +248,7 @@ export const defaultSiteData: SiteData = {
     { id: "5", label: "Sobre nós", href: "/sobre-nos", column: "company" },
     { id: "6", label: "Rastrear pedido", href: "/rastrear-pedido", column: "support" },
   ],
-  sectionLayout: [
-    { id: "hero", label: "Hero / Slides", visible: true },
-    { id: "categories", label: "Cards de Categoria", visible: true },
-    { id: "bestSellers", label: "Mais Vendidos", visible: true },
-    { id: "mosaico", label: "Mosaico 'Quem usa'", visible: true },
-    { id: "elegance", label: "Banner Elegance", visible: true },
-    { id: "resultadoMagic", label: "Antes & Depois", visible: true },
-    { id: "reviews", label: "Avaliações de Clientes", visible: true },
-    { id: "salon", label: "Seção Salões", visible: true },
-    { id: "faq", label: "FAQ", visible: true },
-  ],
+  sectionLayout: DEFAULT_SECTION_LAYOUT,
   settings: {
     siteName: "PR Profissional",
     logo: "logo-pr.png",
@@ -283,10 +285,12 @@ export function loadSiteData(): SiteData {
           ...(parsed.sobreNos ?? {}),
           values: parsed.sobreNos?.values ?? defaultSiteData.sobreNos.values,
         },
-        mosaicPhotos: parsed.mosaicPhotos ?? defaultSiteData.mosaicPhotos,
-        categoryCards: parsed.categoryCards ?? defaultSiteData.categoryCards,
-        footerLinks: parsed.footerLinks ?? defaultSiteData.footerLinks,
-        sectionLayout: parsed.sectionLayout ?? defaultSiteData.sectionLayout,
+        mosaicPhotos: Array.isArray(parsed.mosaicPhotos) ? parsed.mosaicPhotos : defaultSiteData.mosaicPhotos,
+        categoryCards: Array.isArray(parsed.categoryCards) ? parsed.categoryCards : defaultSiteData.categoryCards,
+        footerLinks: Array.isArray(parsed.footerLinks) ? parsed.footerLinks : defaultSiteData.footerLinks,
+        sectionLayout: (Array.isArray(parsed.sectionLayout) && parsed.sectionLayout.length > 0)
+          ? parsed.sectionLayout
+          : defaultSiteData.sectionLayout,
       };
     }
   } catch {}

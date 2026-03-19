@@ -9,6 +9,7 @@ import { useSite } from "@/context/SiteContext";
 import {
   getAdminPassword, setAdminPassword, generateId,
   Product, Review, FaqItem, MosaicPhoto, CategoryCard, FooterLink, AboutValue,
+  SectionConfig, DEFAULT_SECTION_LAYOUT,
 } from "@/lib/siteData";
 
 const PINK = "#e8006f";
@@ -920,7 +921,9 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
 /* ─── LAYOUT TAB ─── */
 function LayoutTab() {
   const { data, updateData } = useSite();
-  const layout = data.sectionLayout;
+  const layout: SectionConfig[] = Array.isArray(data.sectionLayout) && data.sectionLayout.length > 0
+    ? data.sectionLayout
+    : DEFAULT_SECTION_LAYOUT;
 
   function move(i: number, dir: -1 | 1) {
     const arr = [...layout];

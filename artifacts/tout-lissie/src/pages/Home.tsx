@@ -5,6 +5,7 @@ import {
   Heart, User, Menu, X, Instagram, Facebook, MessageCircle, ChevronRight
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
+import { DEFAULT_SECTION_LAYOUT } from "@/lib/siteData";
 
 const PINK = "#e8006f";
 const GRAY_BG = "#f8f8f8";
@@ -539,7 +540,9 @@ const SECTION_MAP: Record<string, React.FC> = {
 
 export default function Home() {
   const { data } = useSite();
-  const layout = data.sectionLayout;
+  const layout = (Array.isArray(data.sectionLayout) && data.sectionLayout.length > 0)
+    ? data.sectionLayout
+    : DEFAULT_SECTION_LAYOUT;
   return (
     <div className="min-h-screen bg-white">
       <Header />
