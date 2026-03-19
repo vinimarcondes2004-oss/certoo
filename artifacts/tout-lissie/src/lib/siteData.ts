@@ -228,7 +228,7 @@ export const defaultSiteData: SiteData = {
     faqCta: "Ficou alguma dúvida?",
     faqCtaSubtitle: "Nossa equipe está disponível para te ajudar segunda a sexta, das 8h às 18h.",
     featuredTitle: "Kits",
-    featuredCategory: "",
+    featuredCategory: "kits",
   },
   sobreNos: {
     heroTagline: "Sobre nós",
