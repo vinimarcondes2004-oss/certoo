@@ -49,15 +49,18 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const hasUnsavedRef = useRef(false);
 
   useEffect(() => {
-    fetchSiteData().then(serverData => {
+    fetchSiteData().then(async serverData => {
       if (serverData) {
         setData(serverData);
         latestData.current = serverData;
         savedSnapshot.current = serverData;
         saveSiteData(serverData);
+      } else {
+        try {
+          await pushSiteData(latestData.current);
+          savedSnapshot.current = latestData.current;
+        } catch {}
       }
-      // If API is unavailable, keep local data but never push to Supabase automatically.
-      // Supabase is only written when the admin explicitly clicks "Salvar alterações".
       setSynced(true);
     });
   }, []);
