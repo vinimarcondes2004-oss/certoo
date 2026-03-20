@@ -1,8 +1,10 @@
 import { Router, Request, Response } from "express";
-import { db, siteDataTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { supabase } from "../lib/supabase";
 
 const router = Router();
+
+const TABLE = "site_data";
+const ROW_ID = "main";
 
 const clients = new Set<Response>();
 
@@ -24,7 +26,6 @@ router.get("/site-data/events", (req: Request, res: Response) => {
   res.flushHeaders();
 
   res.write("event: connected\ndata: {}\n\n");
-
   clients.add(res);
 
   const keepAlive = setInterval(() => {
@@ -44,12 +45,17 @@ router.get("/site-data/events", (req: Request, res: Response) => {
 
 router.get("/site-data", async (_req, res) => {
   try {
-    const rows = await db.select().from(siteDataTable).where(eq(siteDataTable.id, "main"));
-    if (rows.length === 0) {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select("data")
+      .eq("id", ROW_ID)
+      .single();
+
+    if (error || !data) {
       res.json(null);
-    } else {
-      res.json(rows[0].data);
+      return;
     }
+    res.json(data.data);
   } catch (err) {
     console.error("GET /site-data error:", err);
     res.status(500).json({ error: "Failed to load site data" });
@@ -58,18 +64,21 @@ router.get("/site-data", async (_req, res) => {
 
 router.put("/site-data", async (req, res) => {
   try {
-    const data = req.body;
-    if (!data || typeof data !== "object") {
+    const payload = req.body;
+    if (!payload || typeof payload !== "object") {
       res.status(400).json({ error: "Invalid data" });
       return;
     }
-    await db
-      .insert(siteDataTable)
-      .values({ id: "main", data })
-      .onConflictDoUpdate({
-        target: siteDataTable.id,
-        set: { data, updatedAt: new Date() },
-      });
+
+    const { error } = await supabase
+      .from(TABLE)
+      .upsert(
+        { id: ROW_ID, data: payload, updated_at: new Date().toISOString() },
+        { onConflict: "id" }
+      );
+
+    if (error) throw error;
+
     broadcast();
     res.json({ ok: true });
   } catch (err) {
