@@ -121,6 +121,9 @@ export default function Produtos() {
   const [search, setSearch] = useState("");
   const logo = data.settings.logo || "logo-pr.png";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
+  const instaUrl = data.settings.instagram || "";
+  const fbUrl = data.settings.facebook || "";
+  const waUrl = data.settings.whatsapp ? `https://wa.me/${data.settings.whatsapp}` : "";
 
   const categories = ["Todos", ...Array.from(new Set(
     data.products.map(p => p.categoryLabel).filter(Boolean)
@@ -226,12 +229,24 @@ export default function Produtos() {
               <img src={logoSrc} alt={data.settings.siteName} className="h-10 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
             </div>
             <div className="flex gap-3">
-              {[Instagram, Facebook, MessageCircle].map((Icon, i) => (
-                <a key={i} href="#"
+              {instaUrl && (
+                <a href={instaUrl} target="_blank" rel="noopener noreferrer"
                   className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
-                  <Icon size={15} />
+                  <Instagram size={15} />
                 </a>
-              ))}
+              )}
+              {fbUrl && (
+                <a href={fbUrl} target="_blank" rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                  <Facebook size={15} />
+                </a>
+              )}
+              {waUrl && (
+                <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                  <MessageCircle size={15} />
+                </a>
+              )}
             </div>
             <p className="text-white/60 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
           </div>
