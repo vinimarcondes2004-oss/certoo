@@ -331,9 +331,11 @@ function EleganceBanner() {
             {eb.title} <span style={{ color: "#ff88bb" }}>{eb.titleHighlight}</span>
           </h2>
           <p className="text-white/60 text-sm mb-6">{eb.subtitle}</p>
-          <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
-            {eb.buttonText}
-          </button>
+          <Link href="/produtos">
+            <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
+              {eb.buttonText}
+            </button>
+          </Link>
         </div>
       </div>
     </section>
