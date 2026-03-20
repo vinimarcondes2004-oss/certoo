@@ -126,4 +126,32 @@ router.put("/site-data", async (req, res) => {
   }
 });
 
+router.get("/storage/files", async (_req, res) => {
+  try {
+    const { data, error } = await supabase.storage
+      .from("site-images")
+      .list("", { limit: 200, sortBy: { column: "created_at", order: "asc" } });
+
+    if (error) throw error;
+
+    const files = (data || []).map(f => {
+      const { data: urlData } = supabase.storage.from("site-images").getPublicUrl(f.name);
+      const ext = f.name.split(".").pop()?.toLowerCase() || "";
+      const isVideo = ["mp4", "webm", "mov", "avi", "ogv"].includes(ext);
+      return {
+        name: f.name,
+        url: urlData.publicUrl,
+        type: isVideo ? "video" : "image",
+        created_at: f.created_at,
+        size: f.metadata?.size ?? 0,
+      };
+    });
+
+    res.json(files);
+  } catch (err) {
+    console.error("GET /storage/files error:", err);
+    res.status(500).json({ error: "Falha ao listar arquivos" });
+  }
+});
+
 export default router;

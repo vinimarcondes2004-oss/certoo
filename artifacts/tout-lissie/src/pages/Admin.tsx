@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "wouter";
 import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
-  Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff
+  Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff, Library, RefreshCw,
+  Copy, Check, Video, ImageIcon
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
@@ -1328,8 +1329,254 @@ function Dashboard() {
   );
 }
 
+/* ─── MEDIA LIBRARY TAB ─── */
+interface StorageFile {
+  name: string;
+  url: string;
+  type: "image" | "video";
+  created_at: string;
+  size: number;
+}
+
+function MediaLibraryTab() {
+  const { data, updateData } = useSite();
+  const [files, setFiles] = useState<StorageFile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+  const [assigning, setAssigning] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/storage/files");
+      if (!res.ok) throw new Error("Erro ao carregar");
+      const json = await res.json();
+      setFiles(json);
+    } catch {
+      setError("Não foi possível carregar os arquivos do storage.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  function copyUrl(url: string) {
+    navigator.clipboard.writeText(url);
+    setCopied(url);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  function assignToHeroSlide(url: string, idx: number, field: "img" | "video") {
+    const slides = [...data.heroSlides];
+    if (!slides[idx]) return;
+    slides[idx] = { ...slides[idx], [field]: url };
+    updateData({ heroSlides: slides });
+    setAssigning(null);
+  }
+
+  function assignToProduct(url: string, productId: string) {
+    updateData({ products: data.products.map(p => p.id === productId ? { ...p, img: url } : p) });
+    setAssigning(null);
+  }
+
+  function assignToMosaic(url: string, idx: number) {
+    const photos = [...data.mosaicPhotos];
+    if (photos[idx]) photos[idx] = { ...photos[idx], img: url };
+    else photos.push({ id: generateId(), img: url });
+    updateData({ mosaicPhotos: photos });
+    setAssigning(null);
+  }
+
+  function assignToCategory(url: string, catId: string) {
+    updateData({ categoryCards: data.categoryCards.map(c => c.id === catId ? { ...c, img: url } : c) });
+    setAssigning(null);
+  }
+
+  function assignToElegance(url: string) {
+    updateData({ eleganceBanner: { ...data.eleganceBanner, img: url } });
+    setAssigning(null);
+  }
+
+  function assignToResultadoBefore(url: string) {
+    updateData({ resultadoMagic: { ...data.resultadoMagic, beforeImg: url } });
+    setAssigning(null);
+  }
+
+  function assignToResultadoAfter(url: string) {
+    updateData({ resultadoMagic: { ...data.resultadoMagic, afterImg: url } });
+    setAssigning(null);
+  }
+
+  function formatSize(bytes: number) {
+    if (!bytes) return "";
+    if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  }
+
+  const images = files.filter(f => f.type === "image");
+  const videos = files.filter(f => f.type === "video");
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="font-black text-xl text-gray-800">Biblioteca de Mídia</h3>
+          <p className="text-sm text-gray-400 mt-1">{files.length} arquivos no storage — clique numa imagem para reatribuí-la a uma seção</p>
+        </div>
+        <button onClick={load} disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+          <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+          Atualizar
+        </button>
+      </div>
+
+      {error && <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-600 mb-4">{error}</div>}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <RefreshCw size={24} className="animate-spin text-gray-300" />
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {images.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <ImageIcon size={16} className="text-gray-400" />
+                <span className="font-bold text-sm text-gray-700">Imagens ({images.length})</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {images.map(file => (
+                  <div key={file.name} className="group relative rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+                    <img src={file.url} alt={file.name} className="w-full h-28 object-cover" />
+                    <div className="p-2">
+                      {file.size > 0 && <p className="text-[10px] text-gray-400">{formatSize(file.size)}</p>}
+                    </div>
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-1.5 p-2">
+                      <button onClick={() => copyUrl(file.url)}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/20 text-white text-xs font-semibold hover:bg-white/30 transition">
+                        {copied === file.url ? <Check size={12} /> : <Copy size={12} />}
+                        {copied === file.url ? "Copiado!" : "Copiar URL"}
+                      </button>
+                      <button onClick={() => setAssigning(assigning === file.url ? null : file.url)}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition"
+                        style={{ background: PINK, color: "#fff" }}>
+                        Usar em...
+                      </button>
+                    </div>
+                    {assigning === file.url && (
+                      <div className="absolute inset-0 bg-white/98 p-2 overflow-y-auto flex flex-col gap-1">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">Atribuir a:</p>
+                        {data.heroSlides.map((_, i) => (
+                          <button key={i} onClick={() => assignToHeroSlide(file.url, i, "img")}
+                            className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition">
+                            Hero Slide {i + 1} — Imagem
+                          </button>
+                        ))}
+                        {data.products.map(p => (
+                          <button key={p.id} onClick={() => assignToProduct(file.url, p.id)}
+                            className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition truncate">
+                            Produto: {p.name}
+                          </button>
+                        ))}
+                        {data.mosaicPhotos.map((_, i) => (
+                          <button key={i} onClick={() => assignToMosaic(file.url, i)}
+                            className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition">
+                            Mosaico Foto {i + 1}
+                          </button>
+                        ))}
+                        {data.categoryCards.map(c => (
+                          <button key={c.id} onClick={() => assignToCategory(file.url, c.id)}
+                            className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition truncate">
+                            Categoria: {c.label}
+                          </button>
+                        ))}
+                        <button onClick={() => assignToElegance(file.url)}
+                          className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition">
+                          Banner Elegance
+                        </button>
+                        <button onClick={() => assignToResultadoBefore(file.url)}
+                          className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition">
+                          Antes & Depois — Antes
+                        </button>
+                        <button onClick={() => assignToResultadoAfter(file.url)}
+                          className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition">
+                          Antes & Depois — Depois
+                        </button>
+                        <button onClick={() => setAssigning(null)}
+                          className="mt-1 w-full text-center text-xs text-gray-400 hover:text-gray-600 transition py-1">
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {videos.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Video size={16} className="text-gray-400" />
+                <span className="font-bold text-sm text-gray-700">Vídeos ({videos.length})</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {videos.map(file => (
+                  <div key={file.name} className="group relative rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+                    <video src={file.url} className="w-full h-28 object-cover" muted playsInline preload="metadata" />
+                    <div className="p-2">
+                      {file.size > 0 && <p className="text-[10px] text-gray-400">{formatSize(file.size)}</p>}
+                    </div>
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-1.5 p-2">
+                      <button onClick={() => copyUrl(file.url)}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/20 text-white text-xs font-semibold hover:bg-white/30 transition">
+                        {copied === file.url ? <Check size={12} /> : <Copy size={12} />}
+                        {copied === file.url ? "Copiado!" : "Copiar URL"}
+                      </button>
+                      <button onClick={() => setAssigning(assigning === file.url ? null : file.url)}
+                        className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition"
+                        style={{ background: PINK, color: "#fff" }}>
+                        Usar em...
+                      </button>
+                    </div>
+                    {assigning === file.url && (
+                      <div className="absolute inset-0 bg-white/98 p-2 overflow-y-auto flex flex-col gap-1">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase mb-1">Atribuir a:</p>
+                        {data.heroSlides.map((_, i) => (
+                          <button key={i} onClick={() => assignToHeroSlide(file.url, i, "video")}
+                            className="text-left px-2 py-1 rounded-lg text-xs font-semibold hover:bg-pink-50 text-gray-700 hover:text-pink-600 transition">
+                            Hero Slide {i + 1} — Vídeo
+                          </button>
+                        ))}
+                        <button onClick={() => setAssigning(null)}
+                          className="mt-1 w-full text-center text-xs text-gray-400 hover:text-gray-600 transition py-1">
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {files.length === 0 && !loading && (
+            <div className="text-center py-20 text-gray-400">
+              <Library size={40} className="mx-auto mb-3 text-gray-200" />
+              <p className="font-semibold">Nenhum arquivo no storage</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── MAIN ─── */
-type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "layout" | "settings";
+type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "layout" | "settings" | "media";
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
@@ -1340,6 +1587,7 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "content", label: "Conteúdo", icon: <FileText size={17} /> },
   { id: "layout", label: "Layout", icon: <Layers size={17} /> },
   { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
+  { id: "media", label: "Biblioteca", icon: <Library size={17} /> },
 ];
 
 function SaveIndicator() {
@@ -1437,6 +1685,7 @@ export default function Admin() {
         {tab === "content" && <ContentTab />}
         {tab === "layout" && <LayoutTab />}
         {tab === "settings" && <SettingsTab onLogout={logout} />}
+        {tab === "media" && <MediaLibraryTab />}
       </main>
     </div>
   );
