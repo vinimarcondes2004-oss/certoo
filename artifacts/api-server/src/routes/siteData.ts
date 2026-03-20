@@ -7,6 +7,25 @@ const router = Router();
 const TABLE = "site_data";
 const ROW_ID = "main";
 
+let cachedData: unknown = undefined;
+let cacheReady = false;
+
+async function warmCache() {
+  try {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select("data")
+      .eq("id", ROW_ID)
+      .single();
+    if (!error && data) {
+      cachedData = data.data;
+    }
+  } catch {}
+  cacheReady = true;
+}
+
+warmCache();
+
 async function processBase64Media(obj: unknown): Promise<unknown> {
   if (typeof obj === "string") {
     if (obj.startsWith("data:image/") || obj.startsWith("data:video/")) {
@@ -75,6 +94,10 @@ router.get("/site-data/events", (req: Request, res: Response) => {
 });
 
 router.get("/site-data", async (_req, res) => {
+  if (cacheReady) {
+    res.json(cachedData ?? null);
+    return;
+  }
   try {
     const { data, error } = await supabase
       .from(TABLE)
@@ -86,6 +109,8 @@ router.get("/site-data", async (_req, res) => {
       res.json(null);
       return;
     }
+    cachedData = data.data;
+    cacheReady = true;
     res.json(data.data);
   } catch (err) {
     console.error("GET /site-data error:", err);
@@ -117,6 +142,9 @@ router.put("/site-data", async (req, res) => {
       );
 
     if (error) throw error;
+
+    cachedData = processedPayload;
+    cacheReady = true;
 
     broadcast();
     res.json({ ok: true });

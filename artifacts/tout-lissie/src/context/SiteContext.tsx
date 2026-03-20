@@ -52,10 +52,14 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchSiteData().then(serverData => {
       if (serverData) {
-        setData(serverData);
-        latestData.current = serverData;
+        const serverStr = JSON.stringify(serverData);
+        const localStr = JSON.stringify(latestData.current);
+        if (serverStr !== localStr) {
+          setData(serverData);
+          latestData.current = serverData;
+          saveSiteData(serverData);
+        }
         savedSnapshot.current = serverData;
-        saveSiteData(serverData);
       }
       // If server returns null (API down / network error), we keep local data
       // and do NOT push anything to Supabase — only explicit user saves do that.
