@@ -92,15 +92,15 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <SiteProvider>
         <UserProvider>
-        <FavoritesProvider>
-        <CartProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <CartDrawer />
-          <FavoritesDrawer />
-        </CartProvider>
-        </FavoritesProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+              <CartDrawer />
+              <FavoritesDrawer />
+            </CartProvider>
+          </FavoritesProvider>
         </UserProvider>
       </SiteProvider>
     </QueryClientProvider>
