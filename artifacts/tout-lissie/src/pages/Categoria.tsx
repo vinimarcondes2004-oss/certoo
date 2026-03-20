@@ -6,7 +6,6 @@ import { useCart } from "@/context/CartContext";
 import { FavBtn, FavIconBtn } from "@/components/FavBtn";
 
 const PINK = "#e8006f";
-const PINK2 = "#f5007a";
 const DARK_RED = "#c0003d";
 
 function Stars({ n = 5, size = 12 }: { n?: number; size?: number }) {
@@ -38,27 +37,6 @@ function BuyBtn({ product }: { product?: { id: string; name: string; price: stri
   );
 }
 
-function AnnouncementBar() {
-  return (
-    <div style={{ background: `linear-gradient(90deg, ${DARK_RED}, ${PINK2})` }}
-      className="py-2 px-4 flex items-center justify-between gap-4 text-white text-xs">
-      <div className="hidden md:flex items-center gap-6 font-medium">
-        <span>Pegue instantaneamente</span>
-        <span className="opacity-60">|</span>
-        <span>Proteja os fios</span>
-        <span className="opacity-60">|</span>
-        <span>Resultados visíveis</span>
-      </div>
-      <div className="flex md:hidden items-center gap-2 font-medium flex-1">
-        <span>Pegue instantaneamente • Proteja os fios</span>
-      </div>
-      <button style={{ background: "white", color: PINK }}
-        className="font-black text-xs rounded-full px-4 py-1.5 hover:opacity-90 transition whitespace-nowrap flex-shrink-0">
-        APROVEITE AGORA!
-      </button>
-    </div>
-  );
-}
 
 function Header() {
   const [open, setOpen] = useState(false);
@@ -135,7 +113,6 @@ export default function Categoria() {
 
   return (
     <div className="min-h-screen bg-white">
-      <AnnouncementBar />
       <Header />
 
       {/* Breadcrumb */}
