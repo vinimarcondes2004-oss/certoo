@@ -5,6 +5,7 @@ import { SiteProvider } from "@/context/SiteContext";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { CartDrawer } from "@/components/CartDrawer";
+import { FavoritesDrawer } from "@/components/FavoritesDrawer";
 import Home from "@/pages/Home";
 import Produtos from "@/pages/Produtos";
 import Categoria from "@/pages/Categoria";
@@ -93,6 +94,7 @@ function App() {
             <Router />
           </WouterRouter>
           <CartDrawer />
+          <FavoritesDrawer />
         </CartProvider>
         </FavoritesProvider>
       </SiteProvider>

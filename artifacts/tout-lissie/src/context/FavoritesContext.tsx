@@ -5,6 +5,9 @@ interface FavoritesContextType {
   totalFavorites: number;
   toggleFavorite: (id: string) => void;
   isFavorite: (id: string) => boolean;
+  isOpen: boolean;
+  openFavorites: () => void;
+  closeFavorites: () => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
@@ -26,6 +29,7 @@ function saveFavorites(ids: string[]) {
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>(loadFavorites);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     saveFavorites(favorites);
@@ -47,6 +51,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       totalFavorites: favorites.length,
       toggleFavorite,
       isFavorite,
+      isOpen,
+      openFavorites: () => setIsOpen(true),
+      closeFavorites: () => setIsOpen(false),
     }}>
       {children}
     </FavoritesContext.Provider>
