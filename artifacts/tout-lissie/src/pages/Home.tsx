@@ -754,6 +754,67 @@ const SECTION_MAP: Record<string, React.FC> = {
   faq: FAQ,
 };
 
+function CustomSectionComp({ sectionId }: { sectionId: string }) {
+  const { data } = useSite();
+  const cs = (data.customSections || []).find(s => s.id === sectionId);
+  if (!cs) return null;
+  const cat = (cs.category || "").trim().toLowerCase();
+  const products = cat
+    ? data.products.filter(p => {
+        const c = cat.toLowerCase();
+        return (p.category || "").toLowerCase() === c
+          || (p.categoryLabel || "").toLowerCase() === c
+          || (p.extraCategories || []).some(e => e.toLowerCase() === c);
+      })
+    : data.products;
+  if (products.length === 0) return null;
+  return (
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-7">
+          <h2 className="text-2xl font-black text-gray-900">{cs.title || cs.label}</h2>
+          {cat && (
+            <Link href={`/categoria/${cat}`}>
+              <span className="inline-flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: PINK }}>
+                Ver mais <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs" style={{ background: PINK }}><ChevronRight size={12} /></span>
+              </span>
+            </Link>
+          )}
+        </div>
+        <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide">
+          {products.map((p) => (
+            <Link key={p.id} href={`/produto/${p.id}`} className="flex-shrink-0 w-56 rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col">
+              <div className="relative">
+                {p.outOfStock
+                  ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
+                  : p.badge ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span> : null
+                }
+                <FavBtn productId={p.id} />
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
+                </div>
+              </div>
+              <div className="p-4 flex flex-col flex-1">
+                <p className="font-bold text-sm text-gray-800 leading-tight mb-1">{p.name}</p>
+                <p className="text-xs text-gray-400 mb-1.5">{p.ml}</p>
+                <Stars n={p.stars} size={13} />
+                <p className="text-xs text-gray-400 line-through mt-1.5">{p.old}</p>
+                <p className="font-black text-base mb-3" style={{ color: PINK }}>{p.price}</p>
+                <div className="mt-auto">
+                  {p.outOfStock
+                    ? <button disabled className="w-full py-2 text-sm text-gray-400 bg-gray-100 rounded-full font-bold cursor-not-allowed">Esgotado</button>
+                    : <BuyBtn full product={{ id: p.id, name: p.name, price: p.price, img: p.img, color: p.color }} />
+                  }
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const { data } = useSite();
   const layout = (Array.isArray(data.sectionLayout) && data.sectionLayout.length > 0)
@@ -765,7 +826,8 @@ export default function Home() {
       {layout.map(s => {
         if (!s.visible) return null;
         const Comp = SECTION_MAP[s.id];
-        return Comp ? <Comp key={s.id} /> : null;
+        if (Comp) return <Comp key={s.id} />;
+        return <CustomSectionComp key={s.id} sectionId={s.id} />;
       })}
       <Footer />
     </div>

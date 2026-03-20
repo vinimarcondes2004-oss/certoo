@@ -4,14 +4,14 @@ import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
   Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff, Library, RefreshCw,
-  Copy, Check, Video, ImageIcon
+  Copy, Check, Video, ImageIcon, Grid2x2
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
   getAdminPassword, setAdminPassword, generateId,
   getAdminEmail, setAdminEmail, getUsers, saveUsers, UserAccount,
   Product, Review, FaqItem, MosaicPhoto, CategoryCard, FooterLink, AboutValue,
-  SectionConfig, DEFAULT_SECTION_LAYOUT,
+  SectionConfig, DEFAULT_SECTION_LAYOUT, CustomSection,
 } from "@/lib/siteData";
 
 const PINK = "#e8006f";
@@ -1249,12 +1249,133 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
   );
 }
 
+/* ─── CATEGORIAS TAB ─── */
+function CategoriasTab() {
+  const { data, updateData } = useSite();
+  const [editCat, setEditCat] = useState<CategoryCard | null>(null);
+  const [adding, setAdding] = useState(false);
+
+  const blank: CategoryCard = { id: "", label: "", slug: "", img: "", color: "#fce4ec" };
+
+  function startAdd() { setEditCat({ ...blank, id: generateId() }); setAdding(true); }
+  function startEdit(c: CategoryCard) { setEditCat({ ...c }); setAdding(false); }
+  function cancel() { setEditCat(null); }
+
+  function save() {
+    if (!editCat) return;
+    updateData({
+      categoryCards: adding
+        ? [...data.categoryCards, editCat]
+        : data.categoryCards.map(c => c.id === editCat.id ? editCat : c)
+    });
+    setEditCat(null);
+  }
+
+  function remove(id: string) {
+    if (!confirm("Remover este card de categoria?")) return;
+    updateData({ categoryCards: data.categoryCards.filter(c => c.id !== id) });
+  }
+
+  function move(i: number, dir: -1 | 1) {
+    const arr = [...data.categoryCards];
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    updateData({ categoryCards: arr });
+  }
+
+  if (editCat) return (
+    <div className="max-w-md">
+      <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Nova Categoria" : "Editar Categoria"}</h3>
+      <div className="space-y-4">
+        <Field label="Nome da categoria">
+          <input className={inputCls} value={editCat.label} onChange={e => setEditCat({ ...editCat, label: e.target.value })} placeholder="Ex: Shampoos" />
+        </Field>
+        <Field label="Slug (aparece na URL)" hint="Use letras minúsculas e hífens. Ex: shampoo-e-mascara">
+          <input className={inputCls} value={editCat.slug} onChange={e => setEditCat({ ...editCat, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })} placeholder="shampoo-e-mascara" />
+        </Field>
+        <ImagePicker label="Imagem do card" value={editCat.img} onChange={v => setEditCat({ ...editCat, img: v })} />
+        <Field label="Cor de fundo">
+          <div className="flex gap-2 items-center">
+            <input type="color" value={editCat.color} onChange={e => setEditCat({ ...editCat, color: e.target.value })} className="w-10 h-10 rounded-lg border border-gray-200 p-0.5 cursor-pointer" />
+            <input className={inputCls} value={editCat.color} onChange={e => setEditCat({ ...editCat, color: e.target.value })} placeholder="#fce4ec" />
+          </div>
+        </Field>
+        <div className="flex gap-3 pt-2">
+          <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+            <Save size={15} /> Salvar
+          </button>
+          <button onClick={cancel} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-black text-lg text-gray-800">Categorias ({data.categoryCards.length})</h3>
+        <button onClick={startAdd} className="text-white text-sm font-bold rounded-xl px-4 py-2 flex items-center gap-1.5 hover:opacity-90 transition" style={{ background: PINK }}>
+          <Plus size={15} /> Nova categoria
+        </button>
+      </div>
+      <p className="text-sm text-gray-400 mb-6">Os cards de categoria aparecem na seção de categorias da página inicial e criam páginas acessíveis em <strong>/categoria/slug</strong>.</p>
+
+      {data.categoryCards.length === 0 ? (
+        <div className="text-center py-16 text-gray-300 border-2 border-dashed border-gray-200 rounded-2xl">
+          <Grid2x2 size={40} className="mx-auto mb-3 text-gray-200" />
+          <p className="font-semibold text-gray-400">Nenhuma categoria criada</p>
+          <p className="text-sm mt-1">Clique em "Nova categoria" para começar.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {data.categoryCards.map((c, i) => (
+            <div key={c.id} className="flex items-center gap-3 bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm">
+              <div className="flex flex-col gap-0.5">
+                <button onClick={() => move(i, -1)} disabled={i === 0}
+                  className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
+                  <ArrowUp size={12} />
+                </button>
+                <button onClick={() => move(i, 1)} disabled={i === data.categoryCards.length - 1}
+                  className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
+                  <ArrowDown size={12} />
+                </button>
+              </div>
+              <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden" style={{ background: c.color }}>
+                {c.img ? (
+                  <img src={imgSrc(c.img)} alt={c.label} className="w-10 h-10 object-contain" onError={e => (e.currentTarget.style.display = "none")} />
+                ) : (
+                  <Grid2x2 size={20} className="text-gray-400" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm text-gray-800">{c.label || "(sem nome)"}</p>
+                <p className="text-xs text-gray-400">/categoria/{c.slug || "..."}</p>
+              </div>
+              <div className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0" style={{ background: c.color }} />
+              <div className="flex gap-2">
+                <button onClick={() => startEdit(c)} className="p-2 rounded-lg hover:bg-gray-100 border border-gray-200 transition"><Pencil size={14} className="text-gray-500" /></button>
+                <button onClick={() => remove(c.id)} className="p-2 rounded-lg hover:bg-red-50 border border-gray-200 transition"><Trash2 size={14} className="text-red-400" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="text-xs text-gray-400 mt-4">O primeiro card aparece maior (2×2). Os demais ocupam meia largura.</p>
+    </div>
+  );
+}
+
 /* ─── LAYOUT TAB ─── */
 function LayoutTab() {
   const { data, updateData } = useSite();
   const layout: SectionConfig[] = Array.isArray(data.sectionLayout) && data.sectionLayout.length > 0
     ? data.sectionLayout
     : DEFAULT_SECTION_LAYOUT;
+  const customSections: CustomSection[] = Array.isArray(data.customSections) ? data.customSections : [];
+
+  const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<{ title: string; category: string; label: string }>({ title: "", category: "", label: "" });
 
   function move(i: number, dir: -1 | 1) {
     const arr = [...layout];
@@ -1269,14 +1390,97 @@ function LayoutTab() {
     updateData({ sectionLayout: arr });
   }
 
+  function addCustomSection() {
+    const id = "custom_" + generateId();
+    const newSection: CustomSection = { id, label: "Nova Seção", title: "Nova Seção de Produtos", category: "", visible: true };
+    const newLayoutItem: SectionConfig = { id, label: "Nova Seção", visible: true };
+    updateData({
+      customSections: [...customSections, newSection],
+      sectionLayout: [...layout, newLayoutItem],
+    });
+    setEditingCustomId(id);
+    setEditForm({ title: newSection.title, category: newSection.category, label: newSection.label });
+  }
+
+  function startEditCustom(cs: CustomSection) {
+    setEditingCustomId(cs.id);
+    setEditForm({ title: cs.title, category: cs.category, label: cs.label });
+  }
+
+  function saveCustom() {
+    if (!editingCustomId) return;
+    const updatedCustom = customSections.map(cs =>
+      cs.id === editingCustomId ? { ...cs, title: editForm.title, category: editForm.category, label: editForm.label || editForm.title } : cs
+    );
+    const updatedLayout = layout.map(s =>
+      s.id === editingCustomId ? { ...s, label: editForm.label || editForm.title } : s
+    );
+    updateData({ customSections: updatedCustom, sectionLayout: updatedLayout });
+    setEditingCustomId(null);
+  }
+
+  function removeCustomSection(id: string) {
+    if (!confirm("Remover esta seção?")) return;
+    updateData({
+      customSections: customSections.filter(cs => cs.id !== id),
+      sectionLayout: layout.filter(s => s.id !== id),
+    });
+  }
+
   const ICONS: Record<string, string> = {
     hero: "🖼️", categories: "🗂️", bestSellers: "⭐", mosaico: "🎨",
-    elegance: "✨", resultadoMagic: "💫", reviews: "💬", salon: "💇", faq: "❓",
+    elegance: "✨", resultadoMagic: "💫", reviews: "💬", salon: "💇", faq: "❓", featured: "🛍️",
   };
+
+  if (editingCustomId) {
+    return (
+      <div className="max-w-md">
+        <h3 className="font-black text-lg text-gray-800 mb-6">Configurar Seção</h3>
+        <div className="space-y-4">
+          <Field label="Nome interno (aparece no painel)">
+            <input className={inputCls} value={editForm.label} onChange={e => setEditForm({ ...editForm, label: e.target.value })} placeholder="Ex: Finalizadores" />
+          </Field>
+          <Field label="Título exibido no site">
+            <input className={inputCls} value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} placeholder="Ex: Nossos Finalizadores" />
+          </Field>
+          <Field label="Filtrar por categoria" hint="Deixe em branco para mostrar todos os produtos. Use o slug ou label da categoria. Ex: kits, shampoo-e-mascara">
+            <input className={inputCls} value={editForm.category} onChange={e => setEditForm({ ...editForm, category: e.target.value })} placeholder="kits" />
+          </Field>
+          {data.categoryCards.length > 0 && (
+            <div className="rounded-xl bg-gray-50 border border-gray-200 p-3">
+              <p className="text-xs font-semibold text-gray-500 mb-2">Categorias disponíveis:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {data.categoryCards.map(c => (
+                  <button key={c.id} type="button"
+                    onClick={() => setEditForm({ ...editForm, category: c.slug })}
+                    className={`text-xs px-2.5 py-1 rounded-full border font-semibold transition ${editForm.category === c.slug ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:bg-white"}`}
+                    style={editForm.category === c.slug ? { background: PINK } : {}}>
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex gap-3 pt-2">
+            <button onClick={saveCustom} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
+              <Save size={15} /> Salvar seção
+            </button>
+            <button onClick={() => setEditingCustomId(null)} className="px-5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg">
-      <h3 className="font-black text-lg text-gray-800 mb-1">Layout da Página Inicial</h3>
+      <div className="flex items-start justify-between mb-1">
+        <h3 className="font-black text-lg text-gray-800">Layout da Página Inicial</h3>
+        <button onClick={addCustomSection}
+          className="text-white text-xs font-bold rounded-xl px-3 py-2 flex items-center gap-1.5 hover:opacity-90 transition flex-shrink-0" style={{ background: PINK }}>
+          <Plus size={13} /> Nova seção
+        </button>
+      </div>
       <p className="text-sm text-gray-500 mb-6">Reordene as seções e ative ou desative cada uma. O cabeçalho e rodapé são fixos.</p>
 
       {/* Fixed top indicator */}
@@ -1291,40 +1495,58 @@ function LayoutTab() {
 
       {/* Sortable sections */}
       <div className="space-y-2 mb-2">
-        {layout.map((s, i) => (
-          <div key={s.id}
-            className={`flex items-center gap-3 rounded-2xl p-3.5 border-2 transition ${s.visible ? "bg-white border-gray-100" : "bg-gray-50 border-gray-100 opacity-60"}`}>
-            {/* Position arrows */}
-            <div className="flex flex-col gap-0.5 flex-shrink-0">
-              <button onClick={() => move(i, -1)} disabled={i === 0}
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
-                <ArrowUp size={12} />
+        {layout.map((s, i) => {
+          const isCustom = s.id.startsWith("custom_");
+          const customData = isCustom ? customSections.find(cs => cs.id === s.id) : null;
+          return (
+            <div key={s.id}
+              className={`flex items-center gap-3 rounded-2xl p-3.5 border-2 transition ${s.visible ? "bg-white border-gray-100" : "bg-gray-50 border-gray-100 opacity-60"}`}>
+              <div className="flex flex-col gap-0.5 flex-shrink-0">
+                <button onClick={() => move(i, -1)} disabled={i === 0}
+                  className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
+                  <ArrowUp size={12} />
+                </button>
+                <button onClick={() => move(i, 1)} disabled={i === layout.length - 1}
+                  className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
+                  <ArrowDown size={12} />
+                </button>
+              </div>
+
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${s.visible ? (isCustom ? "bg-purple-50" : "bg-pink-50") : "bg-gray-200"}`}>
+                {isCustom ? "🆕" : (ICONS[s.id] ?? "📄")}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className={`font-bold text-sm ${s.visible ? "text-gray-800" : "text-gray-400"}`}>{s.label}</p>
+                <p className="text-xs text-gray-400">
+                  {isCustom
+                    ? (customData?.category ? `Categoria: ${customData.category}` : "Todos os produtos")
+                    : `Posição ${i + 1}`}
+                </p>
+              </div>
+
+              {isCustom && (
+                <button onClick={() => customData && startEditCustom(customData)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 border border-gray-200 transition flex-shrink-0">
+                  <Pencil size={12} className="text-gray-500" />
+                </button>
+              )}
+
+              <button onClick={() => toggle(i)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition flex-shrink-0 ${s.visible ? "text-white border-transparent" : "text-gray-400 border-gray-200 bg-white hover:bg-gray-50"}`}
+                style={s.visible ? { background: PINK } : {}}>
+                {s.visible ? <><Eye size={12} /> Visível</> : <><EyeOff size={12} /> Oculto</>}
               </button>
-              <button onClick={() => move(i, 1)} disabled={i === layout.length - 1}
-                className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 transition">
-                <ArrowDown size={12} />
-              </button>
-            </div>
 
-            {/* Icon */}
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${s.visible ? "bg-pink-50" : "bg-gray-200"}`}>
-              {ICONS[s.id] ?? "📄"}
+              {isCustom && (
+                <button onClick={() => removeCustomSection(s.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-50 border border-gray-200 transition flex-shrink-0">
+                  <Trash2 size={12} className="text-red-400" />
+                </button>
+              )}
             </div>
-
-            {/* Label + position */}
-            <div className="flex-1 min-w-0">
-              <p className={`font-bold text-sm ${s.visible ? "text-gray-800" : "text-gray-400"}`}>{s.label}</p>
-              <p className="text-xs text-gray-400">Posição {i + 1}</p>
-            </div>
-
-            {/* Visible toggle */}
-            <button onClick={() => toggle(i)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition flex-shrink-0 ${s.visible ? "text-white border-transparent" : "text-gray-400 border-gray-200 bg-white hover:bg-gray-50"}`}
-              style={s.visible ? { background: PINK } : {}}>
-              {s.visible ? <><Eye size={12} /> Visível</> : <><EyeOff size={12} /> Oculto</>}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Fixed bottom indicator */}
@@ -1679,16 +1901,17 @@ function UsersTab() {
   );
 }
 
-type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "layout" | "settings" | "media" | "users";
+type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "categorias" | "layout" | "settings" | "media" | "users";
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
   { id: "products", label: "Produtos", icon: <Package size={17} /> },
+  { id: "categorias", label: "Categorias", icon: <Grid2x2 size={17} /> },
   { id: "hero", label: "Hero / Slides", icon: <Image size={17} /> },
   { id: "reviews", label: "Depoimentos", icon: <MessageSquare size={17} /> },
   { id: "faq", label: "FAQ", icon: <MessageSquare size={17} /> },
   { id: "content", label: "Conteúdo", icon: <FileText size={17} /> },
-  { id: "layout", label: "Layout", icon: <Layers size={17} /> },
+  { id: "layout", label: "Layout / Seções", icon: <Layers size={17} /> },
   { id: "users", label: "Usuários", icon: <Lock size={17} /> },
   { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
   { id: "media", label: "Biblioteca", icon: <Library size={17} /> },
@@ -1787,6 +2010,7 @@ export default function Admin() {
         {tab === "reviews" && <ReviewsTab />}
         {tab === "faq" && <FaqTab />}
         {tab === "content" && <ContentTab />}
+        {tab === "categorias" && <CategoriasTab />}
         {tab === "layout" && <LayoutTab />}
         {tab === "users" && <UsersTab />}
         {tab === "settings" && <SettingsTab onLogout={logout} />}

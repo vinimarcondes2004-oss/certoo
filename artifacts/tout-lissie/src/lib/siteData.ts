@@ -124,6 +124,14 @@ export interface SectionConfig {
   visible: boolean;
 }
 
+export interface CustomSection {
+  id: string;
+  label: string;
+  title: string;
+  category: string;
+  visible: boolean;
+}
+
 export interface SiteSettings {
   siteName: string;
   logo: string;
@@ -153,6 +161,7 @@ export interface SiteData {
   sobreNos: SobreNosPage;
   footerLinks: FooterLink[];
   sectionLayout: SectionConfig[];
+  customSections: CustomSection[];
   settings: SiteSettings;
 }
 
@@ -264,6 +273,7 @@ export const defaultSiteData: SiteData = {
     { id: "6", label: "Rastrear pedido", href: "/rastrear-pedido", column: "support" },
   ],
   sectionLayout: DEFAULT_SECTION_LAYOUT,
+  customSections: [],
   settings: {
     siteName: "PR Profissional",
     logo: "logo-pr.png",
@@ -299,6 +309,7 @@ export function mergeWithDefaults(parsed: Partial<SiteData>): SiteData {
     mosaicPhotos: Array.isArray(parsed.mosaicPhotos) ? parsed.mosaicPhotos : defaultSiteData.mosaicPhotos,
     categoryCards: Array.isArray(parsed.categoryCards) ? parsed.categoryCards : defaultSiteData.categoryCards,
     footerLinks: Array.isArray(parsed.footerLinks) ? parsed.footerLinks : defaultSiteData.footerLinks,
+    customSections: Array.isArray(parsed.customSections) ? parsed.customSections as CustomSection[] : defaultSiteData.customSections,
     sectionLayout: (() => {
       if (!Array.isArray(parsed.sectionLayout) || parsed.sectionLayout.length === 0) {
         return defaultSiteData.sectionLayout;
