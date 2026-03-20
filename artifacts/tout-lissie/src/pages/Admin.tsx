@@ -497,13 +497,15 @@ function ReviewsTab() {
   );
   return (
     <div>
+      <h3 className="font-black text-lg text-gray-800 mb-1">Depoimentos</h3>
+      <p className="text-sm text-gray-400 mb-4">Esses depoimentos aparecem na seção "Quem usa" e "Salões" da página inicial.</p>
       <div className="flex items-center justify-between mb-4">
         <div className="flex gap-2">
           {(["reviews", "salon"] as const).map(s => (
             <button key={s} onClick={() => setSection(s)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition ${section === s ? "text-white border-transparent" : "text-gray-500 border-gray-200 bg-white"}`}
               style={section === s ? { background: PINK, borderColor: PINK } : {}}>
-              {s === "reviews" ? "Clientes" : "Salões / Profissionais"}
+              {s === "reviews" ? "💬 Clientes" : "💅 Salões / Profissionais"}
             </button>
           ))}
         </div>
@@ -1654,7 +1656,7 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
   { id: "products", label: "Produtos", icon: <Package size={17} /> },
   { id: "hero", label: "Hero / Slides", icon: <Image size={17} /> },
-  { id: "reviews", label: "Avaliações", icon: <MessageSquare size={17} /> },
+  { id: "reviews", label: "Depoimentos", icon: <MessageSquare size={17} /> },
   { id: "faq", label: "FAQ", icon: <MessageSquare size={17} /> },
   { id: "content", label: "Conteúdo", icon: <FileText size={17} /> },
   { id: "layout", label: "Layout", icon: <Layers size={17} /> },
