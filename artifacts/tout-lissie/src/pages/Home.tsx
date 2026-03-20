@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { useCart } from "@/context/CartContext";
+import { FavBtn, FavIconBtn } from "@/components/FavBtn";
 import { DEFAULT_SECTION_LAYOUT } from "@/lib/siteData";
 
 const PINK = "#e8006f";
@@ -86,7 +87,7 @@ function Header() {
             )}
           </button>
           <Link href="/admin" className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></Link>
-          <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
+          <FavIconBtn />
         </div>
       </div>
       {open && (
@@ -163,6 +164,7 @@ function BestSellers() {
                   ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
                   : <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
                 }
+                <FavBtn productId={p.id} />
                 <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
                   <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>
@@ -519,6 +521,7 @@ function FeaturedCategory() {
                   ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-500">Esgotado</span>
                   : p.badge ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span> : null
                 }
+                <FavBtn productId={p.id} />
                 <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
                   <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
                 </div>

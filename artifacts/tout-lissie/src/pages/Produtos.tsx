@@ -3,6 +3,7 @@ import { ShoppingCart, Star, Heart, User, Menu, X, Search, ChevronRight, Instagr
 import { Link } from "wouter";
 import { useSite } from "@/context/SiteContext";
 import { useCart } from "@/context/CartContext";
+import { FavBtn, FavIconBtn } from "@/components/FavBtn";
 
 const PINK = "#e8006f";
 const PINK2 = "#f5007a";
@@ -99,7 +100,7 @@ function Header() {
             )}
           </button>
           <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
-          <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
+          <FavIconBtn />
         </div>
       </div>
       {open && (
@@ -199,6 +200,7 @@ export default function Produtos() {
                 <div className="relative">
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: PINK }}>{p.badge}</span>
+                  <FavBtn productId={p.id} />
                   <img
                     src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`}
                     alt={p.name}

@@ -3,6 +3,7 @@ import { Link, useParams } from "wouter";
 import { ShoppingCart, Star, Heart, User, Menu, X, ChevronRight, Instagram, Facebook, MessageCircle, Check, Truck, Shield, Zap } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { useCart } from "@/context/CartContext";
+import { FavBtn, FavIconBtn } from "@/components/FavBtn";
 
 const PINK = "#e8006f";
 const DARK_RED = "#c0003d";
@@ -55,7 +56,7 @@ function Header() {
             )}
           </button>
           <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
-          <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
+          <FavIconBtn />
         </div>
       </div>
       {open && (
@@ -393,7 +394,8 @@ export default function Produto() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {related.map(p => (
                 <Link key={p.id} href={`/produto/${p.id}`}>
-                  <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer">
+                  <div className="relative rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer">
+                    <FavBtn productId={p.id} />
                     <div style={{ height: 160, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <img src={imgSrc(p.img)} alt={p.name} style={{ height: 140, width: "auto", objectFit: "contain" }} />
                     </div>
