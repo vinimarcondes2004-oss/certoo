@@ -89,7 +89,7 @@ router.get("/site-data", async (_req, res) => {
     res.json(data.data);
   } catch (err) {
     console.error("GET /site-data error:", err);
-    res.status(500).json({ error: "Failed to load site data" });
+    res.status(500).json({ error: "Falha ao carregar dados" });
   }
 });
 
@@ -97,11 +97,9 @@ router.put("/site-data", async (req, res) => {
   try {
     const payload = req.body;
     if (!payload || typeof payload !== "object") {
-      res.status(400).json({ error: "Invalid data" });
+      res.status(400).json({ error: "Dados inválidos" });
       return;
     }
-
-    const now = new Date().toISOString();
 
     const sizeKB = Math.round(JSON.stringify(payload).length / 1024);
     console.log(`[site-data] Recebido payload de ${sizeKB}KB — processando imagens...`);
@@ -111,34 +109,20 @@ router.put("/site-data", async (req, res) => {
     const sizeAfterKB = Math.round(JSON.stringify(processedPayload).length / 1024);
     console.log(`[site-data] Após upload de imagens: ${sizeAfterKB}KB — salvando no Supabase...`);
 
-    const { data: existing, error: selectError } = await supabase
+    const { error } = await supabase
       .from(TABLE)
-      .select("id")
-      .eq("id", ROW_ID)
-      .maybeSingle();
+      .upsert(
+        { id: ROW_ID, data: processedPayload, updated_at: new Date().toISOString() },
+        { onConflict: "id" }
+      );
 
-    if (selectError) throw selectError;
-
-    if (existing) {
-      const { error: updateError } = await supabase
-        .from(TABLE)
-        .update({ data: processedPayload, updated_at: now })
-        .eq("id", ROW_ID);
-
-      if (updateError) throw updateError;
-    } else {
-      const { error: insertError } = await supabase
-        .from(TABLE)
-        .insert({ id: ROW_ID, data: processedPayload, updated_at: now });
-
-      if (insertError) throw insertError;
-    }
+    if (error) throw error;
 
     broadcast();
     res.json({ ok: true });
   } catch (err) {
     console.error("PUT /site-data error:", err);
-    res.status(500).json({ error: "Failed to save site data" });
+    res.status(500).json({ error: "Falha ao salvar dados" });
   }
 });
 
