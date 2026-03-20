@@ -18,12 +18,17 @@ function base64ToBuffer(dataUri: string): { buffer: Buffer; mimeType: string; ex
     "image/gif": "gif",
     "image/webp": "webp",
     "image/svg+xml": "svg",
+    "video/mp4": "mp4",
+    "video/webm": "webm",
+    "video/ogg": "ogv",
+    "video/quicktime": "mov",
+    "video/x-msvideo": "avi",
   };
-  const ext = extMap[mimeType] || "jpg";
+  const ext = extMap[mimeType] || mimeType.split("/")[1] || "bin";
   return { buffer, mimeType, ext };
 }
 
-export async function uploadBase64Image(dataUri: string): Promise<string> {
+export async function uploadBase64Media(dataUri: string): Promise<string> {
   const { buffer, mimeType, ext } = base64ToBuffer(dataUri);
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
@@ -47,11 +52,11 @@ router.post("/upload", async (req, res) => {
       res.status(400).json({ error: "dataUri inválido" });
       return;
     }
-    const url = await uploadBase64Image(dataUri);
+    const url = await uploadBase64Media(dataUri);
     res.json({ url });
   } catch (err) {
     console.error("POST /upload error:", err);
-    res.status(500).json({ error: "Falha ao fazer upload da imagem" });
+    res.status(500).json({ error: "Falha ao fazer upload" });
   }
 });
 

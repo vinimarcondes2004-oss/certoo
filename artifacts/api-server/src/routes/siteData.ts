@@ -1,34 +1,35 @@
 import { Router, Request, Response } from "express";
 import { supabase } from "../lib/supabase";
-import { uploadBase64Image } from "./upload";
+import { uploadBase64Media } from "./upload";
 
 const router = Router();
 
 const TABLE = "site_data";
 const ROW_ID = "main";
 
-async function processBase64Images(obj: unknown): Promise<unknown> {
+async function processBase64Media(obj: unknown): Promise<unknown> {
   if (typeof obj === "string") {
-    if (obj.startsWith("data:image/")) {
+    if (obj.startsWith("data:image/") || obj.startsWith("data:video/")) {
       try {
-        const url = await uploadBase64Image(obj);
-        console.log(`[Upload] Imagem enviada ao Storage: ${url}`);
+        const url = await uploadBase64Media(obj);
+        const tipo = obj.startsWith("data:video/") ? "Vídeo" : "Imagem";
+        console.log(`[Upload] ${tipo} enviado ao Storage: ${url}`);
         return url;
       } catch (err) {
-        console.warn("[Upload] Falha ao enviar imagem, mantendo original:", err);
+        console.warn("[Upload] Falha ao enviar mídia, mantendo original:", err);
         return obj;
       }
     }
     return obj;
   }
   if (Array.isArray(obj)) {
-    return Promise.all(obj.map(processBase64Images));
+    return Promise.all(obj.map(processBase64Media));
   }
   if (obj && typeof obj === "object") {
     const result: Record<string, unknown> = {};
     await Promise.all(
       Object.entries(obj as Record<string, unknown>).map(async ([k, v]) => {
-        result[k] = await processBase64Images(v);
+        result[k] = await processBase64Media(v);
       })
     );
     return result;
@@ -105,7 +106,7 @@ router.put("/site-data", async (req, res) => {
     const sizeKB = Math.round(JSON.stringify(payload).length / 1024);
     console.log(`[site-data] Recebido payload de ${sizeKB}KB — processando imagens...`);
 
-    const processedPayload = await processBase64Images(payload);
+    const processedPayload = await processBase64Media(payload);
 
     const sizeAfterKB = Math.round(JSON.stringify(processedPayload).length / 1024);
     console.log(`[site-data] Após upload de imagens: ${sizeAfterKB}KB — salvando no Supabase...`);
