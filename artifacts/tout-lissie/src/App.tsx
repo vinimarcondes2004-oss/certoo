@@ -3,6 +3,7 @@ import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SiteProvider } from "@/context/SiteContext";
 import { CartProvider } from "@/context/CartContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import Home from "@/pages/Home";
 import Produtos from "@/pages/Produtos";
@@ -86,12 +87,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SiteProvider>
+        <FavoritesProvider>
         <CartProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Router />
           </WouterRouter>
           <CartDrawer />
         </CartProvider>
+        </FavoritesProvider>
       </SiteProvider>
     </QueryClientProvider>
   );

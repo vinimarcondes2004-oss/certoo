@@ -3,6 +3,7 @@ import { Link, useParams } from "wouter";
 import { useState } from "react";
 import { useSite } from "@/context/SiteContext";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 const PINK = "#e8006f";
 const PINK2 = "#f5007a";
@@ -63,6 +64,7 @@ function Header() {
   const [open, setOpen] = useState(false);
   const { data } = useSite();
   const { totalItems, openCart } = useCart();
+  const { totalFavorites } = useFavorites();
   const logo = data.settings.logo || "logo-pr.png";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
   return (
@@ -93,7 +95,14 @@ function Header() {
             )}
           </button>
           <button className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></button>
-          <button className="p-1.5 hidden md:block"><Heart size={20} className="text-gray-700" /></button>
+          <button className="relative p-1.5 hidden md:block">
+            <Heart size={20} className="text-gray-700" />
+            {totalFavorites > 0 && (
+              <span className="absolute -top-1 -right-1 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold" style={{ background: PINK }}>
+                {totalFavorites > 9 ? "9+" : totalFavorites}
+              </span>
+            )}
+          </button>
         </div>
       </div>
       {open && (
@@ -105,6 +114,23 @@ function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function FavBtn({ productId }: { productId: string }) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const fav = isFavorite(productId);
+  return (
+    <button
+      onClick={e => { e.preventDefault(); e.stopPropagation(); toggleFavorite(productId); }}
+      className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow hover:scale-110 transition"
+    >
+      <Heart
+        size={14}
+        fill={fav ? "#e8006f" : "none"}
+        stroke={fav ? "#e8006f" : "#aaa"}
+      />
+    </button>
   );
 }
 
@@ -171,6 +197,7 @@ export default function Categoria() {
                 <div className="relative">
                   <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
                     style={{ background: PINK }}>{p.badge}</span>
+                  <FavBtn productId={p.id} />
                   <img
                     src={p.img.startsWith("http") ? p.img : `${import.meta.env.BASE_URL}${p.img}`}
                     alt={p.name}
