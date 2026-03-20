@@ -70,14 +70,30 @@ router.put("/site-data", async (req, res) => {
       return;
     }
 
-    const { error } = await supabase
-      .from(TABLE)
-      .upsert(
-        { id: ROW_ID, data: payload, updated_at: new Date().toISOString() },
-        { onConflict: "id" }
-      );
+    const now = new Date().toISOString();
 
-    if (error) throw error;
+    const { data: existing, error: selectError } = await supabase
+      .from(TABLE)
+      .select("id")
+      .eq("id", ROW_ID)
+      .maybeSingle();
+
+    if (selectError) throw selectError;
+
+    if (existing) {
+      const { error: updateError } = await supabase
+        .from(TABLE)
+        .update({ data: payload, updated_at: now })
+        .eq("id", ROW_ID);
+
+      if (updateError) throw updateError;
+    } else {
+      const { error: insertError } = await supabase
+        .from(TABLE)
+        .insert({ id: ROW_ID, data: payload, updated_at: now });
+
+      if (insertError) throw insertError;
+    }
 
     broadcast();
     res.json({ ok: true });
