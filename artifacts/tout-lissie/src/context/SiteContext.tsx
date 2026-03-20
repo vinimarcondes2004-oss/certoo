@@ -1,3 +1,4 @@
+// @refresh reset
 import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from "react";
 import { SiteData, loadSiteData, saveSiteData, mergeWithDefaults } from "@/lib/siteData";
 
@@ -49,18 +50,15 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const hasUnsavedRef = useRef(false);
 
   useEffect(() => {
-    fetchSiteData().then(async serverData => {
+    fetchSiteData().then(serverData => {
       if (serverData) {
         setData(serverData);
         latestData.current = serverData;
         savedSnapshot.current = serverData;
         saveSiteData(serverData);
-      } else {
-        try {
-          await pushSiteData(latestData.current);
-          savedSnapshot.current = latestData.current;
-        } catch {}
       }
+      // If server returns null (API down / network error), we keep local data
+      // and do NOT push anything to Supabase — only explicit user saves do that.
       setSynced(true);
     });
   }, []);
