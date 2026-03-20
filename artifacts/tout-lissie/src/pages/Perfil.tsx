@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { User, Mail, Lock, LogOut, ChevronLeft, Eye, EyeOff, UserPlus } from "lucide-react";
 import { useUser } from "@/context/UserContext";
+import { getAdminEmail, getAdminPassword } from "@/lib/siteData";
 
 const PINK = "#e8006f";
 
 export default function Perfil() {
   const { currentUser, login, register, logout } = useUser();
+  const [, setLocation] = useLocation();
   const [mode, setMode] = useState<"login" | "register">("login");
 
   if (currentUser) {
@@ -31,7 +33,9 @@ export default function Perfil() {
           </button>
         </div>
         <div className="p-8">
-          {mode === "login" ? <LoginForm onLogin={login} /> : <RegisterForm onRegister={register} />}
+          {mode === "login"
+            ? <LoginForm onLogin={login} onAdminLogin={() => setLocation("/admin")} />
+            : <RegisterForm onRegister={register} />}
         </div>
         <div className="pb-6 text-center">
           <Link href="/">
@@ -45,7 +49,7 @@ export default function Perfil() {
   );
 }
 
-function LoginForm({ onLogin }: { onLogin: (email: string, pw: string) => boolean }) {
+function LoginForm({ onLogin, onAdminLogin }: { onLogin: (email: string, pw: string) => boolean; onAdminLogin: () => void }) {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -53,6 +57,14 @@ function LoginForm({ onLogin }: { onLogin: (email: string, pw: string) => boolea
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const adminEmail = getAdminEmail();
+    const isAdminEmail = email.toLowerCase().trim() === adminEmail.toLowerCase().trim();
+    const isAdminPw = pw === getAdminPassword();
+    if (isAdminEmail && isAdminPw) {
+      sessionStorage.setItem("admin_auth", "1");
+      onAdminLogin();
+      return;
+    }
     const ok = onLogin(email, pw);
     if (!ok) {
       setError("E-mail ou senha incorretos.");
