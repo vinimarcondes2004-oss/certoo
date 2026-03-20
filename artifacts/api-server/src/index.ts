@@ -2,6 +2,7 @@ import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { createApp } from "./app";
 import { migrate } from "@workspace/db";
+import { ensureContentTable } from "./lib/supabaseMigrate";
 
 const rawPort = process.env["PORT"];
 
@@ -38,6 +39,7 @@ io.on("connection", (socket) => {
 });
 
 migrate()
+  .then(() => ensureContentTable())
   .then(() => {
     httpServer.listen(port, () => {
       console.log(`Server listening on port ${port}`);
