@@ -172,7 +172,7 @@ export const defaultSiteData: SiteData = {
     { id: "1", name: "Progressiva sem formol", ml: "1L", price: "R$ 170,00", old: "R$ 250,00", stars: 5, badge: "Mais Vendido", img: "product-progressiva.png", category: "progressiva-sem-formol", categoryLabel: "Progressiva", color: "#e8006f" },
     { id: "2", name: "Shampoo e máscara pós química", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, badge: "Top", img: "product-pos-quimica.png", category: "shampoo-e-mascara", categoryLabel: "Shampoos", color: "#4a90e2" },
     { id: "3", name: "Shampoo e máscara de hidratação", ml: "300ml", price: "R$ 80,00", old: "R$ 120,00", stars: 5, badge: "Favorito", img: "product-hidratacao.png", category: "shampoo-e-mascara", categoryLabel: "Máscaras", color: "#ff6b6b" },
-    { id: "4", name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, badge: "Novo", img: "product-reparador-pontas.png", category: "reparador-de-pontas", categoryLabel: "Finalizadores", color: "#43a047" },
+    { id: "4", name: "Reparador de pontas", ml: "30ml", price: "R$ 45,00", old: "R$ 54,90", stars: 4, badge: "Novo", img: "product-reparador-pontas.png", category: "reparador-de-pontas", categoryLabel: "Reparador de pontas", color: "#43a047" },
     { id: "5", name: "Kit com shampoo máscara e Liven", ml: "300ml", price: "R$ 150,00", old: "R$ 219,90", stars: 5, badge: "Destaque", img: "product-finalizador-liss.png", category: "shampoo-e-mascara", categoryLabel: "Kits", color: "#8e24aa" },
   ],
   heroSlides: [
@@ -210,7 +210,7 @@ export const defaultSiteData: SiteData = {
     { id: "1", label: "Shampoo e máscara", slug: "shampoo-e-mascara", img: "product-pos-quimica.png", color: "#d0eaf8" },
     { id: "2", label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-oil-repair.png", color: "#d5f0e0" },
     { id: "3", label: "Progressiva sem formol", slug: "progressiva-sem-formol", img: "product-progressiva.png", color: "#fde8f0" },
-    { id: "4", label: "Finalizadores", slug: "finalizadores", img: "product-finalizador-liss.png", color: "#fce4ec" },
+    { id: "4", label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-finalizador-liss.png", color: "#fce4ec" },
   ],
   eleganceBanner: {
     img: "product-oil-repair-colorful.png",
