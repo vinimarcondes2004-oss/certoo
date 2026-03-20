@@ -9,6 +9,7 @@ import {
 import { useSite } from "@/context/SiteContext";
 import {
   getAdminPassword, setAdminPassword, generateId,
+  getAdminEmail, setAdminEmail, getUsers, saveUsers, UserAccount,
   Product, Review, FaqItem, MosaicPhoto, CategoryCard, FooterLink, AboutValue,
   SectionConfig, DEFAULT_SECTION_LAYOUT,
 } from "@/lib/siteData";
@@ -17,11 +18,16 @@ const PINK = "#e8006f";
 
 /* ─── LOGIN ─── */
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [error, setError] = useState(false);
+  const adminEmail = getAdminEmail();
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (pw === getAdminPassword()) {
+    const pwOk = pw === getAdminPassword();
+    const emailOk = !adminEmail || email.toLowerCase().trim() === adminEmail.toLowerCase().trim();
+    if (pwOk && emailOk) {
       sessionStorage.setItem("admin_auth", "1");
       onLogin();
     } else {
@@ -38,10 +44,15 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <h1 className="font-black text-2xl text-gray-900 mb-1">Área Admin</h1>
         <p className="text-gray-400 text-sm mb-7">PR Profissional</p>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {adminEmail && (
+            <input type="email" placeholder="E-mail do admin" value={email}
+              onChange={e => setEmail(e.target.value)}
+              className={`w-full border-2 rounded-xl px-4 py-3 text-sm outline-none transition ${error ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-pink-400"}`} />
+          )}
           <input type="password" placeholder="Senha" value={pw}
             onChange={e => setPw(e.target.value)}
             className={`w-full border-2 rounded-xl px-4 py-3 text-sm outline-none transition ${error ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-pink-400"}`} />
-          {error && <p className="text-red-500 text-xs">Senha incorreta</p>}
+          {error && <p className="text-red-500 text-xs">E-mail ou senha incorretos</p>}
           <button type="submit" className="w-full text-white font-bold rounded-xl py-3 text-sm transition hover:opacity-90" style={{ background: PINK }}>
             Entrar
           </button>
@@ -1184,7 +1195,14 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
         </Field>
       </div>
       <div className="border-t border-gray-100 pt-5 space-y-3">
-        <p className="font-bold text-sm text-gray-700">Alterar senha do admin</p>
+        <p className="font-bold text-sm text-gray-700">Acesso ao Admin</p>
+        <p className="text-xs text-gray-400">Defina o Gmail que será exigido para entrar nessa área. Se deixar em branco, qualquer e-mail funciona.</p>
+        <Field label="Gmail do admin">
+          <input type="email" className={inputCls} placeholder="seu@gmail.com"
+            defaultValue={getAdminEmail()}
+            onBlur={e => setAdminEmail(e.target.value.trim())} />
+        </Field>
+        <p className="font-bold text-sm text-gray-700 pt-2">Alterar senha do admin</p>
         <input type="password" placeholder="Nova senha (mínimo 4 caracteres)" className={inputCls} value={newPw} onChange={e => setNewPw(e.target.value)} />
         {pwOk && <p className="text-green-600 text-xs">Senha alterada com sucesso!</p>}
       </div>
@@ -1575,8 +1593,62 @@ function MediaLibraryTab() {
   );
 }
 
-/* ─── MAIN ─── */
-type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "layout" | "settings" | "media";
+/* ─── USERS TAB ─── */
+function UsersTab() {
+  const [users, setUsers] = useState<UserAccount[]>(() => getUsers());
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  function handleDelete(id: string) {
+    if (confirmDelete === id) {
+      const updated = users.filter(u => u.id !== id);
+      saveUsers(updated);
+      setUsers(updated);
+      setConfirmDelete(null);
+    } else {
+      setConfirmDelete(id);
+      setTimeout(() => setConfirmDelete(null), 3000);
+    }
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <h3 className="font-black text-lg text-gray-800 mb-1">Usuários cadastrados</h3>
+      <p className="text-sm text-gray-400 mb-6">{users.length} conta{users.length !== 1 ? "s" : ""} registrada{users.length !== 1 ? "s" : ""}</p>
+      {users.length === 0 ? (
+        <div className="text-center py-16 text-gray-300">
+          <p className="text-base font-semibold">Nenhum usuário ainda</p>
+          <p className="text-sm mt-1">As contas criadas na loja aparecerão aqui.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {users.map(u => {
+            const initials = u.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+            const since = new Date(u.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+            return (
+              <div key={u.id} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-black flex-shrink-0" style={{ background: PINK }}>
+                  {initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-gray-800 truncate">{u.name}</p>
+                  <p className="text-xs text-gray-400 truncate">{u.email}</p>
+                  <p className="text-xs text-gray-300">Desde {since}</p>
+                </div>
+                <button
+                  onClick={() => handleDelete(u.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex-shrink-0 ${confirmDelete === u.id ? "bg-red-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500"}`}>
+                  {confirmDelete === u.id ? "Confirmar?" : <Trash2 size={13} />}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "layout" | "settings" | "media" | "users";
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
@@ -1586,6 +1658,7 @@ const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "faq", label: "FAQ", icon: <MessageSquare size={17} /> },
   { id: "content", label: "Conteúdo", icon: <FileText size={17} /> },
   { id: "layout", label: "Layout", icon: <Layers size={17} /> },
+  { id: "users", label: "Usuários", icon: <Lock size={17} /> },
   { id: "settings", label: "Configurações", icon: <Settings size={17} /> },
   { id: "media", label: "Biblioteca", icon: <Library size={17} /> },
 ];
@@ -1684,6 +1757,7 @@ export default function Admin() {
         {tab === "faq" && <FaqTab />}
         {tab === "content" && <ContentTab />}
         {tab === "layout" && <LayoutTab />}
+        {tab === "users" && <UsersTab />}
         {tab === "settings" && <SettingsTab onLogout={logout} />}
         {tab === "media" && <MediaLibraryTab />}
       </main>

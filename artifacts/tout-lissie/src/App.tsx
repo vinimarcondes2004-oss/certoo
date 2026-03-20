@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SiteProvider } from "@/context/SiteContext";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { UserProvider } from "@/context/UserContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { FavoritesDrawer } from "@/components/FavoritesDrawer";
 import Home from "@/pages/Home";
@@ -13,6 +14,7 @@ import SobreNos from "@/pages/SobreNos";
 import RastrearPedido from "@/pages/RastrearPedido";
 import Admin from "@/pages/Admin";
 import Produto from "@/pages/Produto";
+import Perfil from "@/pages/Perfil";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,7 @@ function Router() {
       <ScrollToTop />
     <Switch>
       <Route path="/admin" component={Admin} />
+      <Route path="/perfil" component={Perfil} />
       <Route path="/" component={Home} />
       <Route path="/produtos" component={Produtos} />
       <Route path="/categoria/:slug" component={Categoria} />
@@ -88,6 +91,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SiteProvider>
+        <UserProvider>
         <FavoritesProvider>
         <CartProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
@@ -97,6 +101,7 @@ function App() {
           <FavoritesDrawer />
         </CartProvider>
         </FavoritesProvider>
+        </UserProvider>
       </SiteProvider>
     </QueryClientProvider>
   );

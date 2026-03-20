@@ -350,3 +350,33 @@ export function setAdminPassword(pw: string) {
 export function generateId(): string {
   return Math.random().toString(36).slice(2, 9);
 }
+
+const ADMIN_EMAIL_KEY = "pr_admin_email";
+const USERS_KEY = "pr_user_accounts";
+
+export function getAdminEmail(): string {
+  return localStorage.getItem(ADMIN_EMAIL_KEY) ?? "";
+}
+
+export function setAdminEmail(email: string) {
+  localStorage.setItem(ADMIN_EMAIL_KEY, email);
+}
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  createdAt: string;
+}
+
+export function getUsers(): UserAccount[] {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+export function saveUsers(users: UserAccount[]) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}

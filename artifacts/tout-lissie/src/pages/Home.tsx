@@ -86,7 +86,7 @@ function Header() {
               </span>
             )}
           </button>
-          <Link href="/admin" className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></Link>
+          <Link href="/perfil" className="p-1.5 hidden md:block"><User size={20} className="text-gray-700" /></Link>
           <FavIconBtn />
         </div>
       </div>
