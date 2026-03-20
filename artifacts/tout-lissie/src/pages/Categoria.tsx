@@ -59,7 +59,6 @@ function Header() {
           <Link href="/" className="hover:text-pink-600 transition">Início</Link>
           <Link href="/produtos" className="hover:text-pink-600 transition">Produtos</Link>
           <Link href="/#quem-usa" className="hover:text-pink-600 transition">Quem usa</Link>
-          <Link href="/#depoimentos" className="hover:text-pink-600 transition">Depoimentos</Link>
           <Link href="/#faq" className="hover:text-pink-600 transition">FAQ</Link>
         </nav>
         <div className="flex items-center gap-2">
