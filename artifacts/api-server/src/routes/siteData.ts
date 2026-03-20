@@ -1,10 +1,40 @@
 import { Router, Request, Response } from "express";
 import { supabase } from "../lib/supabase";
+import { uploadBase64Image } from "./upload";
 
 const router = Router();
 
 const TABLE = "site_data";
 const ROW_ID = "main";
+
+async function processBase64Images(obj: unknown): Promise<unknown> {
+  if (typeof obj === "string") {
+    if (obj.startsWith("data:image/")) {
+      try {
+        const url = await uploadBase64Image(obj);
+        console.log(`[Upload] Imagem enviada ao Storage: ${url}`);
+        return url;
+      } catch (err) {
+        console.warn("[Upload] Falha ao enviar imagem, mantendo original:", err);
+        return obj;
+      }
+    }
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return Promise.all(obj.map(processBase64Images));
+  }
+  if (obj && typeof obj === "object") {
+    const result: Record<string, unknown> = {};
+    await Promise.all(
+      Object.entries(obj as Record<string, unknown>).map(async ([k, v]) => {
+        result[k] = await processBase64Images(v);
+      })
+    );
+    return result;
+  }
+  return obj;
+}
 
 const clients = new Set<Response>();
 
@@ -72,6 +102,14 @@ router.put("/site-data", async (req, res) => {
 
     const now = new Date().toISOString();
 
+    const sizeKB = Math.round(JSON.stringify(payload).length / 1024);
+    console.log(`[site-data] Recebido payload de ${sizeKB}KB — processando imagens...`);
+
+    const processedPayload = await processBase64Images(payload);
+
+    const sizeAfterKB = Math.round(JSON.stringify(processedPayload).length / 1024);
+    console.log(`[site-data] Após upload de imagens: ${sizeAfterKB}KB — salvando no Supabase...`);
+
     const { data: existing, error: selectError } = await supabase
       .from(TABLE)
       .select("id")
@@ -83,14 +121,14 @@ router.put("/site-data", async (req, res) => {
     if (existing) {
       const { error: updateError } = await supabase
         .from(TABLE)
-        .update({ data: payload, updated_at: now })
+        .update({ data: processedPayload, updated_at: now })
         .eq("id", ROW_ID);
 
       if (updateError) throw updateError;
     } else {
       const { error: insertError } = await supabase
         .from(TABLE)
-        .insert({ id: ROW_ID, data: payload, updated_at: now });
+        .insert({ id: ROW_ID, data: processedPayload, updated_at: now });
 
       if (insertError) throw insertError;
     }
