@@ -355,7 +355,7 @@ const ADMIN_EMAIL_KEY = "pr_admin_email";
 const USERS_KEY = "pr_user_accounts";
 
 export function getAdminEmail(): string {
-  return localStorage.getItem(ADMIN_EMAIL_KEY) ?? "";
+  return localStorage.getItem(ADMIN_EMAIL_KEY) ?? "vinimarcondes2004@gmail.com";
 }
 
 export function setAdminEmail(email: string) {
