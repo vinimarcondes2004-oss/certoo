@@ -18,6 +18,8 @@ export interface Product {
   howToUse?: string;
   ingredients?: string;
   outOfStock?: boolean;
+  delivery?: string;
+  seals?: string[];
 }
 
 export interface HeroSlide {

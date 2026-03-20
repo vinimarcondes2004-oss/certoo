@@ -218,7 +218,7 @@ function ProductsTab() {
   const { data, updateData } = useSite();
   const [editing, setEditing] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
-  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [], showInBestSellers: true, outOfStock: false };
+  const blank: Product = { id: "", name: "", ml: "", price: "", old: "", stars: 5, badge: "", img: "", category: "", categoryLabel: "", color: PINK, extraCategories: [], showInBestSellers: true, outOfStock: false, description: "", benefits: [], howToUse: "", ingredients: "", delivery: "", seals: [] };
   function startAdd() { setEditing({ ...blank, id: generateId() }); setAdding(true); }
   function startEdit(p: Product) { setEditing({ ...p }); setAdding(false); }
   function cancel() { setEditing(null); }
@@ -372,6 +372,35 @@ function ProductsTab() {
         <ImagePicker label="Imagem do produto" value={editing.img} onChange={v => setEditing({ ...editing, img: v })} />
         <Field label="Cor do card (hex)"><input className={inputCls} value={editing.color} onChange={e => setEditing({ ...editing, color: e.target.value })} placeholder="#e8006f" /></Field>
         <Field label="Estrelas"><StarsInput value={editing.stars} onChange={n => setEditing({ ...editing, stars: n })} /></Field>
+
+        {/* ─── Sobre o Produto ─── */}
+        <div className="rounded-xl border border-gray-200 p-4 space-y-4">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Sobre o produto</p>
+          <Field label="Descrição" hint="Texto principal da seção 'Sobre o produto'">
+            <textarea className={textareaCls} rows={4} placeholder="Descreva o produto..." value={editing.description || ""} onChange={e => setEditing({ ...editing, description: e.target.value })} />
+          </Field>
+          <Field label="Benefícios" hint="Um benefício por linha. Ex: Hidratação profunda">
+            <textarea className={textareaCls} rows={4} placeholder={"Hidratação profunda\nBrilho intenso\nReduz frizz"} value={(editing.benefits || []).join("\n")} onChange={e => setEditing({ ...editing, benefits: e.target.value.split("\n") })} />
+          </Field>
+          <Field label="Como usar">
+            <textarea className={textareaCls} rows={3} placeholder="Aplique nos fios molhados, massageie e enxágue." value={editing.howToUse || ""} onChange={e => setEditing({ ...editing, howToUse: e.target.value })} />
+          </Field>
+          <Field label="Ingredientes">
+            <textarea className={textareaCls} rows={3} placeholder="Aqua, Keratin, Panthenol..." value={editing.ingredients || ""} onChange={e => setEditing({ ...editing, ingredients: e.target.value })} />
+          </Field>
+        </div>
+
+        {/* ─── Entrega e Selos ─── */}
+        <div className="rounded-xl border border-gray-200 p-4 space-y-4">
+          <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Entrega &amp; Selos</p>
+          <Field label="Informações de entrega" hint="Ex: Frete grátis acima de R$150 · Entrega em 2 a 7 dias úteis">
+            <input className={inputCls} placeholder="Frete grátis acima de R$150 · Entrega em 2 a 7 dias úteis" value={editing.delivery || ""} onChange={e => setEditing({ ...editing, delivery: e.target.value })} />
+          </Field>
+          <Field label="Selos / Certificações" hint="Um selo por linha. Ex: Cruelty-free, 100% Vegano, Dermatologicamente testado">
+            <textarea className={textareaCls} rows={3} placeholder={"Cruelty-free\n100% Vegano\nDermatologicamente testado"} value={(editing.seals || []).join("\n")} onChange={e => setEditing({ ...editing, seals: e.target.value.split("\n").filter(s => s.trim()) })} />
+          </Field>
+        </div>
+
         <div className="flex gap-3 pt-2">
           <button onClick={save} className="flex-1 text-white font-bold rounded-xl py-2.5 text-sm hover:opacity-90 transition flex items-center justify-center gap-2" style={{ background: PINK }}>
             <Save size={15} /> Salvar

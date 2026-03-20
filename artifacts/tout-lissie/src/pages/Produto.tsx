@@ -307,18 +307,36 @@ export default function Produto() {
               </a>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-2">
-              {[
-                { icon: <Truck size={18} />, label: "Entrega rápida" },
-                { icon: <Shield size={18} />, label: "Compra segura" },
-                { icon: <Zap size={18} />, label: "Resultado garantido" },
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center gap-1 bg-gray-50 rounded-xl py-3 px-2 text-center">
-                  <span style={{ color: PINK }}>{item.icon}</span>
-                  <span className="text-[11px] text-gray-600 font-semibold">{item.label}</span>
-                </div>
-              ))}
-            </div>
+            {product.seals && product.seals.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {product.seals.map((seal, i) => (
+                  <span key={i} className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                    <Check size={12} style={{ color: PINK }} />
+                    {seal}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 mt-2">
+                {[
+                  { icon: <Truck size={18} />, label: "Entrega rápida" },
+                  { icon: <Shield size={18} />, label: "Compra segura" },
+                  { icon: <Zap size={18} />, label: "Resultado garantido" },
+                ].map((item, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1 bg-gray-50 rounded-xl py-3 px-2 text-center">
+                    <span style={{ color: PINK }}>{item.icon}</span>
+                    <span className="text-[11px] text-gray-600 font-semibold">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {product.delivery && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5 mt-1">
+                <Truck size={16} className="flex-shrink-0 text-green-600" />
+                <span className="text-green-700 text-sm font-semibold">{product.delivery}</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
