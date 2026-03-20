@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+    }
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 14px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 1.2rem; }
+    header a { color: #a8dadc; text-decoration: none; font-size: 0.9rem; }
+    .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+
+    /* Login */
+    #login-section {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 48px 40px;
+      text-align: center;
+    }
+    #login-section h2 { margin-bottom: 28px; color: #1a1a2e; font-size: 1.6rem; }
+    .form-group { margin-bottom: 18px; text-align: left; }
+    label { display: block; margin-bottom: 6px; color: #444; font-size: 0.9rem; font-weight: 600; }
+    input[type="text"], input[type="password"], input[type="url"], textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: #e63946; }
+    textarea { resize: vertical; min-height: 100px; }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #e63946;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 8px;
+    }
+    .btn:hover { background: #c1121f; }
+    .btn.secondary { background: #6c757d; margin-top: 12px; }
+    .btn.secondary:hover { background: #495057; }
+    .error-msg { color: #e63946; margin-top: 12px; font-size: 0.9rem; display: none; }
+
+    /* Admin Panel */
+    #admin-section { display: none; }
+    #admin-section h2 { color: #1a1a2e; font-size: 1.4rem; margin-bottom: 24px; }
+    .panel {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 36px 32px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .panel-header h2 { margin: 0; }
+    .badge {
+      background: #4caf50;
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-weight: 600;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #1a1a2e;
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Painel Administrativo</h1>
+    <a href="/index.html">Ver Site</a>
+  </header>
+
+  <div class="container">
+
+    <!-- Login -->
+    <div id="login-section">
+      <h2>Acesso Admin</h2>
+      <div class="form-group">
+        <label for="usuario">Usuário</label>
+        <input type="text" id="usuario" placeholder="admin" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="btn" onclick="fazerLogin()">Entrar</button>
+      <p class="error-msg" id="login-erro">Usuário ou senha incorretos.</p>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-section">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Editar Conteúdo</h2>
+          <span class="badge" id="socket-badge">Conectado</span>
+        </div>
+
+        <div class="form-group">
+          <label for="f-titulo">Título</label>
+          <input type="text" id="f-titulo" placeholder="Título principal do site" />
+        </div>
+        <div class="form-group">
+          <label for="f-descricao">Descrição</label>
+          <textarea id="f-descricao" placeholder="Descrição ou subtítulo do site"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="f-imagem">URL da Imagem</label>
+          <input type="url" id="f-imagem" placeholder="https://exemplo.com/imagem.jpg" />
+        </div>
+        <div class="form-group">
+          <label for="f-botao">Texto do Botão</label>
+          <input type="text" id="f-botao" placeholder="Ex: Saiba Mais, Comprar Agora..." />
+        </div>
+
+        <button class="btn" onclick="salvarConteudo()">Salvar e Publicar</button>
+        <button class="btn secondary" onclick="fazerLogout()">Sair</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/api/socket.io/socket.io.js"></script>
+  <script>
+    const API = '/api';
+    let socket;
+
+    async function verificarSessao() {
+      try {
+        const res = await fetch(`${API}/admin/check`, { credentials: 'include' });
+        const data = await res.json();
+        if (data.loggedIn) {
+          mostrarAdmin();
+        }
+      } catch (e) {
+        console.error('Erro ao verificar sessão:', e);
+      }
+    }
+
+    async function fazerLogin() {
+      const usuario = document.getElementById('usuario').value.trim();
+      const senha = document.getElementById('senha').value;
+      const erroEl = document.getElementById('login-erro');
+      erroEl.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API}/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ usuario, senha }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          mostrarAdmin();
+        } else {
+          erroEl.style.display = 'block';
+        }
+      } catch (e) {
+        erroEl.textContent = 'Erro ao conectar ao servidor.';
+        erroEl.style.display = 'block';
+      }
+    }
+
+    async function fazerLogout() {
+      await fetch(`${API}/admin/logout`, { method: 'POST', credentials: 'include' });
+      if (socket) socket.disconnect();
+      document.getElementById('admin-section').style.display = 'none';
+      document.getElementById('login-section').style.display = 'block';
+    }
+
+    async function mostrarAdmin() {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('admin-section').style.display = 'block';
+      await carregarConteudo();
+      conectarSocket();
+    }
+
+    async function carregarConteudo() {
+      try {
+        const res = await fetch(`${API}/content`);
+        const data = await res.json();
+        document.getElementById('f-titulo').value = data.titulo || '';
+        document.getElementById('f-descricao').value = data.descricao || '';
+        document.getElementById('f-imagem').value = data.imagem || '';
+        document.getElementById('f-botao').value = data.botao || '';
+      } catch (e) {
+        console.error('Erro ao carregar conteúdo:', e);
+      }
+    }
+
+    async function salvarConteudo() {
+      const payload = {
+        titulo: document.getElementById('f-titulo').value.trim(),
+        descricao: document.getElementById('f-descricao').value.trim(),
+        imagem: document.getElementById('f-imagem').value.trim(),
+        botao: document.getElementById('f-botao').value.trim(),
+      };
+
+      try {
+        const res = await fetch(`${API}/content`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          mostrarToast('Conteúdo salvo e publicado para todos!');
+        } else {
+          mostrarToast('Erro: ' + (data.error || 'falha ao salvar'));
+        }
+      } catch (e) {
+        mostrarToast('Erro ao conectar ao servidor.');
+      }
+    }
+
+    function conectarSocket() {
+      socket = io({ path: '/api/socket.io' });
+      const badge = document.getElementById('socket-badge');
+
+      socket.on('connect', () => {
+        badge.textContent = 'Conectado';
+        badge.style.background = '#4caf50';
+      });
+      socket.on('disconnect', () => {
+        badge.textContent = 'Desconectado';
+        badge.style.background = '#e63946';
+      });
+      socket.on('content-updated', (data) => {
+        mostrarToast('Conteúdo atualizado em tempo real!');
+      });
+    }
+
+    function mostrarToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    document.getElementById('senha').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') fazerLogin();
+    });
+
+    verificarSessao();
+  </script>
+</body>
+</html>
