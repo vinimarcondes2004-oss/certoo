@@ -27,6 +27,9 @@ export function CartDrawer() {
   const [copied, setCopied] = useState(false);
   const [loadingCard, setLoadingCard] = useState(false);
   const [cardError, setCardError] = useState("");
+  const [cardStep, setCardStep] = useState<"idle" | "form">("idle");
+  const [cardName, setCardName] = useState("");
+  const [cardEmail, setCardEmail] = useState("");
 
   const total = items.reduce((sum, item) => sum + parsePrice(item.price) * item.qty, 0);
 
@@ -38,6 +41,10 @@ export function CartDrawer() {
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=${waMessage}`;
 
   async function pagarComCartao() {
+    if (!cardEmail || !cardEmail.includes("@")) {
+      setCardError("Insira um e-mail válido.");
+      return;
+    }
     setLoadingCard(true);
     setCardError("");
     try {
@@ -52,6 +59,10 @@ export function CartDrawer() {
             quantity: i.qty,
             unit_price: parsePrice(i.price),
           })),
+          payer: {
+            name: cardName || undefined,
+            email: cardEmail,
+          },
           successUrl: `${origin}${base}?pagamento=aprovado`,
           failureUrl: `${origin}${base}?pagamento=erro`,
           pendingUrl: `${origin}${base}?pagamento=pendente`,
@@ -271,22 +282,55 @@ export function CartDrawer() {
                 </div>
               )}
 
-              {pixStep === "idle" && (
-                <>
-                  <button
-                    onClick={pagarComCartao}
-                    disabled={loadingCard}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition disabled:opacity-60"
-                    style={{ background: PINK }}
-                  >
-                    {loadingCard
-                      ? <Loader2 size={20} className="animate-spin" />
-                      : <CreditCard size={20} />
-                    }
-                    {loadingCard ? "Aguarde..." : "Pagar"}
-                  </button>
-                  {cardError && <p className="text-red-500 text-xs text-center -mt-1">{cardError}</p>}
-                </>
+              {pixStep === "idle" && cardStep === "idle" && (
+                <button
+                  onClick={() => setCardStep("form")}
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
+                  style={{ background: PINK }}
+                >
+                  <CreditCard size={20} />
+                  Pagar
+                </button>
+              )}
+
+              {cardStep === "form" && (
+                <div className="rounded-2xl border-2 p-3 space-y-2" style={{ borderColor: PINK }}>
+                  <p className="text-xs font-bold text-gray-600">Seus dados:</p>
+                  <input
+                    type="text"
+                    value={cardName}
+                    onChange={e => setCardName(e.target.value)}
+                    placeholder="Nome completo"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
+                    autoFocus
+                  />
+                  <input
+                    type="email"
+                    value={cardEmail}
+                    onChange={e => setCardEmail(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && pagarComCartao()}
+                    placeholder="E-mail"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
+                  />
+                  {cardError && <p className="text-red-500 text-xs">{cardError}</p>}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={pagarComCartao}
+                      disabled={loadingCard}
+                      className="flex-1 py-2.5 rounded-xl text-white font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-1.5 disabled:opacity-60"
+                      style={{ background: PINK }}
+                    >
+                      {loadingCard ? <Loader2 size={15} className="animate-spin" /> : <CreditCard size={15} />}
+                      {loadingCard ? "Aguarde..." : "Confirmar"}
+                    </button>
+                    <button
+                      onClick={() => { setCardStep("idle"); setCardError(""); }}
+                      className="px-3 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm hover:bg-gray-50 transition"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                </div>
               )}
 
               <a

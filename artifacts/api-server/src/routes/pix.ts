@@ -55,11 +55,12 @@ router.post("/pix", async (req, res) => {
 
 router.post("/create-payment", async (req, res) => {
   try {
-    const { items, successUrl, failureUrl, pendingUrl, mpToken } = req.body as {
+    const { items, successUrl, failureUrl, pendingUrl, payer, mpToken } = req.body as {
       items: { title: string; quantity: number; unit_price: number }[];
       successUrl?: string;
       failureUrl?: string;
       pendingUrl?: string;
+      payer?: { name?: string; email?: string };
       mpToken?: string;
     };
 
@@ -75,6 +76,10 @@ router.post("/create-payment", async (req, res) => {
     const result = await preferenceClient.create({
       body: {
         items,
+        shipments: {
+          mode: "not_specified",
+        },
+        ...(payer ? { payer } : {}),
         back_urls: {
           success: successUrl || `${origin}?pagamento=aprovado`,
           failure: failureUrl || `${origin}?pagamento=erro`,
