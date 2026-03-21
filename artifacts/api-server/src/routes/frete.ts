@@ -3,70 +3,56 @@ import { Router } from "express";
 const router = Router();
 
 /**
- * Tabela de frete por estado (UF) com base nas regiões do Brasil.
- * Os valores refletem distância real de entrega a partir do eixo Sul/Sudeste.
- *
- * Zona 1 — Sudeste     (SP, RJ, MG, ES):               R$ 15,00
- * Zona 2 — Sul         (PR, SC, RS):                    R$ 20,00
- * Zona 3 — Centro-Oeste (GO, DF, MT, MS):               R$ 25,00
- * Zona 4 — Nordeste    (BA, SE, AL, PE, PB, RN, CE, PI, MA): R$ 30,00
- * Zona 5 — Norte       (PA, AM, RR, AP, AC, RO, TO):    R$ 40,00
+ * Tabela de frete por estado (UF) calculada a partir de São Paulo / SP.
+ * Valores baseados em médias de transportadoras (PAC/Sedex) para pacotes de até 1kg.
+ * Ordenados por distância/dificuldade de entrega.
  */
-const ZONAS: {
-  estados: string[];
-  valor: number;
-  regiao: string;
-  prazo: string;
-}[] = [
-  {
-    estados: ["SP", "RJ", "MG", "ES"],
-    valor: 15,
-    regiao: "Sudeste",
-    prazo: "3 a 5 dias úteis",
-  },
-  {
-    estados: ["PR", "SC", "RS"],
-    valor: 20,
-    regiao: "Sul",
-    prazo: "4 a 6 dias úteis",
-  },
-  {
-    estados: ["GO", "DF", "MT", "MS"],
-    valor: 25,
-    regiao: "Centro-Oeste",
-    prazo: "5 a 7 dias úteis",
-  },
-  {
-    estados: ["BA", "SE", "AL", "PE", "PB", "RN", "CE", "PI", "MA"],
-    valor: 30,
-    regiao: "Nordeste",
-    prazo: "6 a 9 dias úteis",
-  },
-  {
-    estados: ["PA", "AM", "RR", "AP", "AC", "RO", "TO"],
-    valor: 40,
-    regiao: "Norte",
-    prazo: "8 a 12 dias úteis",
-  },
-];
+const TABELA_FRETE: Record<string, { valor: number; regiao: string; prazo: string }> = {
+  // --- Sudeste (origem/vizinhança imediata) ---
+  SP: { valor: 19.90,  regiao: "São Paulo",        prazo: "3 a 5 dias úteis"  },
+  MG: { valor: 22.90,  regiao: "Minas Gerais",     prazo: "3 a 5 dias úteis"  },
+  RJ: { valor: 24.90,  regiao: "Rio de Janeiro",   prazo: "4 a 6 dias úteis"  },
+  ES: { valor: 26.90,  regiao: "Espírito Santo",   prazo: "4 a 6 dias úteis"  },
 
-/**
- * Encontra a zona de frete pelo estado (UF).
- * Retorna null se o UF não for reconhecido.
- */
-function encontrarZona(uf: string) {
-  const ufNorm = uf.trim().toUpperCase();
-  return ZONAS.find(z => z.estados.includes(ufNorm)) ?? null;
-}
+  // --- Sul ---
+  PR: { valor: 27.90,  regiao: "Paraná",           prazo: "4 a 7 dias úteis"  },
+  SC: { valor: 31.90,  regiao: "Santa Catarina",   prazo: "5 a 8 dias úteis"  },
+  RS: { valor: 35.90,  regiao: "Rio Grande do Sul", prazo: "6 a 9 dias úteis" },
+
+  // --- Centro-Oeste ---
+  MS: { valor: 34.90,  regiao: "Mato Grosso do Sul", prazo: "5 a 8 dias úteis" },
+  GO: { valor: 37.90,  regiao: "Goiás",            prazo: "6 a 9 dias úteis"  },
+  DF: { valor: 37.90,  regiao: "Distrito Federal", prazo: "6 a 9 dias úteis"  },
+  MT: { valor: 42.90,  regiao: "Mato Grosso",      prazo: "7 a 10 dias úteis" },
+
+  // --- Nordeste (por distância crescente de SP) ---
+  BA: { valor: 44.90,  regiao: "Bahia",            prazo: "7 a 10 dias úteis" },
+  SE: { valor: 47.90,  regiao: "Sergipe",          prazo: "8 a 11 dias úteis" },
+  AL: { valor: 48.90,  regiao: "Alagoas",          prazo: "8 a 11 dias úteis" },
+  PE: { valor: 49.90,  regiao: "Pernambuco",       prazo: "8 a 12 dias úteis" },
+  PB: { valor: 51.90,  regiao: "Paraíba",          prazo: "9 a 12 dias úteis" },
+  RN: { valor: 52.90,  regiao: "Rio Grande do Norte", prazo: "9 a 13 dias úteis" },
+  CE: { valor: 53.90,  regiao: "Ceará",            prazo: "9 a 13 dias úteis" },
+  PI: { valor: 55.90,  regiao: "Piauí",            prazo: "10 a 14 dias úteis" },
+  MA: { valor: 57.90,  regiao: "Maranhão",         prazo: "10 a 15 dias úteis" },
+
+  // --- Norte ---
+  TO: { valor: 52.90,  regiao: "Tocantins",        prazo: "9 a 13 dias úteis" },
+  PA: { valor: 59.90,  regiao: "Pará",             prazo: "10 a 15 dias úteis" },
+  RO: { valor: 62.90,  regiao: "Rondônia",         prazo: "11 a 16 dias úteis" },
+  AC: { valor: 67.90,  regiao: "Acre",             prazo: "13 a 19 dias úteis" },
+  AM: { valor: 69.90,  regiao: "Amazonas",         prazo: "13 a 20 dias úteis" },
+  AP: { valor: 72.90,  regiao: "Amapá",            prazo: "14 a 20 dias úteis" },
+  RR: { valor: 74.90,  regiao: "Roraima",          prazo: "15 a 22 dias úteis" },
+};
 
 /**
  * GET /frete?cep=XXXXXXXX&uf=SP
  *
- * Calcula o frete com base no estado (UF) do endereço.
- * O parâmetro `uf` é obrigatório para cálculo preciso por região.
- * Se apenas `cep` for enviado (sem `uf`), usa o primeiro dígito como fallback.
+ * Calcula o frete a partir de São Paulo/SP para o estado de destino (uf).
+ * Retorna valor do frete, região, prazo e descrição.
  */
-router.get("/frete", (req, res) => {
+router.get("/frete", async (req, res) => {
   try {
     const { cep, uf } = req.query as { cep?: string; uf?: string };
 
@@ -79,51 +65,56 @@ router.get("/frete", (req, res) => {
       return res.status(400).json({ error: "CEP inválido. Informe 8 dígitos." });
     }
 
-    // --- Cálculo por UF (preciso) ---
-    if (uf) {
-      const zona = encontrarZona(uf);
+    let ufDestino = uf?.trim().toUpperCase() ?? "";
 
-      if (!zona) {
-        return res.status(400).json({
-          error: `Estado "${uf.toUpperCase()}" não reconhecido. Verifique o CEP.`,
-        });
+    // Se o UF não foi enviado pelo frontend, consulta o ViaCEP para obtê-lo
+    if (!ufDestino) {
+      try {
+        const viaCepRes = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const viaCep = await viaCepRes.json();
+        if (viaCep.uf) ufDestino = viaCep.uf.toUpperCase();
+      } catch {
+        // Ignora erros de rede e usa fallback abaixo
       }
+    }
 
+    // Busca na tabela por UF
+    if (ufDestino && TABELA_FRETE[ufDestino]) {
+      const { valor, regiao, prazo } = TABELA_FRETE[ufDestino];
       return res.json({
         cep: cepLimpo,
-        uf: uf.trim().toUpperCase(),
-        regiao: zona.regiao,
-        valorFrete: zona.valor,
-        prazo: zona.prazo,
-        descricao: `Entrega para ${zona.regiao} (${zona.prazo})`,
+        uf: ufDestino,
+        regiao,
+        valorFrete: valor,
+        prazo,
+        descricao: `Entrega para ${regiao} — ${prazo}`,
       });
     }
 
-    // --- Fallback por primeiro dígito do CEP (quando UF não disponível) ---
-    const primeiroDigito = parseInt(cepLimpo[0], 10);
-    let valorFrete: number;
-    let regiaoLabel: string;
-    let prazo: string;
-
-    if (primeiroDigito <= 1) {
-      valorFrete = 15; regiaoLabel = "Sudeste"; prazo = "3 a 5 dias úteis";
-    } else if (primeiroDigito <= 3) {
-      valorFrete = 20; regiaoLabel = "Sul/Sudeste"; prazo = "4 a 6 dias úteis";
-    } else if (primeiroDigito <= 5) {
-      valorFrete = 25; regiaoLabel = "Centro-Oeste"; prazo = "5 a 7 dias úteis";
-    } else if (primeiroDigito <= 7) {
-      valorFrete = 30; regiaoLabel = "Nordeste"; prazo = "6 a 9 dias úteis";
-    } else {
-      valorFrete = 40; regiaoLabel = "Norte"; prazo = "8 a 12 dias úteis";
+    // Fallback final: UF desconhecido
+    if (ufDestino) {
+      return res.status(400).json({
+        error: `Estado "${ufDestino}" não encontrado na tabela. Verifique o CEP informado.`,
+      });
     }
+
+    // Fallback por primeiro dígito do CEP (quando ViaCEP também falhou)
+    const d = parseInt(cepLimpo[0], 10);
+    let valorFrete: number, regiaoLabel: string, prazo: string;
+    if      (d <= 1) { valorFrete = 19.90; regiaoLabel = "Sudeste";       prazo = "3 a 5 dias úteis"; }
+    else if (d <= 3) { valorFrete = 29.90; regiaoLabel = "Sul/Sudeste";   prazo = "4 a 7 dias úteis"; }
+    else if (d <= 5) { valorFrete = 37.90; regiaoLabel = "Centro-Oeste";  prazo = "6 a 9 dias úteis"; }
+    else if (d <= 7) { valorFrete = 52.90; regiaoLabel = "Nordeste";      prazo = "9 a 13 dias úteis"; }
+    else             { valorFrete = 64.90; regiaoLabel = "Norte";         prazo = "12 a 20 dias úteis"; }
 
     return res.json({
       cep: cepLimpo,
       regiao: regiaoLabel,
       valorFrete,
       prazo,
-      descricao: `Entrega para ${regiaoLabel} (${prazo})`,
+      descricao: `Entrega para ${regiaoLabel} — ${prazo}`,
     });
+
   } catch (err: any) {
     console.error("Erro no cálculo de frete:", err.message);
     return res.status(500).json({ error: "Erro ao calcular frete" });
