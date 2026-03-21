@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
   Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff, Library, RefreshCw,
-  Copy, Check, Video, ImageIcon, Grid2x2
+  Copy, Check, Video, ImageIcon, Grid2x2, Menu
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
@@ -236,15 +236,15 @@ function ProductsTab() {
       <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Novo Produto" : "Editar Produto"}</h3>
       <div className="space-y-4">
         <Field label="Nome"><input className={inputCls} value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Volume/Tamanho"><input className={inputCls} value={editing.ml} onChange={e => setEditing({ ...editing, ml: e.target.value })} placeholder="300ml" /></Field>
           <Field label="Badge"><input className={inputCls} value={editing.badge} onChange={e => setEditing({ ...editing, badge: e.target.value })} placeholder="Mais Vendido" /></Field>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Preço"><input className={inputCls} value={editing.price} onChange={e => setEditing({ ...editing, price: e.target.value })} placeholder="R$ 80,00" /></Field>
           <Field label="Preço antigo"><input className={inputCls} value={editing.old} onChange={e => setEditing({ ...editing, old: e.target.value })} placeholder="R$ 120,00" /></Field>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Categoria (slug)"><input className={inputCls} value={editing.category} onChange={e => setEditing({ ...editing, category: e.target.value })} placeholder="shampoo-e-mascara" /></Field>
           <Field label="Categoria (label)"><input className={inputCls} value={editing.categoryLabel} onChange={e => setEditing({ ...editing, categoryLabel: e.target.value })} placeholder="Shampoos" /></Field>
         </div>
@@ -505,7 +505,7 @@ function ReviewsTab() {
     <div className="max-w-lg">
       <h3 className="font-black text-lg text-gray-800 mb-6">{adding ? "Nova Avaliação" : "Editar Avaliação"}</h3>
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Nome"><input className={inputCls} value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} /></Field>
           <Field label="Data"><input className={inputCls} value={editing.date} onChange={e => setEditing({ ...editing, date: e.target.value })} placeholder="15 mar 2026" /></Field>
         </div>
@@ -771,7 +771,7 @@ function ContentTab() {
         <div className="max-w-xl space-y-4">
           <SectionHeader title="Banner Elegance" subtitle="A grande seção escura com imagem de fundo" />
           <Field label="Linha pequena (acima do título)"><input className={inputCls} value={eb.tagline} onChange={e => updateData({ eleganceBanner: { ...eb, tagline: e.target.value } })} /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Título (normal)"><input className={inputCls} value={eb.title} onChange={e => updateData({ eleganceBanner: { ...eb, title: e.target.value } })} /></Field>
             <Field label="Título (destaque rosa)"><input className={inputCls} value={eb.titleHighlight} onChange={e => updateData({ eleganceBanner: { ...eb, titleHighlight: e.target.value } })} /></Field>
           </div>
@@ -1062,7 +1062,7 @@ function ContentTab() {
           {editVal ? (
             <div className="space-y-4">
               <h4 className="font-bold text-sm text-gray-700">Editar valor</h4>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Ícone (emoji)"><input className={inputCls} value={editVal.icon} onChange={e => setEditVal({ ...editVal, icon: e.target.value })} placeholder="🌿" /></Field>
                 <Field label="Título"><input className={inputCls} value={editVal.title} onChange={e => setEditVal({ ...editVal, title: e.target.value })} /></Field>
               </div>
@@ -1983,31 +1983,75 @@ function SaveIndicator() {
 export default function Admin() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem("admin_auth") === "1");
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   function logout() { sessionStorage.removeItem("admin_auth"); setAuthed(false); }
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+
+  const currentTab = tabs.find(t => t.id === tab);
+  function selectTab(id: Tab) { setTab(id); setMobileMenuOpen(false); }
+
+  const sidebarContent = (onTabClick: (id: Tab) => void) => (
+    <>
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => onTabClick(t.id)}
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition text-left ${tab === t.id ? "text-white" : "text-gray-500 hover:bg-gray-50"}`}
+            style={tab === t.id ? { background: PINK } : {}}>
+            {t.icon} {t.label}
+          </button>
+        ))}
+      </nav>
+      <SaveIndicator />
+      <div className="p-3 border-t border-gray-100">
+        <Link href="/"><button onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition"><Eye size={15} /> Ver site</button></Link>
+        <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition mt-1"><LogOut size={15} /> Sair</button>
+      </div>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-56 bg-white border-r border-gray-100 flex flex-col min-h-screen flex-shrink-0">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+      {/* ── Desktop Sidebar ── */}
+      <aside className="hidden md:flex w-56 bg-white border-r border-gray-100 flex-col min-h-screen flex-shrink-0">
         <div className="p-5 border-b border-gray-100">
           <p className="font-black text-base text-gray-900">Admin Panel</p>
           <p className="text-xs text-gray-400">PR Profissional</p>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition text-left ${tab === t.id ? "text-white" : "text-gray-500 hover:bg-gray-50"}`}
-              style={tab === t.id ? { background: PINK } : {}}>
-              {t.icon} {t.label}
-            </button>
-          ))}
-        </nav>
-        <SaveIndicator />
-        <div className="p-3 border-t border-gray-100">
-          <Link href="/"><button className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition"><Eye size={15} /> Ver site</button></Link>
-          <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition mt-1"><LogOut size={15} /> Sair</button>
-        </div>
+        {sidebarContent(setTab)}
       </aside>
-      <main className="flex-1 p-8 overflow-auto">
+
+      {/* ── Mobile Top Bar ── */}
+      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-2 text-gray-800">
+          {currentTab?.icon}
+          <span className="font-bold text-sm">{currentTab?.label}</span>
+        </div>
+        <button onClick={() => setMobileMenuOpen(true)} className="p-2 rounded-xl hover:bg-gray-100 transition text-gray-600">
+          <Menu size={22} />
+        </button>
+      </div>
+
+      {/* ── Mobile Drawer ── */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} />
+          <div className="relative w-72 bg-white shadow-2xl flex flex-col h-full">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="font-black text-base text-gray-900">Admin Panel</p>
+                <p className="text-xs text-gray-400">PR Profissional</p>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-xl hover:bg-gray-50 transition text-gray-400">
+                <X size={18} />
+              </button>
+            </div>
+            {sidebarContent(selectTab)}
+          </div>
+        </div>
+      )}
+
+      <main className="flex-1 p-4 md:p-8 overflow-auto">
         {tab === "dashboard" && <Dashboard />}
         {tab === "products" && <ProductsTab />}
         {tab === "hero" && <HeroTab />}
