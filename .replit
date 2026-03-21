@@ -31,3 +31,4 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
+MP_ACCESS_TOKEN = "APP_USR-5699914930783192-032114-689604e082d3495cbe650d44cc5d0946-497839563"
