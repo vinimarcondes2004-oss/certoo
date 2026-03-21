@@ -96,7 +96,6 @@ export function SharedFooter() {
         <div className="border-t border-white/20 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <p className="text-white/60 text-xs">{data.settings.footerCopyright}</p>
-            <Link href="/admin" className="text-white/30 text-xs hover:text-white/60 transition">Admin</Link>
           </div>
           <div className="flex items-center gap-2 flex-wrap justify-center">
             <span className="text-white/50 text-xs">Pagamentos:</span>

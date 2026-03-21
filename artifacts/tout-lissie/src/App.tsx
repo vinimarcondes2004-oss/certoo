@@ -17,6 +17,7 @@ import Admin from "@/pages/Admin";
 import Produto from "@/pages/Produto";
 import Perfil from "@/pages/Perfil";
 import Checkout from "@/pages/Checkout";
+import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
@@ -82,7 +83,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/sobre-nos" component={SobreNos} />
       <Route path="/rastrear-pedido" component={RastrearPedido} />
-      <Route path="*" component={Home} />
+      <Route path="*" component={NotFound} />
     </Switch>
     </>
   );

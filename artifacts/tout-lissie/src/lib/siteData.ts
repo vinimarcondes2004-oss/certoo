@@ -221,7 +221,7 @@ export const defaultSiteData: SiteData = {
     { id: "1", label: "Shampoo e máscara", slug: "shampoo-e-mascara", img: "product-pos-quimica.png", color: "#d0eaf8" },
     { id: "2", label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-oil-repair.png", color: "#d5f0e0" },
     { id: "3", label: "Progressiva sem formol", slug: "progressiva-sem-formol", img: "product-progressiva.png", color: "#fde8f0" },
-    { id: "4", label: "Reparador de pontas", slug: "reparador-de-pontas", img: "product-finalizador-liss.png", color: "#fce4ec" },
+    { id: "4", label: "Kits", slug: "shampoo-e-mascara", img: "product-finalizador-liss.png", color: "#fce4ec" },
   ],
   eleganceBanner: {
     img: "product-oil-repair-colorful.png",

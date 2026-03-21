@@ -97,7 +97,7 @@ export default function RastrearPedido() {
                 type="text"
                 value={codigo}
                 onChange={e => { setCodigo(e.target.value); setErro(false); setResultado(null); }}
-                placeholder="Ex: PF-10234"
+                placeholder="Digite o código do pedido"
                 autoComplete="off"
                 className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-pink-400 transition"
                 style={{ "--tw-ring-color": `${PINK}30` } as React.CSSProperties}
