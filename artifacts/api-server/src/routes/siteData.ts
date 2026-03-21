@@ -2,27 +2,23 @@ import { Router, Request, Response } from "express";
 import { supabase } from "../lib/supabase";
 import { uploadBase64Media } from "./upload";
 import { requireAdmin } from "./admin";
+import { getSiteData, saveSiteData } from "../lib/db";
+import { withRetry } from "../lib/retry";
 
 const router = Router();
-
-const TABLE = "site_data";
-const ROW_ID = "main";
 
 let cachedData: unknown = undefined;
 let cacheReady = false;
 
 async function warmCache() {
   try {
-    const { data, error } = await supabase
-      .from(TABLE)
-      .select("data")
-      .eq("id", ROW_ID)
-      .single();
-    if (!error && data) {
-      cachedData = data.data;
-    }
-  } catch {}
-  cacheReady = true;
+    cachedData = await getSiteData();
+    cacheReady = true;
+    console.log("[site-data] Cache aquecido com sucesso.");
+  } catch (err: any) {
+    cacheReady = true;
+    console.warn(`[site-data] Falha ao aquecer cache (continuando sem cache): ${err.message}`);
+  }
 }
 
 warmCache();
@@ -67,6 +63,7 @@ function broadcast() {
       clients.delete(res);
     }
   }
+  console.log(`[site-data] Broadcast enviado para ${clients.size} cliente(s) SSE.`);
 }
 
 router.get("/site-data/events", (req: Request, res: Response) => {
@@ -86,7 +83,7 @@ router.get("/site-data/events", (req: Request, res: Response) => {
       clearInterval(keepAlive);
       clients.delete(res);
     }
-  }, 25000);
+  }, 20000);
 
   req.on("close", () => {
     clearInterval(keepAlive);
@@ -95,27 +92,22 @@ router.get("/site-data/events", (req: Request, res: Response) => {
 });
 
 router.get("/site-data", async (_req, res) => {
-  if (cacheReady) {
+  if (cacheReady && cachedData !== undefined) {
     res.json(cachedData ?? null);
     return;
   }
   try {
-    const { data, error } = await supabase
-      .from(TABLE)
-      .select("data")
-      .eq("id", ROW_ID)
-      .single();
-
-    if (error || !data) {
-      res.json(null);
-      return;
-    }
-    cachedData = data.data;
+    const data = await getSiteData();
+    cachedData = data;
     cacheReady = true;
-    res.json(data.data);
-  } catch (err) {
-    console.error("GET /site-data error:", err);
-    res.status(500).json({ error: "Falha ao carregar dados" });
+    res.json(data ?? null);
+  } catch (err: any) {
+    console.error("[site-data] GET error:", err.message);
+    if (cachedData !== undefined) {
+      res.json(cachedData);
+    } else {
+      res.status(503).json({ error: "Serviço temporariamente indisponível. Tente novamente." });
+    }
   }
 });
 
@@ -133,35 +125,33 @@ router.put("/site-data", requireAdmin, async (req, res) => {
     const processedPayload = await processBase64Media(payload);
 
     const sizeAfterKB = Math.round(JSON.stringify(processedPayload).length / 1024);
-    console.log(`[site-data] Após upload de imagens: ${sizeAfterKB}KB — salvando no Supabase...`);
+    console.log(`[site-data] Após upload: ${sizeAfterKB}KB — salvando no Supabase...`);
 
-    const { error } = await supabase
-      .from(TABLE)
-      .upsert(
-        { id: ROW_ID, data: processedPayload, updated_at: new Date().toISOString() },
-        { onConflict: "id" }
-      );
-
-    if (error) throw error;
+    await saveSiteData(processedPayload);
 
     cachedData = processedPayload;
     cacheReady = true;
 
     broadcast();
     res.json({ ok: true });
-  } catch (err) {
-    console.error("PUT /site-data error:", err);
-    res.status(500).json({ error: "Falha ao salvar dados" });
+  } catch (err: any) {
+    console.error("[site-data] PUT error:", err.message);
+    res.status(500).json({ error: "Falha ao salvar dados. Tente novamente." });
   }
 });
 
 router.get("/storage/files", async (_req, res) => {
   try {
-    const { data, error } = await supabase.storage
-      .from("site-images")
-      .list("", { limit: 200, sortBy: { column: "created_at", order: "asc" } });
-
-    if (error) throw error;
+    const { data, error } = await withRetry(
+      async () => {
+        const result = await supabase.storage
+          .from("site-images")
+          .list("", { limit: 200, sortBy: { column: "created_at", order: "asc" } });
+        if (result.error) throw Object.assign(new Error(result.error.message), { status: 500 });
+        return result;
+      },
+      { attempts: 3, delayMs: 400, label: "listStorageFiles" }
+    );
 
     const files = (data || []).map(f => {
       const { data: urlData } = supabase.storage.from("site-images").getPublicUrl(f.name);
@@ -177,9 +167,9 @@ router.get("/storage/files", async (_req, res) => {
     });
 
     res.json(files);
-  } catch (err) {
-    console.error("GET /storage/files error:", err);
-    res.status(500).json({ error: "Falha ao listar arquivos" });
+  } catch (err: any) {
+    console.error("[storage/files] GET error:", err.message);
+    res.status(500).json({ error: "Falha ao listar arquivos." });
   }
 });
 

@@ -4,10 +4,18 @@ import { SiteData, loadSiteData, saveSiteData, mergeWithDefaults } from "@/lib/s
 
 const API_URL = "/api/site-data";
 const EVENTS_URL = "/api/site-data/events";
+const POLL_INTERVAL_MS = 30_000;
+const FETCH_TIMEOUT_MS = 12_000;
+
+function fetchWithTimeout(url: string, opts: RequestInit = {}): Promise<Response> {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(tid));
+}
 
 async function fetchSiteData(): Promise<SiteData | null> {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetchWithTimeout(API_URL);
     if (!res.ok) return null;
     const json = await res.json();
     if (!json || typeof json !== "object") return null;
@@ -19,15 +27,28 @@ async function fetchSiteData(): Promise<SiteData | null> {
 
 async function pushSiteData(data: SiteData): Promise<void> {
   const token = sessionStorage.getItem("admin_token") || "";
-  const res = await fetch(API_URL, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Falha ao salvar");
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetchWithTimeout(API_URL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const msg = await res.text().catch(() => res.statusText);
+        throw new Error(`HTTP ${res.status}: ${msg}`);
+      }
+      return;
+    } catch (err) {
+      lastErr = err;
+      if (attempt < 3) await new Promise(r => setTimeout(r, 600 * attempt));
+    }
+  }
+  throw lastErr;
 }
 
 interface SiteContextType {
@@ -53,20 +74,23 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   const savedSnapshot = useRef<SiteData | null>(null);
   const hasUnsavedRef = useRef(false);
 
+  function applyServerData(serverData: SiteData) {
+    if (hasUnsavedRef.current) return;
+    const serverStr = JSON.stringify(serverData);
+    const localStr = JSON.stringify(latestData.current);
+    if (serverStr === localStr) return;
+    setData(serverData);
+    latestData.current = serverData;
+    savedSnapshot.current = serverData;
+    saveSiteData(serverData);
+  }
+
   useEffect(() => {
     fetchSiteData().then(serverData => {
       if (serverData) {
-        const serverStr = JSON.stringify(serverData);
-        const localStr = JSON.stringify(latestData.current);
-        if (serverStr !== localStr) {
-          setData(serverData);
-          latestData.current = serverData;
-          saveSiteData(serverData);
-        }
+        applyServerData(serverData);
         savedSnapshot.current = serverData;
       }
-      // If server returns null (API down / network error), we keep local data
-      // and do NOT push anything to Supabase — only explicit user saves do that.
       setSynced(true);
     });
   }, []);
@@ -74,33 +98,42 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let es: EventSource | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let retryCount = 0;
 
     function connect() {
       es = new EventSource(EVENTS_URL);
 
+      es.addEventListener("connected", () => {
+        retryCount = 0;
+      });
+
       es.addEventListener("data-changed", () => {
-        if (hasUnsavedRef.current) return;
         fetchSiteData().then(serverData => {
-          if (!serverData) return;
-          if (hasUnsavedRef.current) return;
-          setData(serverData);
-          latestData.current = serverData;
-          savedSnapshot.current = serverData;
-          saveSiteData(serverData);
+          if (serverData) applyServerData(serverData);
         });
       });
 
       es.onerror = () => {
         es?.close();
-        retryTimer = setTimeout(connect, 5000);
+        retryCount++;
+        const delay = Math.min(5000 * retryCount, 30_000);
+        retryTimer = setTimeout(connect, delay);
       };
     }
 
     connect();
 
+    const pollTimer = setInterval(() => {
+      if (hasUnsavedRef.current) return;
+      fetchSiteData().then(serverData => {
+        if (serverData) applyServerData(serverData);
+      });
+    }, POLL_INTERVAL_MS);
+
     return () => {
       es?.close();
       if (retryTimer) clearTimeout(retryTimer);
+      clearInterval(pollTimer);
     };
   }, []);
 

@@ -1,10 +1,10 @@
 import { Router, Request, Response } from "express";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { supabase } from "../lib/supabase";
+import crypto from "crypto";
+import { getOrders, saveOrders } from "../lib/db";
+import { withRetry, withTimeout } from "../lib/retry";
 
 const router = Router();
-const TABLE = "site_data";
-const ORDERS_ROW = "orders";
 
 function getMpClient(): MercadoPagoConfig {
   const token = process.env.MP_ACCESS_TOKEN;
@@ -12,38 +12,69 @@ function getMpClient(): MercadoPagoConfig {
   return new MercadoPagoConfig({ accessToken: token });
 }
 
-async function getOrders(): Promise<any[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select("data")
-    .eq("id", ORDERS_ROW)
-    .maybeSingle();
-  if (error || !data) return [];
-  return (data.data as { orders: any[] }).orders || [];
-}
+function verifyMpSignature(req: Request): boolean {
+  const secret = process.env.MP_WEBHOOK_SECRET;
+  if (!secret) return true;
 
-async function saveOrders(orders: any[]): Promise<void> {
-  await supabase.from(TABLE).upsert({
-    id: ORDERS_ROW,
-    data: { orders },
-    updated_at: new Date().toISOString(),
+  const xSignature = req.headers["x-signature"] as string | undefined;
+  const xRequestId = req.headers["x-request-id"] as string | undefined;
+  const paymentId = (req.query as any).id || req.body?.data?.id;
+
+  if (!xSignature) {
+    console.warn("[Webhook MP] x-signature ausente — assinatura não verificada.");
+    return true;
+  }
+
+  const parts: Record<string, string> = {};
+  xSignature.split(",").forEach(part => {
+    const [k, v] = part.split("=");
+    if (k && v) parts[k.trim()] = v.trim();
   });
+
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+  if (!ts || !v1) return false;
+
+  const manifest = [
+    paymentId ? `id:${paymentId}` : null,
+    xRequestId ? `request-id:${xRequestId}` : null,
+    `ts:${ts}`,
+  ]
+    .filter(Boolean)
+    .join(";");
+
+  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+  const valid = crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
+
+  if (!valid) {
+    console.error("[Webhook MP] Assinatura inválida — possível requisição forjada.");
+  }
+  return valid;
 }
 
 router.post("/webhook/mercadopago", async (req: Request, res: Response) => {
+  res.status(200).json({ received: true });
+
   try {
+    if (!verifyMpSignature(req)) {
+      console.error("[Webhook MP] Requisição rejeitada por assinatura inválida.");
+      return;
+    }
+
     const { type, data } = req.body as { type?: string; data?: { id?: string } };
 
-    if (type !== "payment" || !data?.id) {
-      return res.status(200).json({ received: true });
-    }
+    if (type !== "payment" || !data?.id) return;
 
     const paymentId = String(data.id);
     console.log(`[Webhook MP] Notificação recebida — payment_id: ${paymentId}`);
 
     const client = getMpClient();
     const paymentClient = new Payment(client);
-    const payment = await paymentClient.get({ id: paymentId });
+
+    const payment = await withRetry(
+      () => withTimeout(paymentClient.get({ id: paymentId }), 15000, "MP get payment"),
+      { attempts: 3, delayMs: 600, label: "MP.get payment" }
+    );
 
     const status = payment.status;
     const preferenceId = payment.preference_id;
@@ -52,11 +83,11 @@ router.post("/webhook/mercadopago", async (req: Request, res: Response) => {
 
     if (status === "approved" && preferenceId) {
       const orders = await getOrders();
-      const idx = orders.findIndex((o) => o.mpPreferenceId === preferenceId);
+      const idx = orders.findIndex(o => o.mpPreferenceId === preferenceId);
 
       if (idx === -1) {
-        console.warn(`[Webhook MP] Nenhum pedido encontrado para preference_id=${preferenceId}`);
-        return res.status(200).json({ received: true, warning: "Pedido não encontrado." });
+        console.warn(`[Webhook MP] Nenhum pedido para preference_id=${preferenceId}`);
+        return;
       }
 
       if (orders[idx].status !== "pago") {
@@ -67,26 +98,23 @@ router.post("/webhook/mercadopago", async (req: Request, res: Response) => {
           paidAt: new Date().toISOString(),
         };
         await saveOrders(orders);
-        console.log(`[Webhook MP] Pedido ${orders[idx].id} confirmado como PAGO (payment_id=${paymentId})`);
+        console.log(`[Webhook MP] ✅ Pedido ${orders[idx].id} confirmado como PAGO.`);
       } else {
         console.log(`[Webhook MP] Pedido ${orders[idx].id} já estava PAGO, ignorando.`);
       }
     } else if (status === "cancelled" || status === "rejected") {
       if (preferenceId) {
         const orders = await getOrders();
-        const idx = orders.findIndex((o) => o.mpPreferenceId === preferenceId);
+        const idx = orders.findIndex(o => o.mpPreferenceId === preferenceId);
         if (idx !== -1 && orders[idx].status === "pendente") {
           orders[idx] = { ...orders[idx], status: "cancelado", mpPaymentId: paymentId };
           await saveOrders(orders);
-          console.log(`[Webhook MP] Pedido ${orders[idx].id} marcado como CANCELADO`);
+          console.log(`[Webhook MP] Pedido ${orders[idx].id} marcado como CANCELADO.`);
         }
       }
     }
-
-    res.status(200).json({ received: true });
   } catch (err: any) {
-    console.error("[Webhook MP] Erro:", err.message);
-    res.status(200).json({ received: true, error: err.message });
+    console.error("[Webhook MP] Erro ao processar notificação:", err.message);
   }
 });
 
