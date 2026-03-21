@@ -201,8 +201,8 @@ function BestSellers() {
                   : <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span>
                 }
                 <FavBtn productId={p.id} />
-                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
-                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               </div>
               <div className="p-4 flex flex-col flex-1">
@@ -583,8 +583,8 @@ function FeaturedCategory() {
                   : p.badge ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span> : null
                 }
                 <FavBtn productId={p.id} />
-                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
-                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               </div>
               <div className="p-4 flex flex-col flex-1">
@@ -849,8 +849,8 @@ function CustomSectionComp({ sectionId }: { sectionId: string }) {
                   : p.badge ? <span className="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: PINK }}>{p.badge}</span> : null
                 }
                 <FavBtn productId={p.id} />
-                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
-                  <img src={imgSrc(p.img)} alt={p.name} style={{ height: 180 * 0.92, width: "auto", objectFit: "contain" }} />
+                <div style={{ height: 180, background: `linear-gradient(145deg, ${p.color}18, ${p.color}35)`, overflow: "hidden", opacity: p.outOfStock ? 0.5 : 1 }}>
+                  <img src={imgSrc(p.img)} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               </div>
               <div className="p-4 flex flex-col flex-1">
