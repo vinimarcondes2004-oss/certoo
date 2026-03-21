@@ -16,6 +16,7 @@ import RastrearPedido from "@/pages/RastrearPedido";
 import Admin from "@/pages/Admin";
 import Produto from "@/pages/Produto";
 import Perfil from "@/pages/Perfil";
+import Checkout from "@/pages/Checkout";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ function Router() {
       <Route path="/produtos" component={Produtos} />
       <Route path="/categoria/:slug" component={Categoria} />
       <Route path="/produto/:id" component={Produto} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/sobre-nos" component={SobreNos} />
       <Route path="/rastrear-pedido" component={RastrearPedido} />
       <Route path="*" component={Home} />

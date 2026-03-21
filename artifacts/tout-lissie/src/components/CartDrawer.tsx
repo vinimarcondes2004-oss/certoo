@@ -2,6 +2,7 @@ import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle, Loader2, QrCode, C
 import { useCart } from "@/context/CartContext";
 import { useSite } from "@/context/SiteContext";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 const PINK = "#e8006f";
 const PIX_GREEN = "#00b894";
@@ -19,20 +20,13 @@ function imgSrc(v: string) {
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, totalItems } = useCart();
   const { data } = useSite();
+  const [, navigate] = useLocation();
 
   const [pixStep, setPixStep] = useState<"idle" | "form" | "loading" | "qr">("idle");
   const [pixEmail, setPixEmail] = useState("");
   const [pixQr, setPixQr] = useState<{ qr_code: string; qr_code_base64: string } | null>(null);
   const [pixError, setPixError] = useState("");
   const [copied, setCopied] = useState(false);
-  const [loadingCard, setLoadingCard] = useState(false);
-  const [cardError, setCardError] = useState("");
-  const [cardStep, setCardStep] = useState<"idle" | "form">("idle");
-  const [cardName, setCardName] = useState("");
-  const [cardEmail, setCardEmail] = useState("");
-  const [cardZip, setCardZip] = useState("");
-  const [cardStreet, setCardStreet] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
 
   const total = items.reduce((sum, item) => sum + parsePrice(item.price) * item.qty, 0);
 
@@ -42,51 +36,6 @@ export function CartDrawer() {
     `\n\nTotal: R$ ${total.toFixed(2).replace(".", ",")}`
   );
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=${waMessage}`;
-
-  async function pagarComCartao() {
-    if (!cardEmail || !cardEmail.includes("@")) {
-      setCardError("Insira um e-mail válido.");
-      return;
-    }
-    setLoadingCard(true);
-    setCardError("");
-    try {
-      const origin = window.location.origin;
-      const base = import.meta.env.BASE_URL ?? "/";
-      const res = await fetch("/api/create-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map(i => ({
-            title: i.name,
-            quantity: i.qty,
-            unit_price: parsePrice(i.price),
-          })),
-          payer: {
-            name: cardName || undefined,
-            email: cardEmail,
-            ...(cardZip || cardStreet || cardNumber ? {
-              address: {
-                zip_code: cardZip || undefined,
-                street_name: cardStreet || undefined,
-                street_number: cardNumber ? parseInt(cardNumber) : undefined,
-              }
-            } : {}),
-          },
-          successUrl: `${origin}${base}?pagamento=aprovado`,
-          failureUrl: `${origin}${base}?pagamento=erro`,
-          pendingUrl: `${origin}${base}?pagamento=pendente`,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Erro ao criar pagamento");
-      if (json.init_point) window.location.href = json.init_point;
-    } catch (err: any) {
-      setCardError(err.message || "Erro ao conectar com o Mercado Pago");
-    } finally {
-      setLoadingCard(false);
-    }
-  }
 
   function resetPix() {
     setPixStep("idle");
@@ -292,76 +241,15 @@ export function CartDrawer() {
                 </div>
               )}
 
-              {pixStep === "idle" && cardStep === "idle" && (
+              {pixStep === "idle" && (
                 <button
-                  onClick={() => setCardStep("form")}
+                  onClick={() => { closeCart(); navigate("/checkout"); }}
                   className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
                   style={{ background: PINK }}
                 >
                   <CreditCard size={20} />
-                  Pagar
+                  Finalizar pedido
                 </button>
-              )}
-
-              {cardStep === "form" && (
-                <div className="rounded-2xl border-2 p-3 space-y-2" style={{ borderColor: PINK }}>
-                  <p className="text-xs font-bold text-gray-600">Seus dados:</p>
-                  <input
-                    type="text"
-                    value={cardName}
-                    onChange={e => setCardName(e.target.value)}
-                    placeholder="Nome completo"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
-                    autoFocus
-                  />
-                  <input
-                    type="email"
-                    value={cardEmail}
-                    onChange={e => setCardEmail(e.target.value)}
-                    placeholder="E-mail"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
-                  />
-                  <input
-                    type="text"
-                    value={cardZip}
-                    onChange={e => setCardZip(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                    placeholder="CEP (somente números)"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
-                  />
-                  <input
-                    type="text"
-                    value={cardStreet}
-                    onChange={e => setCardStreet(e.target.value)}
-                    placeholder="Rua / Logradouro"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
-                  />
-                  <input
-                    type="number"
-                    value={cardNumber}
-                    onChange={e => setCardNumber(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && pagarComCartao()}
-                    placeholder="Número"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
-                  />
-                  {cardError && <p className="text-red-500 text-xs">{cardError}</p>}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={pagarComCartao}
-                      disabled={loadingCard}
-                      className="flex-1 py-2.5 rounded-xl text-white font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-1.5 disabled:opacity-60"
-                      style={{ background: PINK }}
-                    >
-                      {loadingCard ? <Loader2 size={15} className="animate-spin" /> : <CreditCard size={15} />}
-                      {loadingCard ? "Aguarde..." : "Confirmar"}
-                    </button>
-                    <button
-                      onClick={() => { setCardStep("idle"); setCardError(""); }}
-                      className="px-3 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm hover:bg-gray-50 transition"
-                    >
-                      <X size={15} />
-                    </button>
-                  </div>
-                </div>
               )}
 
               <a
