@@ -1,11 +1,23 @@
 import { useState } from "react";
 import { Link, useParams } from "wouter";
-import { ShoppingCart, Star, ChevronRight, Check, Truck, Shield, Zap, MessageCircle } from "lucide-react";
+import { ShoppingCart, Star, ChevronRight, Check, Truck, Shield, Zap, MessageCircle, MapPin, CreditCard, Loader2 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { useCart } from "@/context/CartContext";
 import { FavBtn } from "@/components/FavBtn";
 import { SharedHeader } from "@/components/SharedHeader";
 import { SharedFooter } from "@/components/SharedFooter";
+
+/** Converte string de preço "R$49,90" para número 49.90 */
+function parsePriceBRL(priceStr: string): number {
+  const cleaned = priceStr.replace(/[R$\s]/g, "").replace(",", ".");
+  const value = parseFloat(cleaned);
+  return isNaN(value) ? 0 : value;
+}
+
+/** Formata número para moeda BRL */
+function formatBRL(value: number): string {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 const PINK = "#e8006f";
 const DARK_RED = "#c0003d";
@@ -71,6 +83,104 @@ export default function Produto() {
 
   const outOfStock = product.outOfStock === true;
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=Olá! Tenho interesse no produto: ${product.name}${qty > 1 ? ` (quantidade: ${qty})` : ""}`;
+
+  // --- Estado do cálculo de frete ---
+  const [cep, setCep] = useState("");
+  const [freteInfo, setFreteInfo] = useState<{ valorFrete: number; descricao: string } | null>(null);
+  const [freteErro, setFreteErro] = useState("");
+  const [freteLoading, setFreteLoading] = useState(false);
+
+  // --- Estado do checkout Mercado Pago ---
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutErro, setCheckoutErro] = useState("");
+
+  /** Formata o CEP enquanto o usuário digita (XXXXX-XXX) */
+  function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    setCep(formatted);
+    // Limpa resultados anteriores ao alterar o CEP
+    setFreteInfo(null);
+    setFreteErro("");
+    setCheckoutErro("");
+  }
+
+  /** Chama o backend para calcular o frete com base no CEP informado */
+  async function calcularFrete() {
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8) {
+      setFreteErro("Informe um CEP válido com 8 dígitos.");
+      return;
+    }
+
+    setFreteLoading(true);
+    setFreteErro("");
+    setFreteInfo(null);
+
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/frete?cep=${digits}`);
+      const json = await res.json();
+
+      if (!res.ok) {
+        setFreteErro(json.error || "Erro ao calcular frete.");
+      } else {
+        setFreteInfo({ valorFrete: json.valorFrete, descricao: json.descricao });
+      }
+    } catch {
+      setFreteErro("Não foi possível conectar ao servidor. Tente novamente.");
+    } finally {
+      setFreteLoading(false);
+    }
+  }
+
+  /** Cria a preferência no Mercado Pago e redireciona para o checkout */
+  async function finalizarCompra() {
+    if (!freteInfo) {
+      setCheckoutErro("Calcule o frete antes de finalizar a compra.");
+      return;
+    }
+
+    setCheckoutLoading(true);
+    setCheckoutErro("");
+
+    const precoProduto = parsePriceBRL(product.price) * qty;
+    const precoFrete = freteInfo.valorFrete;
+
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/create-payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // Envia produto e frete como itens separados
+          items: [
+            {
+              title: `${product.name}${qty > 1 ? ` (x${qty})` : ""}`,
+              quantity: 1,
+              unit_price: precoProduto,
+            },
+            {
+              title: freteInfo.descricao,
+              quantity: 1,
+              unit_price: precoFrete,
+            },
+          ],
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.init_point) {
+        setCheckoutErro(json.error || "Erro ao criar pagamento. Tente novamente.");
+      } else {
+        // Redireciona para o checkout do Mercado Pago
+        window.location.href = json.init_point;
+      }
+    } catch {
+      setCheckoutErro("Não foi possível conectar ao servidor. Tente novamente.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
 
   function handleAddToCart() {
     for (let i = 0; i < qty; i++) {
@@ -211,6 +321,90 @@ export default function Produto() {
                 </>
               )}
             </div>
+
+            {/* ===== Seção de Cálculo de Frete + Checkout Mercado Pago ===== */}
+            {!outOfStock && (
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 flex flex-col gap-3 mt-1">
+
+                {/* Título da seção */}
+                <p className="flex items-center gap-2 text-sm font-bold text-gray-800">
+                  <Truck size={16} style={{ color: PINK }} />
+                  Calcular frete
+                </p>
+
+                {/* Input de CEP + botão */}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Digite seu CEP"
+                      value={cep}
+                      onChange={handleCepChange}
+                      onKeyDown={e => e.key === "Enter" && calcularFrete()}
+                      maxLength={9}
+                      className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200 transition"
+                    />
+                  </div>
+                  <button
+                    onClick={calcularFrete}
+                    disabled={freteLoading}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-sm font-bold transition hover:opacity-90 disabled:opacity-60 whitespace-nowrap"
+                    style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
+                    {freteLoading
+                      ? <Loader2 size={15} className="animate-spin" />
+                      : <Truck size={15} />}
+                    Calcular
+                  </button>
+                </div>
+
+                {/* Erro no CEP */}
+                {freteErro && (
+                  <p className="text-red-500 text-xs font-medium">{freteErro}</p>
+                )}
+
+                {/* Resultado do frete */}
+                {freteInfo && (
+                  <div className="bg-white border border-green-200 rounded-xl px-4 py-3 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{freteInfo.descricao}</span>
+                      <span className="text-sm font-black text-green-700">
+                        {formatBRL(freteInfo.valorFrete)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-gray-100 pt-1.5 mt-0.5">
+                      <span className="text-sm font-bold text-gray-700">Total estimado</span>
+                      <span className="text-base font-black" style={{ color: PINK }}>
+                        {formatBRL(parsePriceBRL(product.price) * qty + freteInfo.valorFrete)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Botão Finalizar compra no Mercado Pago */}
+                <button
+                  onClick={finalizarCompra}
+                  disabled={!freteInfo || checkoutLoading}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-black text-base transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: freteInfo ? "#009ee3" : "#a0aec0" }}>
+                  {checkoutLoading
+                    ? <><Loader2 size={18} className="animate-spin" /> Aguarde...</>
+                    : <><CreditCard size={18} /> Finalizar compra no Mercado Pago</>}
+                </button>
+
+                {/* Erro no checkout */}
+                {checkoutErro && (
+                  <p className="text-red-500 text-xs font-medium text-center">{checkoutErro}</p>
+                )}
+
+                {!freteInfo && !freteErro && (
+                  <p className="text-xs text-gray-400 text-center">
+                    Calcule o frete para habilitar o pagamento
+                  </p>
+                )}
+              </div>
+            )}
 
             {product.seals && product.seals.length > 0 ? (
               <div className="flex flex-wrap gap-2 mt-2">

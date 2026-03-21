@@ -5,11 +5,13 @@ import uploadRouter from "./upload";
 import contentRouter from "./content";
 import adminRouter from "./admin";
 import pixRouter from "./pix";
+import freteRouter from "./frete";
 
 const router: IRouter = Router();
 
 router.use(adminRouter);
 router.use(contentRouter);
+router.use(freteRouter);
 router.use(healthRouter);
 router.use(pixRouter);
 router.use(siteDataRouter);
