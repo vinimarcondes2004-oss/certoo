@@ -113,19 +113,25 @@ function Hero() {
   }, [slides.length]);
   const slide = slides[current] ?? slides[0];
   return (
-    <section className="relative overflow-hidden" style={{ minHeight: 700 }}>
-      {slides.map((s, i) => (
-        <img key={s.id} src={imgSrc(s.img)} alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          loading={i === 0 ? "eager" : "lazy"}
-          style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }} />
-      ))}
-      <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.65)" }} />
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 pt-28 flex flex-col items-center justify-center text-center">
-        <div className="text-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">{slide?.subtitle}</p>
-          <h1 className="font-black text-4xl md:text-5xl leading-[1.1] mb-5">
-            {(slide?.title ?? "").split("\n").map((line, i) => <span key={i}>{line}{i < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
+    <section className="relative overflow-hidden">
+      {/* ── Mobile: imagem ocupa largura total, altura natural ── */}
+      <div className="relative md:hidden">
+        {slides.map((s, i) => (
+          <img key={s.id} src={imgSrc(s.img)} alt=""
+            className="w-full h-auto block"
+            loading={i === 0 ? "eager" : "lazy"}
+            style={{
+              transition: "opacity 0.8s ease",
+              opacity: i === current ? 1 : 0,
+              position: i === 0 ? "relative" : "absolute",
+              top: 0, left: 0,
+            }} />
+        ))}
+        <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.60)" }} />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90 text-white">{slide?.subtitle}</p>
+          <h1 className="font-black text-3xl leading-[1.15] mb-5 text-white">
+            {(slide?.title ?? "").split("\n").map((line, li) => <span key={li}>{line}{li < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
           </h1>
           <a href="#produtos">
             <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
@@ -133,12 +139,42 @@ function Hero() {
             </button>
           </a>
         </div>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {slides.map((_, i) => (
+            <button key={i} onClick={() => setCurrent(i)} className="rounded-full transition-all"
+              style={{ width: i === current ? 24 : 8, height: 8, background: i === current ? "white" : "rgba(255,255,255,0.5)" }} />
+          ))}
+        </div>
       </div>
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {slides.map((_, i) => (
-          <button key={i} onClick={() => setCurrent(i)} className="rounded-full transition-all"
-            style={{ width: i === current ? 24 : 8, height: 8, background: i === current ? "white" : "rgba(255,255,255,0.5)" }} />
+
+      {/* ── Desktop: layout fixo original ── */}
+      <div className="hidden md:block" style={{ minHeight: 700 }}>
+        {slides.map((s, i) => (
+          <img key={s.id} src={imgSrc(s.img)} alt=""
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            loading={i === 0 ? "eager" : "lazy"}
+            style={{ transition: "opacity 0.8s ease", opacity: i === current ? 1 : 0 }} />
         ))}
+        <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.65)" }} />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 pt-28 flex flex-col items-center justify-center text-center" style={{ minHeight: 700 }}>
+          <div className="text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90">{slide?.subtitle}</p>
+            <h1 className="font-black text-5xl leading-[1.1] mb-5">
+              {(slide?.title ?? "").split("\n").map((line, li) => <span key={li}>{line}{li < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
+            </h1>
+            <a href="#produtos">
+              <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
+                {slide?.buttonText}
+              </button>
+            </a>
+          </div>
+        </div>
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {slides.map((_, i) => (
+            <button key={i} onClick={() => setCurrent(i)} className="rounded-full transition-all"
+              style={{ width: i === current ? 24 : 8, height: 8, background: i === current ? "white" : "rgba(255,255,255,0.5)" }} />
+          ))}
+        </div>
       </div>
     </section>
   );
