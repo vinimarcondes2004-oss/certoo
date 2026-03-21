@@ -97,7 +97,7 @@ export default function Produto() {
     estado: "",
   });
   const [formErros, setFormErros] = useState<Record<string, string>>({});
-  const [freteInfo, setFreteInfo] = useState<{ valorFrete: number; descricao: string } | null>(null);
+  const [freteInfo, setFreteInfo] = useState<{ valorFrete: number; descricao: string; regiao: string; prazo: string } | null>(null);
   const [freteLoading, setFreteLoading] = useState(false);
 
   // --- Estado do checkout Mercado Pago ---
@@ -140,11 +140,18 @@ export default function Produto() {
           }));
         }
 
-        // Calcula o frete no backend
-        const freteRes = await fetch(`${import.meta.env.BASE_URL}api/frete?cep=${digits}`);
+        // Calcula o frete no backend, passando o UF obtido do ViaCEP para cálculo preciso por região
+        const uf = viaCep.uf || "";
+        const freteUrl = `${import.meta.env.BASE_URL}api/frete?cep=${digits}${uf ? `&uf=${uf}` : ""}`;
+        const freteRes = await fetch(freteUrl);
         const freteJson = await freteRes.json();
         if (freteRes.ok) {
-          setFreteInfo({ valorFrete: freteJson.valorFrete, descricao: freteJson.descricao });
+          setFreteInfo({
+            valorFrete: freteJson.valorFrete,
+            descricao: freteJson.descricao,
+            regiao: freteJson.regiao,
+            prazo: freteJson.prazo,
+          });
         } else {
           setFormErros(e => ({ ...e, cep: freteJson.error || "CEP inválido." }));
         }
@@ -427,12 +434,15 @@ export default function Produto() {
                   {freteLoading && <p className="text-gray-400 text-xs">Consultando CEP...</p>}
                   {/* Frete calculado */}
                   {freteInfo && !freteLoading && (
-                    <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-3 py-2 mt-1">
-                      <div className="flex items-center gap-1.5">
-                        <Truck size={13} className="text-green-600" />
-                        <span className="text-xs text-green-700">{freteInfo.descricao}</span>
+                    <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 mt-1 flex flex-col gap-0.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Truck size={13} className="text-green-600" />
+                          <span className="text-xs font-bold text-green-700">Região {freteInfo.regiao}</span>
+                        </div>
+                        <span className="text-xs font-black text-green-700">{formatBRL(freteInfo.valorFrete)}</span>
                       </div>
-                      <span className="text-xs font-black text-green-700">{formatBRL(freteInfo.valorFrete)}</span>
+                      <span className="text-xs text-green-600 pl-5">Prazo estimado: {freteInfo.prazo}</span>
                     </div>
                   )}
                 </div>
@@ -523,7 +533,7 @@ export default function Produto() {
                       <span>{formatBRL(parsePriceBRL(product.price) * qty)}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm text-gray-600">
-                      <span>{freteInfo.descricao}</span>
+                      <span>Frete — Região {freteInfo.regiao} <span className="text-xs text-gray-400">({freteInfo.prazo})</span></span>
                       <span>{formatBRL(freteInfo.valorFrete)}</span>
                     </div>
                     <div className="flex items-center justify-between border-t border-gray-100 pt-1.5 mt-0.5">
