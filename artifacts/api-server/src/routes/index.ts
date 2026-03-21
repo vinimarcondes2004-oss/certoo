@@ -7,6 +7,7 @@ import adminRouter from "./admin";
 import pixRouter from "./pix";
 import freteRouter from "./frete";
 import ordersRouter from "./orders";
+import webhookRouter from "./webhook";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(healthRouter);
 router.use(pixRouter);
 router.use(siteDataRouter);
 router.use(uploadRouter);
+router.use(webhookRouter);
 
 export default router;

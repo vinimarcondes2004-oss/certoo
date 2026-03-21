@@ -73,6 +73,11 @@ router.post("/create-payment", async (req, res) => {
 
     const origin = req.headers.origin || req.headers.referer || "https://seusite.com";
 
+    const replitDomain = process.env.REPLIT_DEV_DOMAIN;
+    const notificationUrl =
+      process.env.MP_WEBHOOK_URL ||
+      (replitDomain ? `https://${replitDomain}/api/webhook/mercadopago` : undefined);
+
     const result = await preferenceClient.create({
       body: {
         items,
@@ -86,6 +91,7 @@ router.post("/create-payment", async (req, res) => {
           pending: pendingUrl || `${origin}?pagamento=pendente`,
         },
         auto_return: "approved",
+        ...(notificationUrl ? { notification_url: notificationUrl } : {}),
       },
     });
 

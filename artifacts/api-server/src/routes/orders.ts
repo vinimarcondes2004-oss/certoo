@@ -39,6 +39,8 @@ interface Order {
   };
   total: number;
   mpPreferenceId?: string;
+  mpPaymentId?: string;
+  paidAt?: string;
 }
 
 async function getOrders(): Promise<Order[]> {
