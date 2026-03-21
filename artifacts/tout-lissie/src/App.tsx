@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SiteProvider } from "@/context/SiteContext";
+import { SiteProvider, useSite } from "@/context/SiteContext";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { UserProvider } from "@/context/UserContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { FavoritesDrawer } from "@/components/FavoritesDrawer";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import Home from "@/pages/Home";
 import Produtos from "@/pages/Produtos";
 import Categoria from "@/pages/Categoria";
@@ -85,23 +86,33 @@ function Router() {
   );
 }
 
-function App() {
+function AppInner() {
   useImagePreloader();
+  const { synced } = useSite();
 
+  return (
+    <>
+      <LoadingScreen ready={synced} />
+      <UserProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <CartDrawer />
+            <FavoritesDrawer />
+          </CartProvider>
+        </FavoritesProvider>
+      </UserProvider>
+    </>
+  );
+}
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SiteProvider>
-        <UserProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <Router />
-              </WouterRouter>
-              <CartDrawer />
-              <FavoritesDrawer />
-            </CartProvider>
-          </FavoritesProvider>
-        </UserProvider>
+        <AppInner />
       </SiteProvider>
     </QueryClientProvider>
   );
