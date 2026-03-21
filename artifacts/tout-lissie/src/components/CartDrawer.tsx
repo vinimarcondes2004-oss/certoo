@@ -30,6 +30,9 @@ export function CartDrawer() {
   const [cardStep, setCardStep] = useState<"idle" | "form">("idle");
   const [cardName, setCardName] = useState("");
   const [cardEmail, setCardEmail] = useState("");
+  const [cardZip, setCardZip] = useState("");
+  const [cardStreet, setCardStreet] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
 
   const total = items.reduce((sum, item) => sum + parsePrice(item.price) * item.qty, 0);
 
@@ -62,6 +65,13 @@ export function CartDrawer() {
           payer: {
             name: cardName || undefined,
             email: cardEmail,
+            ...(cardZip || cardStreet || cardNumber ? {
+              address: {
+                zip_code: cardZip || undefined,
+                street_name: cardStreet || undefined,
+                street_number: cardNumber ? parseInt(cardNumber) : undefined,
+              }
+            } : {}),
           },
           successUrl: `${origin}${base}?pagamento=aprovado`,
           failureUrl: `${origin}${base}?pagamento=erro`,
@@ -308,8 +318,29 @@ export function CartDrawer() {
                     type="email"
                     value={cardEmail}
                     onChange={e => setCardEmail(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && pagarComCartao()}
                     placeholder="E-mail"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
+                  />
+                  <input
+                    type="text"
+                    value={cardZip}
+                    onChange={e => setCardZip(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                    placeholder="CEP (somente números)"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
+                  />
+                  <input
+                    type="text"
+                    value={cardStreet}
+                    onChange={e => setCardStreet(e.target.value)}
+                    placeholder="Rua / Logradouro"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
+                  />
+                  <input
+                    type="number"
+                    value={cardNumber}
+                    onChange={e => setCardNumber(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && pagarComCartao()}
+                    placeholder="Número"
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-pink-400 transition"
                   />
                   {cardError && <p className="text-red-500 text-xs">{cardError}</p>}

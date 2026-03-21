@@ -60,7 +60,7 @@ router.post("/create-payment", async (req, res) => {
       successUrl?: string;
       failureUrl?: string;
       pendingUrl?: string;
-      payer?: { name?: string; email?: string };
+      payer?: { name?: string; email?: string; address?: { zip_code?: string; street_name?: string; street_number?: number } };
       mpToken?: string;
     };
 
