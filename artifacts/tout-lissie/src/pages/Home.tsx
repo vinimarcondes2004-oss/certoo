@@ -83,10 +83,8 @@ function Hero() {
           <h1 className="font-black text-3xl leading-[1.15] mb-5 text-white">
             {(slide?.title ?? "").split("\n").map((line, li) => <span key={li}>{line}{li < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
           </h1>
-          <a href="#produtos">
-            <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
-              {slide?.buttonText}
-            </button>
+          <a href="#produtos" className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition inline-block" style={{ color: PINK }}>
+            {slide?.buttonText}
           </a>
         </div>
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
@@ -116,10 +114,8 @@ function Hero() {
           <h1 className="font-black text-5xl leading-[1.1] mb-5 text-white">
             {(slide?.title ?? "").split("\n").map((line, li) => <span key={li}>{line}{li < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
           </h1>
-          <a href="#produtos">
-            <button className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
-              {slide?.buttonText}
-            </button>
+          <a href="#produtos" className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition inline-block" style={{ color: PINK }}>
+            {slide?.buttonText}
           </a>
         </div>
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
