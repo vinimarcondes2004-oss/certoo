@@ -64,7 +64,7 @@ function Header() {
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
           <Link href="/" className="flex items-center">
-            <img src={imgSrc(logo)} alt={data.settings.siteName} className="h-10 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
+            <img src={imgSrc(logo)} alt={data.settings.siteName} className="h-16 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-gray-600">
