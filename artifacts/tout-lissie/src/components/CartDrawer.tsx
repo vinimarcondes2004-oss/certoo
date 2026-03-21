@@ -43,6 +43,7 @@ export function CartDrawer() {
           items: items.map(i => ({ name: i.name, price: i.price, qty: i.qty, img: imgSrc(i.img) })),
           successUrl: `${origin}${base}?pedido=sucesso`,
           cancelUrl: `${origin}${base}?pedido=cancelado`,
+          stripeKey: data.settings.stripeKey || undefined,
         }),
       });
       const json = await res.json();

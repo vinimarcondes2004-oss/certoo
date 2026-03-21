@@ -3,9 +3,9 @@ import Stripe from "stripe";
 
 const router = Router();
 
-function getStripe(): Stripe {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error("STRIPE_SECRET_KEY not configured");
+function getStripe(requestKey?: string): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY || requestKey;
+  if (!key) throw new Error("Chave do Stripe não configurada. Acesse o painel Admin → Configurações e insira sua chave secreta do Stripe.");
   return new Stripe(key, { apiVersion: "2025-05-28.basil" });
 }
 
@@ -18,12 +18,13 @@ function parsePriceCents(price: string): number {
 
 router.post("/checkout", async (req, res) => {
   try {
-    const stripe = getStripe();
-    const { items, successUrl, cancelUrl } = req.body as {
+    const { items, successUrl, cancelUrl, stripeKey } = req.body as {
       items: { name: string; price: string; qty: number; img?: string }[];
       successUrl: string;
       cancelUrl: string;
+      stripeKey?: string;
     };
+    const stripe = getStripe(stripeKey);
 
     if (!items || items.length === 0) {
       return res.status(400).json({ error: "Carrinho vazio" });
