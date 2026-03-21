@@ -6,12 +6,14 @@ import contentRouter from "./content";
 import adminRouter from "./admin";
 import pixRouter from "./pix";
 import freteRouter from "./frete";
+import ordersRouter from "./orders";
 
 const router: IRouter = Router();
 
 router.use(adminRouter);
 router.use(contentRouter);
 router.use(freteRouter);
+router.use(ordersRouter);
 router.use(healthRouter);
 router.use(pixRouter);
 router.use(siteDataRouter);

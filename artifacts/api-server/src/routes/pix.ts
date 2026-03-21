@@ -89,7 +89,7 @@ router.post("/create-payment", async (req, res) => {
       },
     });
 
-    res.json({ init_point: result.init_point });
+    res.json({ init_point: result.init_point, preference_id: result.id });
   } catch (err: any) {
     console.error("Mercado Pago Preference error:", err.message);
     res.status(500).json({ error: err.message || "Erro ao criar pagamento" });

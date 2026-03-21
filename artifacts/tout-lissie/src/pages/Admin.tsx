@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Package, Image, MessageSquare, Settings,
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
   Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff, Library, RefreshCw,
-  Copy, Check, Video, ImageIcon, Grid2x2, Menu
+  Copy, Check, Video, ImageIcon, Grid2x2, Menu, ShoppingBag, MapPin, Loader2,
+  ChevronDown, ChevronRight,
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
@@ -1901,10 +1902,246 @@ function UsersTab() {
   );
 }
 
-type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "categorias" | "layout" | "settings" | "media" | "users";
+/* ─── ORDERS TAB ─── */
+interface AdminOrder {
+  id: string;
+  createdAt: string;
+  status: "pendente" | "pago" | "cancelado";
+  customer: { nome: string; email: string };
+  address: { cep: string; rua: string; numero: string; complemento: string; bairro: string; cidade: string; estado: string };
+  items: { id: string; name: string; price: string; qty: number }[];
+  subtotal: number;
+  frete: { valor: number; regiao: string; prazo: string; descricao: string };
+  total: number;
+  mpPreferenceId?: string;
+}
+
+const STATUS_LABELS: Record<AdminOrder["status"], string> = {
+  pendente: "Pendente",
+  pago: "Pago",
+  cancelado: "Cancelado",
+};
+
+const STATUS_COLORS: Record<AdminOrder["status"], string> = {
+  pendente: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  pago: "bg-green-50 text-green-700 border-green-200",
+  cancelado: "bg-red-50 text-red-600 border-red-200",
+};
+
+function OrdersTab() {
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  async function fetchOrders() {
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/orders`);
+      const json = await res.json();
+      setOrders(json.orders || []);
+    } catch {
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { fetchOrders(); }, []);
+
+  async function changeStatus(id: string, status: AdminOrder["status"]) {
+    setUpdatingId(id);
+    try {
+      await fetch(`${import.meta.env.BASE_URL}api/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  function formatBRL(v: number) {
+    return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleString("pt-BR", {
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 size={28} className="animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <ShoppingBag size={48} className="mx-auto mb-4 text-gray-200" />
+        <p className="text-gray-400 font-medium">Nenhum pedido ainda.</p>
+        <p className="text-gray-300 text-sm mt-1">Os pedidos aparecerão aqui quando alguém finalizar uma compra.</p>
+        <button onClick={fetchOrders} className="mt-6 flex items-center gap-1.5 mx-auto text-sm text-gray-400 hover:text-gray-600 transition">
+          <RefreshCw size={13} /> Atualizar
+        </button>
+      </div>
+    );
+  }
+
+  const totals = {
+    pedidos: orders.length,
+    pago: orders.filter(o => o.status === "pago").length,
+    pendente: orders.filter(o => o.status === "pendente").length,
+    receita: orders.filter(o => o.status === "pago").reduce((s, o) => s + o.total, 0),
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-black text-gray-900">Pedidos</h2>
+          <p className="text-sm text-gray-400 mt-0.5">Gerencie os pedidos realizados na loja</p>
+        </div>
+        <button onClick={fetchOrders} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition">
+          <RefreshCw size={14} /> Atualizar
+        </button>
+      </div>
+
+      {/* Resumo */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Total de pedidos", value: totals.pedidos, color: "#6366f1" },
+          { label: "Pagos", value: totals.pago, color: "#22c55e" },
+          { label: "Pendentes", value: totals.pendente, color: "#f59e0b" },
+          { label: "Receita confirmada", value: formatBRL(totals.receita), color: PINK },
+        ].map((c, i) => (
+          <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+            <p className="text-xs text-gray-400 font-medium mb-1">{c.label}</p>
+            <p className="text-xl font-black" style={{ color: c.color }}>{c.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Lista de pedidos */}
+      <div className="space-y-3">
+        {orders.map(order => {
+          const open = expanded === order.id;
+          return (
+            <div key={order.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              {/* Cabeçalho do pedido */}
+              <button
+                className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition text-left"
+                onClick={() => setExpanded(open ? null : order.id)}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-black text-gray-900 text-sm">{order.customer.nome}</span>
+                    <span className="text-xs text-gray-400 font-mono">{order.id}</span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                    <span className="text-xs text-gray-400">{order.customer.email}</span>
+                    <span className="text-xs text-gray-300">•</span>
+                    <span className="text-xs text-gray-400">{formatDate(order.createdAt)}</span>
+                    <span className="text-xs text-gray-300">•</span>
+                    <span className="text-xs text-gray-600 font-semibold">{order.items.length} item{order.items.length !== 1 ? "s" : ""}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <span className="font-black text-base" style={{ color: PINK }}>{formatBRL(order.total)}</span>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${STATUS_COLORS[order.status]}`}>
+                    {STATUS_LABELS[order.status]}
+                  </span>
+                  {open ? <ChevronDown size={16} className="text-gray-400" /> : <ChevronRight size={16} className="text-gray-400" />}
+                </div>
+              </button>
+
+              {/* Detalhe expandido */}
+              {open && (
+                <div className="border-t border-gray-100 px-5 py-5 space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {/* Itens */}
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Itens do pedido</p>
+                      <div className="space-y-2">
+                        {order.items.map((item, i) => (
+                          <div key={i} className="flex justify-between items-center text-sm text-gray-700">
+                            <span>{item.name} <span className="text-gray-400">×{item.qty}</span></span>
+                            <span className="font-semibold">
+                              {(parseFloat(item.price.replace(/[R$\s]/g, "").replace(",", ".")) * item.qty)
+                                .toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between items-center text-sm text-gray-500 pt-1 border-t border-gray-100">
+                          <span>Frete — {order.frete.regiao}</span>
+                          <span>{formatBRL(order.frete.valor)}</span>
+                        </div>
+                        <div className="flex justify-between items-center font-black text-base border-t border-gray-200 pt-2">
+                          <span>Total</span>
+                          <span style={{ color: PINK }}>{formatBRL(order.total)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Endereço */}
+                    <div>
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Endereço de entrega</p>
+                      <div className="flex items-start gap-2 text-sm text-gray-700">
+                        <MapPin size={14} className="mt-0.5 flex-shrink-0 text-gray-400" />
+                        <div>
+                          <p>{order.address.rua}{order.address.numero ? `, ${order.address.numero}` : ""}{order.address.complemento ? ` — ${order.address.complemento}` : ""}</p>
+                          <p>{order.address.bairro}</p>
+                          <p>{order.address.cidade} — {order.address.estado}</p>
+                          <p className="text-gray-400">CEP {order.address.cep}</p>
+                          <p className="mt-1 text-green-600 text-xs font-semibold">
+                            Prazo estimado: {order.frete.prazo}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Alterar status */}
+                  <div className="flex items-center gap-3 pt-2 border-t border-gray-100 flex-wrap">
+                    <p className="text-xs font-semibold text-gray-500">Alterar status:</p>
+                    {(["pendente", "pago", "cancelado"] as AdminOrder["status"][]).map(s => (
+                      <button
+                        key={s}
+                        disabled={order.status === s || updatingId === order.id}
+                        onClick={() => changeStatus(order.id, s)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                          order.status === s
+                            ? STATUS_COLORS[s]
+                            : "border-gray-200 text-gray-400 hover:bg-gray-50"
+                        }`}
+                      >
+                        {updatingId === order.id && order.status !== s ? <Loader2 size={11} className="animate-spin inline mr-1" /> : null}
+                        {STATUS_LABELS[s]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+type Tab = "dashboard" | "products" | "hero" | "reviews" | "faq" | "content" | "categorias" | "layout" | "settings" | "media" | "users" | "orders";
 
 const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={17} /> },
+  { id: "orders", label: "Pedidos", icon: <ShoppingBag size={17} /> },
   { id: "products", label: "Produtos", icon: <Package size={17} /> },
   { id: "categorias", label: "Categorias", icon: <Grid2x2 size={17} /> },
   { id: "hero", label: "Hero / Slides", icon: <Image size={17} /> },
@@ -2049,6 +2286,7 @@ export default function Admin() {
 
       <main className="flex-1 p-4 md:p-8 overflow-auto">
         {tab === "dashboard" && <Dashboard />}
+        {tab === "orders" && <OrdersTab />}
         {tab === "products" && <ProductsTab />}
         {tab === "hero" && <HeroTab />}
         {tab === "reviews" && <ReviewsTab />}

@@ -157,6 +157,42 @@ export default function Checkout() {
       if (!res.ok || !json.init_point) {
         setCheckoutErro(json.error || "Erro ao criar pagamento. Tente novamente.");
       } else {
+        // Salva o pedido no sistema antes de redirecionar
+        try {
+          await fetch(`${import.meta.env.BASE_URL}api/orders`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              customer: { nome: form.nome, email: form.email },
+              address: {
+                cep: form.cep,
+                rua: form.rua,
+                numero: form.numero,
+                complemento: form.complemento,
+                bairro: form.bairro,
+                cidade: form.cidade,
+                estado: form.estado,
+              },
+              items: items.map(i => ({
+                id: i.id,
+                name: i.name,
+                price: i.price,
+                qty: i.qty,
+              })),
+              subtotal,
+              frete: {
+                valor: freteInfo!.valorFrete,
+                regiao: freteInfo!.regiao,
+                prazo: freteInfo!.prazo,
+                descricao: freteInfo!.descricao,
+              },
+              total: subtotal + freteInfo!.valorFrete,
+              mpPreferenceId: json.preference_id,
+            }),
+          });
+        } catch {
+          // não bloqueia o checkout se falhar ao salvar
+        }
         window.location.href = json.init_point;
       }
     } catch {
