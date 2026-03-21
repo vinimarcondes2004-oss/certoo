@@ -65,7 +65,7 @@ function Hero() {
   return (
     <section className="relative overflow-hidden">
       {/* ── Mobile: imagem ocupa largura total, altura natural ── */}
-      <div className="relative md:hidden">
+      <div className="relative md:hidden min-h-[380px]">
         {slides.map((s, i) => (
           <img key={s.id} src={imgSrc(s.img)} alt=""
             className="w-full h-auto block"

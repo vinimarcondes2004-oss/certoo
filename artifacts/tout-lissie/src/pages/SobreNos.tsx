@@ -1,6 +1,9 @@
 import { Link } from "wouter";
 import { useSite } from "@/context/SiteContext";
 
+const PINK = "#e8006f";
+const DARK_PINK = "#c0003d";
+
 export default function SobreNos() {
   const { data } = useSite();
   const sn = data.sobreNos;
@@ -21,7 +24,7 @@ export default function SobreNos() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1a5c2e] to-[#2e7d44] text-white py-20 px-6">
+      <section style={{ background: `linear-gradient(135deg, ${PINK}, ${DARK_PINK})` }} className="text-white py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-white/60 text-sm uppercase tracking-widest mb-4">{sn.heroTagline}</p>
           <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
@@ -37,12 +40,12 @@ export default function SobreNos() {
       <section className="py-16 px-6">
         <div className="max-w-3xl mx-auto space-y-10">
 
-          <div className="bg-[#f5fbf7] rounded-2xl p-8 border border-[#d5f0e0]">
+          <div className="bg-[#fdf0f6] rounded-2xl p-8 border border-pink-100">
             <p className="text-gray-700 text-lg leading-relaxed">
               {sn.highlight ? (
                 <>
                   {sn.heroSubtitle.split(sn.highlight)[0]}
-                  <span className="font-semibold text-[#1a5c2e]">{sn.highlight}</span>
+                  <span className="font-semibold" style={{ color: PINK }}>{sn.highlight}</span>
                   {sn.heroSubtitle.split(sn.highlight)[1]}
                 </>
               ) : sn.heroSubtitle}
@@ -75,7 +78,7 @@ export default function SobreNos() {
             <Link
               href="/produtos"
               className="inline-block text-white font-semibold px-8 py-3 rounded-full hover:opacity-90 transition"
-              style={{ backgroundColor: "#1a5c2e" }}
+              style={{ backgroundColor: PINK }}
             >
               {sn.ctaText || "Conheça nossos produtos"}
             </Link>

@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useSite } from "@/context/SiteContext";
+
+const PINK = "#e8006f";
+const DARK_PINK = "#c0003d";
 
 type Status = {
   step: string;
@@ -35,6 +39,7 @@ const mockOrders: Record<string, { produto: string; previsao: string; steps: Sta
 };
 
 export default function RastrearPedido() {
+  const { data } = useSite();
   const [codigo, setCodigo] = useState("");
   const [resultado, setResultado] = useState<null | typeof mockOrders[string]>(null);
   const [erro, setErro] = useState(false);
@@ -52,9 +57,13 @@ export default function RastrearPedido() {
   }
 
   const currentStep = resultado ? resultado.steps.findIndex(s => s.active) : -1;
+  void currentStep;
   const progress = resultado
     ? Math.round(((resultado.steps.filter(s => s.done).length) / resultado.steps.length) * 100)
     : 0;
+
+  const logo = data.settings.logo || "logo-pr.png";
+  const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,12 +72,12 @@ export default function RastrearPedido() {
         <div className="max-w-5xl mx-auto flex items-center gap-4">
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition">← Voltar</Link>
           <span className="text-gray-300">|</span>
-          <span className="font-bold text-gray-800 text-lg tracking-tight">Profissional</span>
+          <img src={logoSrc} alt={data.settings.siteName} className="h-9 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
         </div>
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#1a5c2e] to-[#2e7d44] text-white py-14 px-6">
+      <section style={{ background: `linear-gradient(135deg, ${PINK}, ${DARK_PINK})` }} className="text-white py-14 px-6">
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-white/60 text-sm uppercase tracking-widest mb-3">Suporte</p>
           <h1 className="text-3xl md:text-4xl font-bold mb-3">Rastrear pedido</h1>
@@ -89,11 +98,14 @@ export default function RastrearPedido() {
                 value={codigo}
                 onChange={e => { setCodigo(e.target.value); setErro(false); setResultado(null); }}
                 placeholder="Ex: PF-10234"
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c2e]/30 focus:border-[#1a5c2e]"
+                autoComplete="off"
+                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-pink-400 transition"
+                style={{ "--tw-ring-color": `${PINK}30` } as React.CSSProperties}
               />
               <button
                 type="submit"
-                className="bg-[#1a5c2e] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#14492a] transition text-sm"
+                className="text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition text-sm"
+                style={{ background: PINK }}
               >
                 Buscar
               </button>
@@ -120,7 +132,7 @@ export default function RastrearPedido() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-400 mb-1">Previsão de entrega</p>
-                  <p className="font-semibold text-[#1a5c2e]">{resultado.previsao}</p>
+                  <p className="font-semibold" style={{ color: PINK }}>{resultado.previsao}</p>
                 </div>
               </div>
 
@@ -132,8 +144,8 @@ export default function RastrearPedido() {
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-[#1a5c2e] h-2 rounded-full transition-all"
-                    style={{ width: `${progress}%` }}
+                    className="h-2 rounded-full transition-all"
+                    style={{ width: `${progress}%`, background: PINK }}
                   />
                 </div>
               </div>
@@ -146,21 +158,36 @@ export default function RastrearPedido() {
                     <div key={i} className="flex gap-4">
                       {/* Ícone */}
                       <div className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 text-xs font-bold
-                          ${s.active ? "border-[#1a5c2e] bg-[#1a5c2e] text-white" :
-                            s.done ? "border-[#1a5c2e] bg-[#d5f0e0] text-[#1a5c2e]" :
-                            "border-gray-200 bg-white text-gray-300"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 text-xs font-bold ${
+                          s.active ? "text-white" :
+                          s.done ? "text-[#e8006f]" :
+                          "border-gray-200 bg-white text-gray-300"
+                        }`}
+                          style={
+                            s.active ? { borderColor: PINK, background: PINK } :
+                            s.done ? { borderColor: PINK, background: "#fdf0f6" } :
+                            {}
+                          }
+                        >
                           {s.done ? "✓" : i + 1}
                         </div>
                         {!isLast && (
-                          <div className={`w-0.5 flex-1 my-1 ${s.done ? "bg-[#1a5c2e]" : "bg-gray-200"}`} style={{ minHeight: 28 }} />
+                          <div
+                            className="w-0.5 flex-1 my-1"
+                            style={{ minHeight: 28, background: s.done ? PINK : "#e5e7eb" }}
+                          />
                         )}
                       </div>
                       {/* Texto */}
                       <div className={`pb-6 ${isLast ? "pb-0" : ""}`}>
-                        <p className={`font-semibold text-sm ${s.active ? "text-[#1a5c2e]" : s.done ? "text-gray-800" : "text-gray-300"}`}>
+                        <p className={`font-semibold text-sm ${s.done || s.active ? "text-gray-800" : "text-gray-300"}`}
+                          style={s.active ? { color: PINK } : {}}>
                           {s.step}
-                          {s.active && <span className="ml-2 text-xs bg-[#d5f0e0] text-[#1a5c2e] px-2 py-0.5 rounded-full">Atual</span>}
+                          {s.active && (
+                            <span className="ml-2 text-xs px-2 py-0.5 rounded-full" style={{ background: "#fdf0f6", color: PINK }}>
+                              Atual
+                            </span>
+                          )}
                         </p>
                         <p className={`text-xs mt-0.5 ${s.done || s.active ? "text-gray-500" : "text-gray-300"}`}>{s.desc}</p>
                         {s.date && <p className="text-xs text-gray-400 mt-0.5">{s.date}</p>}
@@ -176,7 +203,7 @@ export default function RastrearPedido() {
 
       {/* Footer simples */}
       <footer className="bg-gray-100 border-t border-gray-200 py-6 px-6 text-center mt-8">
-        <p className="text-gray-400 text-xs">© 2026 Profissional. Todos os direitos reservados.</p>
+        <p className="text-gray-400 text-xs">{data.settings.footerCopyright}</p>
       </footer>
     </div>
   );

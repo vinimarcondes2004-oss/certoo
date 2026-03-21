@@ -86,6 +86,7 @@ function LoginForm({ onLogin, onAdminLogin }: { onLogin: (email: string, pw: str
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
+          autoComplete="email"
           className="w-full border-2 rounded-xl pl-9 pr-4 py-3 text-sm outline-none transition border-gray-200 focus:border-pink-400"
         />
       </div>
@@ -97,6 +98,7 @@ function LoginForm({ onLogin, onAdminLogin }: { onLogin: (email: string, pw: str
           value={pw}
           onChange={e => setPw(e.target.value)}
           required
+          autoComplete="current-password"
           className="w-full border-2 rounded-xl pl-9 pr-10 py-3 text-sm outline-none transition border-gray-200 focus:border-pink-400"
         />
         <button type="button" onClick={() => setShowPw(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -148,6 +150,7 @@ function RegisterForm({ onRegister }: { onRegister: (name: string, email: string
           value={name}
           onChange={e => setName(e.target.value)}
           required
+          autoComplete="name"
           className="w-full border-2 rounded-xl pl-9 pr-4 py-3 text-sm outline-none transition border-gray-200 focus:border-pink-400"
         />
       </div>
@@ -159,6 +162,7 @@ function RegisterForm({ onRegister }: { onRegister: (name: string, email: string
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
+          autoComplete="email"
           className="w-full border-2 rounded-xl pl-9 pr-4 py-3 text-sm outline-none transition border-gray-200 focus:border-pink-400"
         />
       </div>
@@ -170,6 +174,7 @@ function RegisterForm({ onRegister }: { onRegister: (name: string, email: string
           value={pw}
           onChange={e => setPw(e.target.value)}
           required
+          autoComplete="new-password"
           className="w-full border-2 rounded-xl pl-9 pr-10 py-3 text-sm outline-none transition border-gray-200 focus:border-pink-400"
         />
         <button type="button" onClick={() => setShowPw(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
