@@ -283,17 +283,9 @@ export function CartDrawer() {
                       ? <Loader2 size={20} className="animate-spin" />
                       : <CreditCard size={20} />
                     }
-                    {loadingCard ? "Aguarde..." : "Pagar com Cartão"}
+                    {loadingCard ? "Aguarde..." : "Pagar"}
                   </button>
                   {cardError && <p className="text-red-500 text-xs text-center -mt-1">{cardError}</p>}
-                  <button
-                    onClick={() => setPixStep("form")}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
-                    style={{ background: PIX_GREEN }}
-                  >
-                    <QrCode size={20} />
-                    Pagar com PIX
-                  </button>
                 </>
               )}
 
