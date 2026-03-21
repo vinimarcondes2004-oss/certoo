@@ -84,61 +84,98 @@ export default function Produto() {
   const outOfStock = product.outOfStock === true;
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=Olá! Tenho interesse no produto: ${product.name}${qty > 1 ? ` (quantidade: ${qty})` : ""}`;
 
-  // --- Estado do cálculo de frete ---
-  const [cep, setCep] = useState("");
+  // --- Estado do formulário de entrega ---
+  const [form, setForm] = useState({
+    nome: "",
+    email: "",
+    cep: "",
+    rua: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+  });
+  const [formErros, setFormErros] = useState<Record<string, string>>({});
   const [freteInfo, setFreteInfo] = useState<{ valorFrete: number; descricao: string } | null>(null);
-  const [freteErro, setFreteErro] = useState("");
   const [freteLoading, setFreteLoading] = useState(false);
 
   // --- Estado do checkout Mercado Pago ---
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutErro, setCheckoutErro] = useState("");
 
-  /** Formata o CEP enquanto o usuário digita (XXXXX-XXX) */
-  function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
-    const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
-    setCep(formatted);
-    // Limpa resultados anteriores ao alterar o CEP
-    setFreteInfo(null);
-    setFreteErro("");
-    setCheckoutErro("");
+  /** Atualiza um campo do formulário */
+  function setField(field: string, value: string) {
+    setForm(f => ({ ...f, [field]: value }));
+    setFormErros(e => ({ ...e, [field]: "" }));
+    if (field === "cep") {
+      setFreteInfo(null);
+      setCheckoutErro("");
+    }
   }
 
-  /** Chama o backend para calcular o frete com base no CEP informado */
-  async function calcularFrete() {
-    const digits = cep.replace(/\D/g, "");
-    if (digits.length !== 8) {
-      setFreteErro("Informe um CEP válido com 8 dígitos.");
-      return;
-    }
+  /** Formata CEP enquanto digita (XXXXX-XXX) e busca endereço + frete ao completar */
+  async function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+    const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    setField("cep", formatted);
 
-    setFreteLoading(true);
-    setFreteErro("");
-    setFreteInfo(null);
+    // Quando CEP tiver 8 dígitos, busca endereço e calcula frete automaticamente
+    if (digits.length === 8) {
+      setFreteLoading(true);
+      setFormErros(e => ({ ...e, cep: "" }));
 
-    try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/frete?cep=${digits}`);
-      const json = await res.json();
+      try {
+        // Busca endereço na ViaCEP
+        const viaCepRes = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        const viaCep = await viaCepRes.json();
+        if (!viaCep.erro) {
+          setForm(f => ({
+            ...f,
+            cep: formatted,
+            rua: viaCep.logradouro || f.rua,
+            bairro: viaCep.bairro || f.bairro,
+            cidade: viaCep.localidade || f.cidade,
+            estado: viaCep.uf || f.estado,
+          }));
+        }
 
-      if (!res.ok) {
-        setFreteErro(json.error || "Erro ao calcular frete.");
-      } else {
-        setFreteInfo({ valorFrete: json.valorFrete, descricao: json.descricao });
+        // Calcula o frete no backend
+        const freteRes = await fetch(`${import.meta.env.BASE_URL}api/frete?cep=${digits}`);
+        const freteJson = await freteRes.json();
+        if (freteRes.ok) {
+          setFreteInfo({ valorFrete: freteJson.valorFrete, descricao: freteJson.descricao });
+        } else {
+          setFormErros(e => ({ ...e, cep: freteJson.error || "CEP inválido." }));
+        }
+      } catch {
+        setFormErros(e => ({ ...e, cep: "Não foi possível consultar o CEP." }));
+      } finally {
+        setFreteLoading(false);
       }
-    } catch {
-      setFreteErro("Não foi possível conectar ao servidor. Tente novamente.");
-    } finally {
-      setFreteLoading(false);
     }
+  }
+
+  /** Valida os campos obrigatórios antes de finalizar */
+  function validarForm(): boolean {
+    const erros: Record<string, string> = {};
+    if (!form.nome.trim()) erros.nome = "Informe seu nome completo.";
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      erros.email = "Informe um e-mail válido.";
+    if (form.cep.replace(/\D/g, "").length !== 8) erros.cep = "Informe um CEP válido com 8 dígitos.";
+    if (!form.rua.trim()) erros.rua = "Informe o endereço.";
+    if (!form.numero.trim()) erros.numero = "Informe o número.";
+    if (!form.bairro.trim()) erros.bairro = "Informe o bairro.";
+    if (!form.cidade.trim()) erros.cidade = "Informe a cidade.";
+    if (!form.estado.trim()) erros.estado = "Informe o estado.";
+    if (!freteInfo) erros.cep = erros.cep || "Aguarde o cálculo do frete.";
+    setFormErros(erros);
+    return Object.keys(erros).length === 0;
   }
 
   /** Cria a preferência no Mercado Pago e redireciona para o checkout */
   async function finalizarCompra() {
-    if (!freteInfo) {
-      setCheckoutErro("Calcule o frete antes de finalizar a compra.");
-      return;
-    }
+    if (!validarForm() || !freteInfo) return;
 
     setCheckoutLoading(true);
     setCheckoutErro("");
@@ -151,7 +188,7 @@ export default function Produto() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Envia produto e frete como itens separados
+          // Produto + frete como itens separados
           items: [
             {
               title: `${product.name}${qty > 1 ? ` (x${qty})` : ""}`,
@@ -164,6 +201,16 @@ export default function Produto() {
               unit_price: precoFrete,
             },
           ],
+          // Dados do comprador pré-preenchidos no checkout
+          payer: {
+            name: form.nome,
+            email: form.email,
+            address: {
+              zip_code: form.cep.replace(/\D/g, ""),
+              street_name: `${form.rua}${form.bairro ? `, ${form.bairro}` : ""}`,
+              street_number: parseInt(form.numero) || 0,
+            },
+          },
         }),
       });
 
@@ -172,7 +219,7 @@ export default function Produto() {
       if (!res.ok || !json.init_point) {
         setCheckoutErro(json.error || "Erro ao criar pagamento. Tente novamente.");
       } else {
-        // Redireciona para o checkout do Mercado Pago
+        // Redireciona para o checkout do Mercado Pago com dados já preenchidos
         window.location.href = json.init_point;
       }
     } catch {
@@ -322,59 +369,165 @@ export default function Produto() {
               )}
             </div>
 
-            {/* ===== Seção de Cálculo de Frete + Checkout Mercado Pago ===== */}
+            {/* ===== Formulário de Entrega + Checkout Mercado Pago ===== */}
             {!outOfStock && (
-              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 flex flex-col gap-3 mt-1">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 flex flex-col gap-4 mt-1">
 
-                {/* Título da seção */}
+                {/* Título */}
                 <p className="flex items-center gap-2 text-sm font-bold text-gray-800">
                   <Truck size={16} style={{ color: PINK }} />
-                  Calcular frete
+                  Dados de entrega
                 </p>
 
-                {/* Input de CEP + botão */}
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
+                {/* Campo: Nome completo */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600">Nome completo *</label>
+                  <input
+                    type="text"
+                    placeholder="Seu nome completo"
+                    value={form.nome}
+                    onChange={e => setField("nome", e.target.value)}
+                    className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.nome ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                  />
+                  {formErros.nome && <p className="text-red-500 text-xs">{formErros.nome}</p>}
+                </div>
+
+                {/* Campo: Email */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600">E-mail *</label>
+                  <input
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={form.email}
+                    onChange={e => setField("email", e.target.value)}
+                    className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.email ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                  />
+                  {formErros.email && <p className="text-red-500 text-xs">{formErros.email}</p>}
+                </div>
+
+                {/* Campo: CEP — preenche endereço e calcula frete automaticamente */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600">CEP *</label>
+                  <div className="relative">
                     <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       inputMode="numeric"
-                      placeholder="Digite seu CEP"
-                      value={cep}
+                      placeholder="00000-000"
+                      value={form.cep}
                       onChange={handleCepChange}
-                      onKeyDown={e => e.key === "Enter" && calcularFrete()}
                       maxLength={9}
-                      className="w-full pl-8 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200 transition"
+                      className={`w-full pl-8 pr-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.cep ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
                     />
+                    {freteLoading && (
+                      <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />
+                    )}
                   </div>
-                  <button
-                    onClick={calcularFrete}
-                    disabled={freteLoading}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-sm font-bold transition hover:opacity-90 disabled:opacity-60 whitespace-nowrap"
-                    style={{ background: `linear-gradient(135deg, ${DARK_RED}, ${PINK})` }}>
-                    {freteLoading
-                      ? <Loader2 size={15} className="animate-spin" />
-                      : <Truck size={15} />}
-                    Calcular
-                  </button>
+                  {formErros.cep && <p className="text-red-500 text-xs">{formErros.cep}</p>}
+                  {freteLoading && <p className="text-gray-400 text-xs">Consultando CEP...</p>}
+                  {/* Frete calculado */}
+                  {freteInfo && !freteLoading && (
+                    <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-3 py-2 mt-1">
+                      <div className="flex items-center gap-1.5">
+                        <Truck size={13} className="text-green-600" />
+                        <span className="text-xs text-green-700">{freteInfo.descricao}</span>
+                      </div>
+                      <span className="text-xs font-black text-green-700">{formatBRL(freteInfo.valorFrete)}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Erro no CEP */}
-                {freteErro && (
-                  <p className="text-red-500 text-xs font-medium">{freteErro}</p>
-                )}
+                {/* Campo: Endereço / Rua */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600">Endereço *</label>
+                  <input
+                    type="text"
+                    placeholder="Rua, Avenida..."
+                    value={form.rua}
+                    onChange={e => setField("rua", e.target.value)}
+                    className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.rua ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                  />
+                  {formErros.rua && <p className="text-red-500 text-xs">{formErros.rua}</p>}
+                </div>
 
-                {/* Resultado do frete */}
+                {/* Número + Complemento na mesma linha */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-600">Número *</label>
+                    <input
+                      type="text"
+                      placeholder="123"
+                      value={form.numero}
+                      onChange={e => setField("numero", e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.numero ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                    />
+                    {formErros.numero && <p className="text-red-500 text-xs">{formErros.numero}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-600">Complemento</label>
+                    <input
+                      type="text"
+                      placeholder="Apto, bloco..."
+                      value={form.complemento}
+                      onChange={e => setField("complemento", e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200 transition"
+                    />
+                  </div>
+                </div>
+
+                {/* Bairro */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-600">Bairro *</label>
+                  <input
+                    type="text"
+                    placeholder="Seu bairro"
+                    value={form.bairro}
+                    onChange={e => setField("bairro", e.target.value)}
+                    className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.bairro ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                  />
+                  {formErros.bairro && <p className="text-red-500 text-xs">{formErros.bairro}</p>}
+                </div>
+
+                {/* Cidade + Estado na mesma linha */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-600">Cidade *</label>
+                    <input
+                      type="text"
+                      placeholder="Sua cidade"
+                      value={form.cidade}
+                      onChange={e => setField("cidade", e.target.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.cidade ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                    />
+                    {formErros.cidade && <p className="text-red-500 text-xs">{formErros.cidade}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-600">Estado *</label>
+                    <input
+                      type="text"
+                      placeholder="UF"
+                      value={form.estado}
+                      onChange={e => setField("estado", e.target.value.toUpperCase().slice(0, 2))}
+                      maxLength={2}
+                      className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-white focus:outline-none focus:ring-1 transition ${formErros.estado ? "border-red-400 focus:ring-red-200" : "border-gray-200 focus:border-pink-400 focus:ring-pink-200"}`}
+                    />
+                    {formErros.estado && <p className="text-red-500 text-xs">{formErros.estado}</p>}
+                  </div>
+                </div>
+
+                {/* Resumo do pedido */}
                 {freteInfo && (
-                  <div className="bg-white border border-green-200 rounded-xl px-4 py-3 flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">{freteInfo.descricao}</span>
-                      <span className="text-sm font-black text-green-700">
-                        {formatBRL(freteInfo.valorFrete)}
-                      </span>
+                  <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>{product.name}{qty > 1 ? ` (x${qty})` : ""}</span>
+                      <span>{formatBRL(parsePriceBRL(product.price) * qty)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>{freteInfo.descricao}</span>
+                      <span>{formatBRL(freteInfo.valorFrete)}</span>
                     </div>
                     <div className="flex items-center justify-between border-t border-gray-100 pt-1.5 mt-0.5">
-                      <span className="text-sm font-bold text-gray-700">Total estimado</span>
+                      <span className="text-sm font-black text-gray-800">Total</span>
                       <span className="text-base font-black" style={{ color: PINK }}>
                         {formatBRL(parsePriceBRL(product.price) * qty + freteInfo.valorFrete)}
                       </span>
@@ -382,12 +535,12 @@ export default function Produto() {
                   </div>
                 )}
 
-                {/* Botão Finalizar compra no Mercado Pago */}
+                {/* Botão Finalizar compra */}
                 <button
                   onClick={finalizarCompra}
-                  disabled={!freteInfo || checkoutLoading}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-black text-base transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: freteInfo ? "#009ee3" : "#a0aec0" }}>
+                  disabled={checkoutLoading}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-black text-base transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ background: "#009ee3" }}>
                   {checkoutLoading
                     ? <><Loader2 size={18} className="animate-spin" /> Aguarde...</>
                     : <><CreditCard size={18} /> Finalizar compra no Mercado Pago</>}
@@ -396,12 +549,6 @@ export default function Produto() {
                 {/* Erro no checkout */}
                 {checkoutErro && (
                   <p className="text-red-500 text-xs font-medium text-center">{checkoutErro}</p>
-                )}
-
-                {!freteInfo && !freteErro && (
-                  <p className="text-xs text-gray-400 text-center">
-                    Calcule o frete para habilitar o pagamento
-                  </p>
                 )}
               </div>
             )}
