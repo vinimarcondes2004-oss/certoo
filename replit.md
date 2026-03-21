@@ -1,12 +1,8 @@
 # Workspace
 
-## Stripe Integration
+## Pagamentos
 
-Stripe is configured using environment secrets (`STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`).
-**Note:** The Replit native Stripe integration was NOT used — keys are stored directly as Replit Secrets.
-The checkout creates Stripe Checkout Sessions (one-time payment, BRL) via `POST /api/checkout`.
-Webhook endpoint exists at `/api/stripe/webhook` but is not connected to stripe-replit-sync (no PostgreSQL for Stripe schema).
-If full subscription/sync is needed in the future, connect the Stripe connector via Replit integrations.
+O projeto usa Mercado Pago para processamento de pagamentos. O pacote `mercadopago` está instalado no `api-server`.
 
 ## Overview
 

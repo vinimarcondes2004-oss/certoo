@@ -1218,10 +1218,6 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
           <input className={inputCls} value={s.paymentMethods ?? ""} onChange={e => setS({ ...s, paymentMethods: e.target.value })} placeholder="Visa,Master,Pix,Boleto" />
           <p className="text-xs text-gray-400 mt-1">Digite os nomes separados por vírgula. Ex: Visa,Master,Pix,Boleto</p>
         </Field>
-        <Field label="Chave Secreta do Stripe (sk_live_... ou sk_test_...)" hint="Necessária para ativar o pagamento com cartão.">
-          <input className={inputCls} type="password" value={s.stripeKey ?? ""} onChange={e => setS({ ...s, stripeKey: e.target.value })} placeholder="sk_live_..." autoComplete="off" />
-          <p className="text-xs text-gray-400 mt-1">Encontre sua chave em: dashboard.stripe.com → Developers → API Keys</p>
-        </Field>
         <Field label="Cor principal (hex)">
           <div className="flex gap-2 items-center">
             <input type="color" value={s.primaryColor} onChange={e => setS({ ...s, primaryColor: e.target.value })} className="w-10 h-10 rounded-lg border border-gray-200 p-0.5 cursor-pointer" />

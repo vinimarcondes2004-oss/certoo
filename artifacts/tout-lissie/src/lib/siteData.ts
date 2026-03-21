@@ -145,7 +145,6 @@ export interface SiteSettings {
   footerAbout: string;
   footerCopyright: string;
   paymentMethods: string;
-  stripeKey?: string;
 }
 
 export interface SiteData {
