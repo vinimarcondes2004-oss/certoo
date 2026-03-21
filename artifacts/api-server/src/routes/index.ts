@@ -8,6 +8,7 @@ import pixRouter from "./pix";
 import freteRouter from "./frete";
 import ordersRouter from "./orders";
 import webhookRouter from "./webhook";
+import trackingRouter from "./tracking";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(pixRouter);
 router.use(siteDataRouter);
 router.use(uploadRouter);
 router.use(webhookRouter);
+router.use(trackingRouter);
 
 export default router;

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { Loader2, Package, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 
 const PINK = "#e8006f";
 const DARK_PINK = "#c0003d";
 
-type Status = {
+type Step = {
   step: string;
   desc: string;
   date: string;
@@ -13,130 +14,130 @@ type Status = {
   active: boolean;
 };
 
-const mockOrders: Record<string, { produto: string; previsao: string; steps: Status[] }> = {
-  "PF-10234": {
-    produto: "Máscara Hidratação Profunda 500g",
-    previsao: "20/03/2026",
-    steps: [
-      { step: "Pedido confirmado", desc: "Seu pagamento foi aprovado.", date: "15/03/2026 - 10:32", done: true, active: false },
-      { step: "Em separação", desc: "Estamos preparando seu pedido.", date: "15/03/2026 - 14:00", done: true, active: false },
-      { step: "Enviado", desc: "Seu pedido saiu para entrega.", date: "16/03/2026 - 09:15", done: true, active: true },
-      { step: "Saiu para entrega", desc: "O entregador está a caminho.", date: "", done: false, active: false },
-      { step: "Entregue", desc: "Pedido entregue com sucesso.", date: "", done: false, active: false },
-    ],
-  },
-  "PF-99871": {
-    produto: "Shampoo Reconstrução 400ml",
-    previsao: "22/03/2026",
-    steps: [
-      { step: "Pedido confirmado", desc: "Seu pagamento foi aprovado.", date: "17/03/2026 - 08:10", done: true, active: false },
-      { step: "Em separação", desc: "Estamos preparando seu pedido.", date: "", done: false, active: true },
-      { step: "Enviado", desc: "Seu pedido saiu para entrega.", date: "", done: false, active: false },
-      { step: "Saiu para entrega", desc: "O entregador está a caminho.", date: "", done: false, active: false },
-      { step: "Entregue", desc: "Pedido entregue com sucesso.", date: "", done: false, active: false },
-    ],
-  },
+type TrackingResult = {
+  codigo: string;
+  produto: string;
+  previsao: string | null;
+  steps: Step[];
 };
 
 export default function RastrearPedido() {
   const { data } = useSite();
   const [codigo, setCodigo] = useState("");
-  const [resultado, setResultado] = useState<null | typeof mockOrders[string]>(null);
-  const [erro, setErro] = useState(false);
+  const [resultado, setResultado] = useState<TrackingResult | null>(null);
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function buscar(e: React.FormEvent) {
+  async function buscar(e: React.FormEvent) {
     e.preventDefault();
-    const chave = codigo.trim().toUpperCase();
-    if (mockOrders[chave]) {
-      setResultado(mockOrders[chave]);
-      setErro(false);
-    } else {
-      setResultado(null);
-      setErro(true);
+    const cod = codigo.trim();
+    if (!cod) return;
+    setErro("");
+    setResultado(null);
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.BASE_URL}api/rastrear?codigo=${encodeURIComponent(cod)}`
+      );
+      const json = await res.json();
+      if (!res.ok) {
+        setErro(json.error ?? "Erro ao consultar. Tente novamente.");
+      } else {
+        setResultado(json as TrackingResult);
+      }
+    } catch {
+      setErro("Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.");
+    } finally {
+      setLoading(false);
     }
   }
 
-  const currentStep = resultado ? resultado.steps.findIndex(s => s.active) : -1;
-  void currentStep;
-  const progress = resultado
-    ? Math.round(((resultado.steps.filter(s => s.done).length) / resultado.steps.length) * 100)
-    : 0;
-
   const logo = data.settings.logo || "logo-pr.png";
-  const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
+  const logoSrc = logo.startsWith("data:") || logo.startsWith("http")
+    ? logo
+    : `${import.meta.env.BASE_URL}${logo}`;
+
+  const progress = resultado
+    ? Math.round((resultado.steps.filter(s => s.done).length / resultado.steps.length) * 100)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white border-b border-gray-100 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center gap-4">
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition">← Voltar</Link>
           <span className="text-gray-300">|</span>
-          <img src={logoSrc} alt={data.settings.siteName} className="h-9 w-auto" onError={e => (e.currentTarget.style.display = "none")} />
+          <img src={logoSrc} alt={data.settings.siteName} className="h-9 w-auto"
+            onError={e => (e.currentTarget.style.display = "none")} />
         </div>
       </header>
 
-      {/* Hero */}
       <section style={{ background: `linear-gradient(135deg, ${PINK}, ${DARK_PINK})` }} className="text-white py-14 px-6">
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-white/60 text-sm uppercase tracking-widest mb-3">Suporte</p>
           <h1 className="text-3xl md:text-4xl font-bold mb-3">Rastrear pedido</h1>
-          <p className="text-white/75 text-base">Digite o código do seu pedido para acompanhar a entrega em tempo real.</p>
+          <p className="text-white/75 text-base">
+            Digite o código de rastreamento dos Correios para acompanhar a entrega.
+          </p>
         </div>
       </section>
 
-      {/* Formulário */}
       <section className="py-12 px-6">
         <div className="max-w-xl mx-auto">
           <form onSubmit={buscar} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Código do pedido
+              Código de rastreamento
             </label>
             <div className="flex gap-3">
               <input
                 type="text"
                 value={codigo}
-                onChange={e => { setCodigo(e.target.value); setErro(false); setResultado(null); }}
-                placeholder="Digite o código do pedido"
+                onChange={e => { setCodigo(e.target.value); setErro(""); setResultado(null); }}
+                placeholder="Ex: AA123456789BR"
                 autoComplete="off"
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-pink-400 transition"
+                maxLength={13}
+                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-pink-400 transition uppercase"
                 style={{ "--tw-ring-color": `${PINK}30` } as React.CSSProperties}
               />
               <button
                 type="submit"
-                className="text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition text-sm"
+                disabled={loading || !codigo.trim()}
+                className="text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition text-sm flex items-center gap-2 disabled:opacity-60"
                 style={{ background: PINK }}
               >
-                Buscar
+                {loading ? <Loader2 size={15} className="animate-spin" /> : <Package size={15} />}
+                {loading ? "Buscando..." : "Buscar"}
               </button>
             </div>
+
             {erro && (
-              <p className="mt-3 text-sm text-red-500">
-                Código não encontrado. Verifique e tente novamente.
-              </p>
+              <div className="mt-4 flex items-start gap-2 text-red-500">
+                <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
+                <p className="text-sm">{erro}</p>
+              </div>
             )}
+
             <p className="mt-3 text-xs text-gray-400">
-              Você encontra o código do pedido no e-mail de confirmação da compra.
+              O código está no e-mail de confirmação ou na etiqueta do pacote. Formato: 2 letras + 9 números + 2 letras (ex: AA000000000BR).
             </p>
           </form>
 
-          {/* Resultado */}
           {resultado && (
             <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-              {/* Info do pedido */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Pedido</p>
-                  <p className="font-bold text-gray-800">{codigo.toUpperCase()}</p>
+                  <p className="text-xs text-gray-400 mb-1">Código</p>
+                  <p className="font-bold text-gray-800 tracking-widest">{resultado.codigo}</p>
                   <p className="text-sm text-gray-500 mt-0.5">{resultado.produto}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-400 mb-1">Previsão de entrega</p>
-                  <p className="font-semibold" style={{ color: PINK }}>{resultado.previsao}</p>
-                </div>
+                {resultado.previsao && (
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400 mb-1">Previsão de entrega</p>
+                    <p className="font-semibold" style={{ color: PINK }}>{resultado.previsao}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Barra de progresso */}
               <div>
                 <div className="flex justify-between text-xs text-gray-400 mb-1">
                   <span>Progresso</span>
@@ -150,27 +151,27 @@ export default function RastrearPedido() {
                 </div>
               </div>
 
-              {/* Timeline */}
               <div className="space-y-0">
                 {resultado.steps.map((s, i) => {
                   const isLast = i === resultado.steps.length - 1;
                   return (
                     <div key={i} className="flex gap-4">
-                      {/* Ícone */}
                       <div className="flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 text-xs font-bold ${
-                          s.active ? "text-white" :
-                          s.done ? "text-[#e8006f]" :
-                          "border-gray-200 bg-white text-gray-300"
-                        }`}
-                          style={
-                            s.active ? { borderColor: PINK, background: PINK } :
-                            s.done ? { borderColor: PINK, background: "#fdf0f6" } :
-                            {}
-                          }
-                        >
-                          {s.done ? "✓" : i + 1}
-                        </div>
+                        {s.active ? (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{ background: PINK }}>
+                            <CheckCircle2 size={18} className="text-white" />
+                          </div>
+                        ) : s.done ? (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2"
+                            style={{ borderColor: PINK, background: "#fdf0f6" }}>
+                            <CheckCircle2 size={16} style={{ color: PINK }} />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-gray-200 bg-white">
+                            <Circle size={16} className="text-gray-300" />
+                          </div>
+                        )}
                         {!isLast && (
                           <div
                             className="w-0.5 flex-1 my-1"
@@ -178,30 +179,52 @@ export default function RastrearPedido() {
                           />
                         )}
                       </div>
-                      {/* Texto */}
                       <div className={`pb-6 ${isLast ? "pb-0" : ""}`}>
-                        <p className={`font-semibold text-sm ${s.done || s.active ? "text-gray-800" : "text-gray-300"}`}
-                          style={s.active ? { color: PINK } : {}}>
+                        <p
+                          className="font-semibold text-sm"
+                          style={s.active ? { color: PINK } : { color: s.done ? "#1f2937" : "#9ca3af" }}
+                        >
                           {s.step}
                           {s.active && (
-                            <span className="ml-2 text-xs px-2 py-0.5 rounded-full" style={{ background: "#fdf0f6", color: PINK }}>
-                              Atual
+                            <span className="ml-2 text-xs px-2 py-0.5 rounded-full"
+                              style={{ background: "#fdf0f6", color: PINK }}>
+                              Último evento
                             </span>
                           )}
                         </p>
-                        <p className={`text-xs mt-0.5 ${s.done || s.active ? "text-gray-500" : "text-gray-300"}`}>{s.desc}</p>
-                        {s.date && <p className="text-xs text-gray-400 mt-0.5">{s.date}</p>}
+                        {s.desc && (
+                          <p className={`text-xs mt-0.5 ${s.done ? "text-gray-500" : "text-gray-300"}`}>
+                            {s.desc}
+                          </p>
+                        )}
+                        {s.date && (
+                          <p className="text-xs text-gray-400 mt-0.5">{s.date}</p>
+                        )}
                       </div>
                     </div>
                   );
                 })}
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 text-center">
+                <p className="text-xs text-gray-400">
+                  Dados fornecidos pelos Correios.{" "}
+                  <a
+                    href={`https://rastreamento.correios.com.br/app/index.php?numero=${resultado.codigo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:opacity-80 transition"
+                    style={{ color: PINK }}
+                  >
+                    Ver no site oficial dos Correios
+                  </a>
+                </p>
               </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* Footer simples */}
       <footer className="bg-gray-100 border-t border-gray-200 py-6 px-6 text-center mt-8">
         <p className="text-gray-400 text-xs">{data.settings.footerCopyright}</p>
       </footer>
