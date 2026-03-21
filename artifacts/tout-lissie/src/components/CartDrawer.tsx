@@ -1,6 +1,7 @@
-import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle } from "lucide-react";
+import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle, CreditCard, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useSite } from "@/context/SiteContext";
+import { useState } from "react";
 
 const PINK = "#e8006f";
 
@@ -17,6 +18,8 @@ function imgSrc(v: string) {
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, totalItems } = useCart();
   const { data } = useSite();
+  const [loadingStripe, setLoadingStripe] = useState(false);
+  const [stripeError, setStripeError] = useState("");
 
   const total = items.reduce((sum, item) => sum + parsePrice(item.price) * item.qty, 0);
 
@@ -26,6 +29,31 @@ export function CartDrawer() {
     `\n\nTotal: R$ ${total.toFixed(2).replace(".", ",")}`
   );
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=${waMessage}`;
+
+  async function handleStripeCheckout() {
+    setLoadingStripe(true);
+    setStripeError("");
+    try {
+      const origin = window.location.origin;
+      const base = import.meta.env.BASE_URL ?? "/";
+      const res = await fetch(`/api/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(i => ({ name: i.name, price: i.price, qty: i.qty, img: imgSrc(i.img) })),
+          successUrl: `${origin}${base}?pedido=sucesso`,
+          cancelUrl: `${origin}${base}?pedido=cancelado`,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Erro ao iniciar pagamento");
+      if (json.url) window.location.href = json.url;
+    } catch (err: any) {
+      setStripeError(err.message || "Erro ao conectar com o Stripe");
+    } finally {
+      setLoadingStripe(false);
+    }
+  }
 
   return (
     <>
@@ -117,16 +145,35 @@ export function CartDrawer() {
                   R$ {total.toFixed(2).replace(".", ",")}
                 </span>
               </div>
+
+              {stripeError && (
+                <p className="text-red-500 text-xs text-center">{stripeError}</p>
+              )}
+
+              <button
+                onClick={handleStripeCheckout}
+                disabled={loadingStripe}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition disabled:opacity-60"
+                style={{ background: PINK }}
+              >
+                {loadingStripe
+                  ? <Loader2 size={20} className="animate-spin" />
+                  : <CreditCard size={20} />
+                }
+                {loadingStripe ? "Aguarde..." : "Pagar com Cartão"}
+              </button>
+
               <a
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-bold text-sm hover:opacity-90 transition"
                 style={{ background: `linear-gradient(135deg, #25D366, #128C7E)` }}
               >
-                <MessageCircle size={20} />
+                <MessageCircle size={18} />
                 Finalizar pelo WhatsApp
               </a>
+
               <button
                 onClick={closeCart}
                 className="w-full py-3 rounded-2xl font-bold text-sm border-2 hover:bg-pink-50 transition"

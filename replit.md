@@ -1,5 +1,13 @@
 # Workspace
 
+## Stripe Integration
+
+Stripe is configured using environment secrets (`STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`).
+**Note:** The Replit native Stripe integration was NOT used — keys are stored directly as Replit Secrets.
+The checkout creates Stripe Checkout Sessions (one-time payment, BRL) via `POST /api/checkout`.
+Webhook endpoint exists at `/api/stripe/webhook` but is not connected to stripe-replit-sync (no PostgreSQL for Stripe schema).
+If full subscription/sync is needed in the future, connect the Stripe connector via Replit integrations.
+
 ## Overview
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
