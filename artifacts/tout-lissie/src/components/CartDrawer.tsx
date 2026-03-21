@@ -1,8 +1,10 @@
-import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle } from "lucide-react";
+import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle, Loader2, QrCode, Copy, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useSite } from "@/context/SiteContext";
+import { useState } from "react";
 
 const PINK = "#e8006f";
+const PIX_GREEN = "#00b894";
 
 function parsePrice(price: string): number {
   const cleaned = price.replace(/[^\d,]/g, "").replace(",", ".");
@@ -18,6 +20,12 @@ export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, totalItems } = useCart();
   const { data } = useSite();
 
+  const [pixStep, setPixStep] = useState<"idle" | "form" | "loading" | "qr">("idle");
+  const [pixEmail, setPixEmail] = useState("");
+  const [pixQr, setPixQr] = useState<{ qr_code: string; qr_code_base64: string } | null>(null);
+  const [pixError, setPixError] = useState("");
+  const [copied, setCopied] = useState(false);
+
   const total = items.reduce((sum, item) => sum + parsePrice(item.price) * item.qty, 0);
 
   const waMessage = encodeURIComponent(
@@ -26,6 +34,47 @@ export function CartDrawer() {
     `\n\nTotal: R$ ${total.toFixed(2).replace(".", ",")}`
   );
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=${waMessage}`;
+
+  function resetPix() {
+    setPixStep("idle");
+    setPixQr(null);
+    setPixError("");
+    setPixEmail("");
+  }
+
+  async function gerarPix() {
+    if (!pixEmail || !pixEmail.includes("@")) {
+      setPixError("Insira um e-mail válido.");
+      return;
+    }
+    setPixStep("loading");
+    setPixError("");
+    try {
+      const res = await fetch("/api/pix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          description: items.map(i => `${i.name} x${i.qty}`).join(", "),
+          email: pixEmail,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Erro ao gerar PIX");
+      setPixQr({ qr_code: json.qr_code, qr_code_base64: json.qr_code_base64 });
+      setPixStep("qr");
+    } catch (err: any) {
+      setPixError(err.message || "Erro ao gerar PIX");
+      setPixStep("form");
+    }
+  }
+
+  function copiarCodigo() {
+    if (!pixQr?.qr_code) return;
+    navigator.clipboard.writeText(pixQr.qr_code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <>
@@ -68,6 +117,40 @@ export function CartDrawer() {
               style={{ background: PINK }}
             >
               Continuar comprando
+            </button>
+          </div>
+        ) : pixStep === "qr" && pixQr ? (
+          <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: PIX_GREEN }}>
+              <QrCode size={24} className="text-white" />
+            </div>
+            <p className="font-black text-gray-900 text-lg text-center">QR Code PIX gerado!</p>
+            <p className="text-gray-400 text-sm text-center">Escaneie o código abaixo com o app do seu banco.</p>
+
+            <div className="rounded-2xl border-2 border-gray-100 p-3 bg-white shadow-sm">
+              <img
+                src={`data:image/png;base64,${pixQr.qr_code_base64}`}
+                alt="QR Code PIX"
+                className="w-52 h-52 object-contain"
+              />
+            </div>
+
+            <p className="text-xs text-gray-500 font-semibold">Total: <span className="font-black" style={{ color: PINK }}>R$ {total.toFixed(2).replace(".", ",")}</span></p>
+
+            <button
+              onClick={copiarCodigo}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm border-2 transition"
+              style={{ borderColor: PIX_GREEN, color: PIX_GREEN }}
+            >
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+              {copied ? "Código copiado!" : "Copiar código Pix Copia e Cola"}
+            </button>
+
+            <button
+              onClick={resetPix}
+              className="text-gray-400 text-xs hover:text-gray-600 transition"
+            >
+              ← Voltar ao carrinho
             </button>
           </div>
         ) : (
@@ -117,6 +200,55 @@ export function CartDrawer() {
                   R$ {total.toFixed(2).replace(".", ",")}
                 </span>
               </div>
+
+              {pixStep === "form" && (
+                <div className="rounded-2xl border-2 p-3 space-y-2" style={{ borderColor: PIX_GREEN }}>
+                  <p className="text-xs font-bold text-gray-600">Seu e-mail para recibo:</p>
+                  <input
+                    type="email"
+                    value={pixEmail}
+                    onChange={e => setPixEmail(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && gerarPix()}
+                    placeholder="cliente@email.com"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-green-400 transition"
+                    autoFocus
+                  />
+                  {pixError && <p className="text-red-500 text-xs">{pixError}</p>}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={gerarPix}
+                      className="flex-1 py-2.5 rounded-xl text-white font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-1.5"
+                      style={{ background: PIX_GREEN }}
+                    >
+                      <QrCode size={15} /> Gerar QR Code
+                    </button>
+                    <button
+                      onClick={resetPix}
+                      className="px-3 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm hover:bg-gray-50 transition"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {pixStep === "loading" && (
+                <div className="flex items-center justify-center gap-2 py-3 text-sm text-gray-500">
+                  <Loader2 size={18} className="animate-spin" style={{ color: PIX_GREEN }} />
+                  Gerando PIX...
+                </div>
+              )}
+
+              {pixStep === "idle" && (
+                <button
+                  onClick={() => setPixStep("form")}
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
+                  style={{ background: PIX_GREEN }}
+                >
+                  <QrCode size={20} />
+                  Pagar com PIX
+                </button>
+              )}
 
               <a
                 href={waLink}
