@@ -1,4 +1,4 @@
-import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle, Loader2, QrCode, Copy, Check } from "lucide-react";
+import { X, ShoppingCart, Trash2, Plus, Minus, MessageCircle, Loader2, QrCode, Copy, Check, CreditCard } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useSite } from "@/context/SiteContext";
 import { useState } from "react";
@@ -25,6 +25,8 @@ export function CartDrawer() {
   const [pixQr, setPixQr] = useState<{ qr_code: string; qr_code_base64: string } | null>(null);
   const [pixError, setPixError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [loadingCard, setLoadingCard] = useState(false);
+  const [cardError, setCardError] = useState("");
 
   const total = items.reduce((sum, item) => sum + parsePrice(item.price) * item.qty, 0);
 
@@ -34,6 +36,36 @@ export function CartDrawer() {
     `\n\nTotal: R$ ${total.toFixed(2).replace(".", ",")}`
   );
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=${waMessage}`;
+
+  async function pagarComCartao() {
+    setLoadingCard(true);
+    setCardError("");
+    try {
+      const origin = window.location.origin;
+      const base = import.meta.env.BASE_URL ?? "/";
+      const res = await fetch("/api/create-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(i => ({
+            title: i.name,
+            quantity: i.qty,
+            unit_price: parsePrice(i.price),
+          })),
+          successUrl: `${origin}${base}?pagamento=aprovado`,
+          failureUrl: `${origin}${base}?pagamento=erro`,
+          pendingUrl: `${origin}${base}?pagamento=pendente`,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Erro ao criar pagamento");
+      if (json.init_point) window.location.href = json.init_point;
+    } catch (err: any) {
+      setCardError(err.message || "Erro ao conectar com o Mercado Pago");
+    } finally {
+      setLoadingCard(false);
+    }
+  }
 
   function resetPix() {
     setPixStep("idle");
@@ -240,14 +272,29 @@ export function CartDrawer() {
               )}
 
               {pixStep === "idle" && (
-                <button
-                  onClick={() => setPixStep("form")}
-                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
-                  style={{ background: PIX_GREEN }}
-                >
-                  <QrCode size={20} />
-                  Pagar com PIX
-                </button>
+                <>
+                  <button
+                    onClick={pagarComCartao}
+                    disabled={loadingCard}
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition disabled:opacity-60"
+                    style={{ background: PINK }}
+                  >
+                    {loadingCard
+                      ? <Loader2 size={20} className="animate-spin" />
+                      : <CreditCard size={20} />
+                    }
+                    {loadingCard ? "Aguarde..." : "Pagar com Cartão"}
+                  </button>
+                  {cardError && <p className="text-red-500 text-xs text-center -mt-1">{cardError}</p>}
+                  <button
+                    onClick={() => setPixStep("form")}
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white font-black text-base hover:opacity-90 transition"
+                    style={{ background: PIX_GREEN }}
+                  >
+                    <QrCode size={20} />
+                    Pagar com PIX
+                  </button>
+                </>
               )}
 
               <a

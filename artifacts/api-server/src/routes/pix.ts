@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { MercadoPagoConfig, Payment } from "mercadopago";
+import { MercadoPagoConfig, Payment, Preference } from "mercadopago";
 
 const router = Router();
 
@@ -50,6 +50,44 @@ router.post("/pix", async (req, res) => {
   } catch (err: any) {
     console.error("Mercado Pago PIX error:", err.message);
     res.status(500).json({ error: err.message || "Erro ao gerar PIX" });
+  }
+});
+
+router.post("/create-payment", async (req, res) => {
+  try {
+    const { items, successUrl, failureUrl, pendingUrl, mpToken } = req.body as {
+      items: { title: string; quantity: number; unit_price: number }[];
+      successUrl?: string;
+      failureUrl?: string;
+      pendingUrl?: string;
+      mpToken?: string;
+    };
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ error: "Nenhum item informado" });
+    }
+
+    const client = getMpClient(mpToken);
+    const preferenceClient = new Preference(client);
+
+    const origin = req.headers.origin || req.headers.referer || "https://seusite.com";
+
+    const result = await preferenceClient.create({
+      body: {
+        items,
+        back_urls: {
+          success: successUrl || `${origin}?pagamento=aprovado`,
+          failure: failureUrl || `${origin}?pagamento=erro`,
+          pending: pendingUrl || `${origin}?pagamento=pendente`,
+        },
+        auto_return: "approved",
+      },
+    });
+
+    res.json({ init_point: result.init_point });
+  } catch (err: any) {
+    console.error("Mercado Pago Preference error:", err.message);
+    res.status(500).json({ error: err.message || "Erro ao criar pagamento" });
   }
 });
 
