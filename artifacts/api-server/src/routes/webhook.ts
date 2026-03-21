@@ -44,8 +44,15 @@ function verifyMpSignature(req: Request): boolean {
     .join(";");
 
   const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
-  const valid = crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
+  const expectedBuf = Buffer.from(expected, "utf8");
+  const receivedBuf = Buffer.from(v1, "utf8");
 
+  if (expectedBuf.length !== receivedBuf.length) {
+    console.error("[Webhook MP] Assinatura inválida (tamanho incorreto) — possível requisição forjada.");
+    return false;
+  }
+
+  const valid = crypto.timingSafeEqual(expectedBuf, receivedBuf);
   if (!valid) {
     console.error("[Webhook MP] Assinatura inválida — possível requisição forjada.");
   }
