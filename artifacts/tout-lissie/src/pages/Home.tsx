@@ -355,23 +355,46 @@ function EleganceBanner() {
   const { data } = useSite();
   const eb = data.eleganceBanner;
   return (
-    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 720 }}>
-      <img src={imgSrc(eb.img)} alt="Banner"
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-        onError={e => (e.currentTarget.style.display = "none")} />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.82) 0%, rgba(61,0,32,0.70) 50%, rgba(0,0,0,0.10) 100%)" }} />
-      <div className="w-full max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center gap-8 relative z-10">
-        <div className="flex-1">
-          <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">{eb.tagline}</p>
-          <h2 className="text-white font-black text-4xl md:text-5xl leading-tight mb-3">
+    <section className="relative overflow-hidden">
+      {/* ── Mobile: imagem inteira, altura natural ── */}
+      <div className="relative md:hidden">
+        <img src={imgSrc(eb.img)} alt="Banner"
+          className="w-full h-auto block pointer-events-none select-none"
+          onError={e => (e.currentTarget.style.display = "none")} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(26,0,16,0.55) 0%, rgba(26,0,16,0.75) 100%)" }} />
+        <div className="absolute inset-0 flex flex-col justify-center px-6 py-10">
+          <p style={{ color: "#ff88bb" }} className="text-xs font-semibold uppercase tracking-widest mb-2">{eb.tagline}</p>
+          <h2 className="text-white font-black text-3xl leading-tight mb-3">
             {eb.title} <span style={{ color: "#ff88bb" }}>{eb.titleHighlight}</span>
           </h2>
-          <p className="text-white/60 text-sm mb-6">{eb.subtitle}</p>
+          <p className="text-white/60 text-sm mb-5">{eb.subtitle}</p>
           <Link href="/produtos">
             <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
               {eb.buttonText}
             </button>
           </Link>
+        </div>
+      </div>
+
+      {/* ── Desktop: layout fixo original ── */}
+      <div className="hidden md:flex items-center" style={{ minHeight: 720 }}>
+        <img src={imgSrc(eb.img)} alt="Banner"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          onError={e => (e.currentTarget.style.display = "none")} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.82) 0%, rgba(61,0,32,0.70) 50%, rgba(0,0,0,0.10) 100%)" }} />
+        <div className="w-full max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center gap-8 relative z-10">
+          <div className="flex-1">
+            <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">{eb.tagline}</p>
+            <h2 className="text-white font-black text-5xl leading-tight mb-3">
+              {eb.title} <span style={{ color: "#ff88bb" }}>{eb.titleHighlight}</span>
+            </h2>
+            <p className="text-white/60 text-sm mb-6">{eb.subtitle}</p>
+            <Link href="/produtos">
+              <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
+                {eb.buttonText}
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>
