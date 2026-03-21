@@ -379,24 +379,26 @@ function EleganceBanner() {
         </div>
       </div>
 
-      {/* ── Desktop: layout fixo original ── */}
-      <div className="hidden md:flex items-center" style={{ minHeight: 720 }}>
+      {/* ── Desktop: imagem completa, altura natural ── */}
+      <div className="hidden md:block relative">
         <img src={imgSrc(eb.img)} alt="Banner"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          className="w-full h-auto block pointer-events-none select-none"
           onError={e => (e.currentTarget.style.display = "none")} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(26,0,16,0.82) 0%, rgba(61,0,32,0.70) 50%, rgba(0,0,0,0.10) 100%)" }} />
-        <div className="w-full max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <div className="flex-1">
-            <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">{eb.tagline}</p>
-            <h2 className="text-white font-black text-5xl leading-tight mb-3">
-              {eb.title} <span style={{ color: "#ff88bb" }}>{eb.titleHighlight}</span>
-            </h2>
-            <p className="text-white/60 text-sm mb-6">{eb.subtitle}</p>
-            <Link href="/produtos">
-              <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
-                {eb.buttonText}
-              </button>
-            </Link>
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1">
+              <p style={{ color: "#ff88bb" }} className="text-sm font-semibold uppercase tracking-widest mb-2">{eb.tagline}</p>
+              <h2 className="text-white font-black text-5xl leading-tight mb-3">
+                {eb.title} <span style={{ color: "#ff88bb" }}>{eb.titleHighlight}</span>
+              </h2>
+              <p className="text-white/60 text-sm mb-6">{eb.subtitle}</p>
+              <Link href="/produtos">
+                <button style={{ background: PINK }} className="text-white font-bold rounded-full px-7 py-2.5 text-sm hover:opacity-90 transition">
+                  {eb.buttonText}
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
