@@ -18,22 +18,50 @@ import {
 const PINK = "#e8006f";
 
 /* ─── LOGIN ─── */
+function getAdminToken(): string {
+  return sessionStorage.getItem("admin_token") || "";
+}
+
+function adminHeaders(extra?: Record<string, string>): Record<string, string> {
+  const token = getAdminToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    ...extra,
+  };
+}
+
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const adminEmail = getAdminEmail();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const pwOk = pw === getAdminPassword();
-    const emailOk = !adminEmail || email.toLowerCase().trim() === adminEmail.toLowerCase().trim();
-    if (pwOk && emailOk) {
-      sessionStorage.setItem("admin_auth", "1");
-      onLogin();
-    } else {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario: import.meta.env.VITE_ADMIN_USER || "admin", senha: pw }),
+      });
+      const json = await res.json();
+      if (res.ok && json.token) {
+        sessionStorage.setItem("admin_auth", "1");
+        sessionStorage.setItem("admin_token", json.token);
+        onLogin();
+      } else {
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+      }
+    } catch {
       setError(true);
       setTimeout(() => setError(false), 2000);
+    } finally {
+      setLoading(false);
     }
   }
   return (
@@ -53,9 +81,9 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <input type="password" placeholder="Senha" value={pw}
             onChange={e => setPw(e.target.value)}
             className={`w-full border-2 rounded-xl px-4 py-3 text-sm outline-none transition ${error ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-pink-400"}`} />
-          {error && <p className="text-red-500 text-xs">E-mail ou senha incorretos</p>}
-          <button type="submit" className="w-full text-white font-bold rounded-xl py-3 text-sm transition hover:opacity-90" style={{ background: PINK }}>
-            Entrar
+          {error && <p className="text-red-500 text-xs">Credenciais inválidas. Verifique usuário e senha.</p>}
+          <button type="submit" disabled={loading} className="w-full text-white font-bold rounded-xl py-3 text-sm transition hover:opacity-90 disabled:opacity-60" style={{ background: PINK }}>
+            {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
         <Link href="/">
@@ -1622,7 +1650,9 @@ function MediaLibraryTab() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/storage/files");
+      const res = await fetch(`${import.meta.env.BASE_URL}api/storage/files`, {
+        headers: { "Authorization": `Bearer ${getAdminToken()}` },
+      });
       if (!res.ok) throw new Error("Erro ao carregar");
       const json = await res.json();
       setFiles(json);
@@ -1937,7 +1967,9 @@ function OrdersTab() {
   async function fetchOrders() {
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}api/orders`);
+      const res = await fetch(`${import.meta.env.BASE_URL}api/orders`, {
+        headers: { "Authorization": `Bearer ${getAdminToken()}` },
+      });
       const json = await res.json();
       setOrders(json.orders || []);
     } catch {
@@ -1954,7 +1986,7 @@ function OrdersTab() {
     try {
       await fetch(`${import.meta.env.BASE_URL}api/orders/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: adminHeaders(),
         body: JSON.stringify({ status }),
       });
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
@@ -2218,7 +2250,18 @@ export default function Admin() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  function logout() { sessionStorage.removeItem("admin_auth"); setAuthed(false); }
+  function logout() {
+    const token = getAdminToken();
+    if (token) {
+      fetch(`${import.meta.env.BASE_URL}api/admin/logout`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+      }).catch(() => {});
+    }
+    sessionStorage.removeItem("admin_auth");
+    sessionStorage.removeItem("admin_token");
+    setAuthed(false);
+  }
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
 
   const currentTab = tabs.find(t => t.id === tab);

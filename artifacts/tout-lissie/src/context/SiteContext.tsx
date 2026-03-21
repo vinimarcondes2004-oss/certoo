@@ -18,9 +18,13 @@ async function fetchSiteData(): Promise<SiteData | null> {
 }
 
 async function pushSiteData(data: SiteData): Promise<void> {
+  const token = sessionStorage.getItem("admin_token") || "";
   const res = await fetch(API_URL, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Falha ao salvar");

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { supabase } from "../lib/supabase";
+import { requireAdmin } from "./admin";
 
 const router = Router();
 const TABLE = "site_data";
@@ -62,7 +63,7 @@ async function saveOrders(orders: Order[]): Promise<void> {
   });
 }
 
-router.get("/orders", async (_req: Request, res: Response) => {
+router.get("/orders", requireAdmin, async (_req: Request, res: Response) => {
   try {
     const orders = await getOrders();
     const sorted = [...orders].sort(
@@ -102,7 +103,7 @@ router.post("/orders", async (req: Request, res: Response) => {
   }
 });
 
-router.patch("/orders/:id", async (req: Request, res: Response) => {
+router.patch("/orders/:id", requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body as { status: Order["status"] };

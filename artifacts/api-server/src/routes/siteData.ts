@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { supabase } from "../lib/supabase";
 import { uploadBase64Media } from "./upload";
+import { requireAdmin } from "./admin";
 
 const router = Router();
 
@@ -118,7 +119,7 @@ router.get("/site-data", async (_req, res) => {
   }
 });
 
-router.put("/site-data", async (req, res) => {
+router.put("/site-data", requireAdmin, async (req, res) => {
   try {
     const payload = req.body;
     if (!payload || typeof payload !== "object") {
