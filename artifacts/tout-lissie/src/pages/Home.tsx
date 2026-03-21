@@ -78,14 +78,16 @@ function Hero() {
             }} />
         ))}
         <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.60)" }} />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-20 pointer-events-none">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90 text-white">{slide?.subtitle}</p>
           <h1 className="font-black text-3xl leading-[1.15] mb-5 text-white">
             {(slide?.title ?? "").split("\n").map((line, li) => <span key={li}>{line}{li < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
           </h1>
-          <a href="#produtos" className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition inline-block" style={{ color: PINK }}>
-            {slide?.buttonText}
-          </a>
+          <div className="flex justify-center pointer-events-auto">
+            <a href="#produtos" className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
+              {slide?.buttonText}
+            </a>
+          </div>
         </div>
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {slides.map((_, i) => (
@@ -109,14 +111,16 @@ function Hero() {
             }} />
         ))}
         <div className="absolute inset-0" style={{ background: "rgba(180,0,60,0.65)" }} />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-20 pointer-events-none">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3 opacity-90 text-white">{slide?.subtitle}</p>
           <h1 className="font-black text-5xl leading-[1.1] mb-5 text-white">
             {(slide?.title ?? "").split("\n").map((line, li) => <span key={li}>{line}{li < (slide?.title ?? "").split("\n").length - 1 && <br />}</span>)}
           </h1>
-          <a href="#produtos" className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition inline-block" style={{ color: PINK }}>
-            {slide?.buttonText}
-          </a>
+          <div className="flex justify-center pointer-events-auto">
+            <a href="#produtos" className="bg-white font-black rounded-full px-7 py-2.5 text-sm hover:bg-pink-50 transition" style={{ color: PINK }}>
+              {slide?.buttonText}
+            </a>
+          </div>
         </div>
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {slides.map((_, i) => (
