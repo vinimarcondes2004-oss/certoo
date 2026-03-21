@@ -387,7 +387,7 @@ export default function Checkout() {
                   style={{ background: "#009ee3" }}>
                   {checkoutLoading
                     ? <><Loader2 size={18} className="animate-spin" /> Aguarde...</>
-                    : <><CreditCard size={18} /> Ir para o Mercado Pago</>}
+                    : <><CreditCard size={18} /> Finalizar compra</>}
                 </button>
 
                 {checkoutErro && (
