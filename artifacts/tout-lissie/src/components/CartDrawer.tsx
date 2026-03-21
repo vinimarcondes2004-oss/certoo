@@ -52,7 +52,7 @@ export function CartDrawer() {
     setPixStep("loading");
     setPixError("");
     try {
-      const res = await fetch("/api/pix", {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/pix`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

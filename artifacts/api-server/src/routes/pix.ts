@@ -89,9 +89,10 @@ router.post("/create-payment", async (req, res) => {
     const client = getMpClient(mpToken);
     const preferenceClient = new Preference(client);
 
-    const origin = req.headers.origin || req.headers.referer || "https://seusite.com";
+    const replitDomain = process.env.REPLIT_DEV_DOMAIN || process.env.REPLIT_DOMAINS?.split(",")[0];
+    const siteUrl = replitDomain ? `https://${replitDomain}` : (req.headers.origin || req.headers.referer || "https://prprofissional.com.br");
+    const origin = req.headers.origin || req.headers.referer || siteUrl;
 
-    const replitDomain = process.env.REPLIT_DEV_DOMAIN;
     const notificationUrl =
       process.env.MP_WEBHOOK_URL ||
       (replitDomain ? `https://${replitDomain}/api/webhook/mercadopago` : undefined);
