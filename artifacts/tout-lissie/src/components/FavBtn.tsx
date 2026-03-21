@@ -23,7 +23,7 @@ export function FavBtn({ productId }: { productId: string }) {
 export function FavIconBtn({ className = "" }: { className?: string }) {
   const { totalFavorites, openFavorites } = useFavorites();
   return (
-    <button onClick={openFavorites} className={`relative p-1.5 hidden md:block ${className}`}>
+    <button onClick={openFavorites} className={`relative p-1.5 ${className}`}>
       <Heart size={20} className="text-gray-700" />
       {totalFavorites > 0 && (
         <span
