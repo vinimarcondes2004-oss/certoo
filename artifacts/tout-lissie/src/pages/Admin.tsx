@@ -5,7 +5,7 @@ import {
   Plus, Pencil, Trash2, Save, X, Eye, Star, Lock, LogOut, ChevronLeft,
   Upload, FileText, ArrowUp, ArrowDown, Layers, EyeOff, Library, RefreshCw,
   Copy, Check, Video, ImageIcon, Grid2x2, Menu, ShoppingBag, MapPin, Loader2,
-  ChevronDown, ChevronRight,
+  ChevronDown, ChevronRight, Camera,
 } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import {
@@ -1283,6 +1283,26 @@ function CategoriasTab() {
   const { data, updateData } = useSite();
   const [editCat, setEditCat] = useState<CategoryCard | null>(null);
   const [adding, setAdding] = useState(false);
+  const imgInputRef = useRef<HTMLInputElement>(null);
+  const [imgTargetId, setImgTargetId] = useState<string | null>(null);
+
+  function openImgPicker(id: string) {
+    setImgTargetId(id);
+    imgInputRef.current?.click();
+  }
+
+  function handleImgFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !imgTargetId) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const url = ev.target?.result as string;
+      updateData({ categoryCards: data.categoryCards.map(c => c.id === imgTargetId ? { ...c, img: url } : c) });
+      setImgTargetId(null);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
 
   const blank: CategoryCard = { id: "", label: "", slug: "", img: "", color: "#fce4ec" };
 
@@ -1370,16 +1390,26 @@ function CategoriasTab() {
                   <ArrowDown size={12} />
                 </button>
               </div>
-              <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden" style={{ background: c.color }}>
+              <button
+                type="button"
+                title="Clique para trocar a imagem"
+                onClick={() => openImgPicker(c.id)}
+                className="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden relative group border-2 border-dashed border-transparent hover:border-pink-400 transition"
+                style={{ background: c.color }}
+              >
                 {c.img ? (
-                  <img src={imgSrc(c.img)} alt={c.label} className="w-10 h-10 object-contain" onError={e => (e.currentTarget.style.display = "none")} />
+                  <img src={imgSrc(c.img)} alt={c.label} className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
                 ) : (
-                  <Grid2x2 size={20} className="text-gray-400" />
+                  <ImageIcon size={22} className="text-gray-400" />
                 )}
-              </div>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl">
+                  <Camera size={18} className="text-white" />
+                </div>
+              </button>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-sm text-gray-800">{c.label || "(sem nome)"}</p>
                 <p className="text-xs text-gray-400">/categoria/{c.slug || "..."}</p>
+                <p className="text-[10px] text-pink-400 mt-0.5">Clique na imagem para trocar</p>
               </div>
               <div className="w-5 h-5 rounded-full border border-gray-200 flex-shrink-0" style={{ background: c.color }} />
               <div className="flex gap-2">
@@ -1390,7 +1420,8 @@ function CategoriasTab() {
           ))}
         </div>
       )}
-      <p className="text-xs text-gray-400 mt-4">O primeiro card aparece maior (2×2). Os demais ocupam meia largura.</p>
+      <input ref={imgInputRef} type="file" accept="image/*" className="hidden" onChange={handleImgFile} />
+      <p className="text-xs text-gray-400 mt-4">O primeiro card aparece maior (2×2). Os demais ocupam meia largura. Clique na miniatura para trocar a imagem rapidamente.</p>
     </div>
   );
 }
