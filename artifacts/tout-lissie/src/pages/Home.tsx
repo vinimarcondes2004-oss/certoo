@@ -484,7 +484,7 @@ function CategoriesBanner() {
           <Link href={`/categoria/${cards[0].slug}`}
             className="col-span-2 row-span-2 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.01] transition-transform block"
             style={{ background: cards[0].color }}>
-            <img src={imgSrc(cards[0].img)} alt={cards[0].label} className="absolute inset-0 w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
+            <img src={imgSrc(cards[0].img)} alt={cards[0].label} className="absolute inset-0 w-full h-full object-contain" onError={e => (e.currentTarget.style.display = "none")} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl" />
             <span className="absolute bottom-4 left-4 text-white font-black text-xl drop-shadow">{cards[0].label}</span>
           </Link>
@@ -493,7 +493,7 @@ function CategoriesBanner() {
             <Link key={i} href={`/categoria/${cat.slug}`}
               className="col-span-2 row-span-1 rounded-2xl overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform block"
               style={{ background: cat.color }}>
-              <img src={imgSrc(cat.img)} alt={cat.label} className="absolute inset-0 w-full h-full object-cover" onError={e => (e.currentTarget.style.display = "none")} />
+              <img src={imgSrc(cat.img)} alt={cat.label} className="absolute inset-0 w-full h-full object-contain" onError={e => (e.currentTarget.style.display = "none")} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl" />
               <span className="absolute bottom-3 left-3 text-white font-black text-sm drop-shadow">{cat.label}</span>
             </Link>
