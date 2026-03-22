@@ -55,7 +55,7 @@ router.post("/pix", async (req, res) => {
 
     const txData = result.point_of_interaction?.transaction_data;
 
-    res.json({
+    return res.json({
       id: result.id,
       status: result.status,
       qr_code: txData?.qr_code,
@@ -63,7 +63,7 @@ router.post("/pix", async (req, res) => {
     });
   } catch (err: any) {
     console.error("[MP] PIX error:", err.message);
-    res.status(500).json({ error: "Erro ao gerar PIX. Tente novamente." });
+    return res.status(500).json({ error: "Erro ao gerar PIX. Tente novamente." });
   }
 });
 
@@ -77,7 +77,7 @@ router.post("/create-payment", async (req, res) => {
       payer?: {
         name?: string;
         email?: string;
-        address?: { zip_code?: string; street_name?: string; street_number?: number };
+        address?: { zip_code?: string; street_name?: string; street_number?: string };
       };
       mpToken?: string;
     };
@@ -104,7 +104,7 @@ router.post("/create-payment", async (req, res) => {
         withTimeout(
           preferenceClient.create({
             body: {
-              items,
+              items: items.map((item, i) => ({ id: String(i + 1), ...item })),
               shipments: { mode: "not_specified" },
               ...(payer ? { payer } : {}),
               back_urls: {
@@ -128,10 +128,10 @@ router.post("/create-payment", async (req, res) => {
     }
 
     console.log(`[MP] Preferência criada: ${result.id} | idempotency: ${idempotencyKey}`);
-    res.json({ init_point: result.init_point, preference_id: result.id });
+    return res.json({ init_point: result.init_point, preference_id: result.id });
   } catch (err: any) {
     console.error("[MP] create-payment error:", err.message);
-    res.status(500).json({ error: "Erro ao criar pagamento. Tente novamente." });
+    return res.status(500).json({ error: "Erro ao criar pagamento. Tente novamente." });
   }
 });
 

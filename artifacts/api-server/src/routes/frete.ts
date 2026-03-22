@@ -71,7 +71,7 @@ router.get("/frete", async (req, res) => {
     if (!ufDestino) {
       try {
         const viaCepRes = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-        const viaCep = await viaCepRes.json();
+        const viaCep = await viaCepRes.json() as { uf?: string };
         if (viaCep.uf) ufDestino = viaCep.uf.toUpperCase();
       } catch {
         // Ignora erros de rede e usa fallback abaixo

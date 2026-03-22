@@ -73,6 +73,7 @@ export default function Produto() {
   const waLink = `https://wa.me/${data.settings.whatsapp}?text=Olá! Tenho interesse no produto: ${product.name}${qty > 1 ? ` (quantidade: ${qty})` : ""}`;
 
   function handleAddToCart() {
+    if (!product) return;
     for (let i = 0; i < qty; i++) {
       addItem({ id: product.id, name: product.name, price: product.price, img: product.img, color: product.color });
     }

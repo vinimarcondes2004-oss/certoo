@@ -84,7 +84,7 @@ router.post("/webhook/mercadopago", async (req: Request, res: Response) => {
     );
 
     const status = payment.status;
-    const preferenceId = payment.preference_id;
+    const preferenceId = (payment as any).preference_id as string | undefined;
 
     console.log(`[Webhook MP] payment_id=${paymentId} status=${status} preference_id=${preferenceId}`);
 

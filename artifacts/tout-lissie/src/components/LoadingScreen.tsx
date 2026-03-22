@@ -16,6 +16,7 @@ export function LoadingScreen({ ready }: LoadingScreenProps) {
       const t = setTimeout(() => setVisible(false), 600);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [ready]);
 
   if (!visible) return null;

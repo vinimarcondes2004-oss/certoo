@@ -36,7 +36,7 @@ export interface Review {
   img: string;
   stars: number;
   text: string;
-  date: string;
+  date?: string;
   role?: string;
 }
 

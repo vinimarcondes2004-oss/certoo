@@ -1687,7 +1687,7 @@ function MediaLibraryTab() {
   function assignToMosaic(url: string, idx: number) {
     const photos = [...data.mosaicPhotos];
     if (photos[idx]) photos[idx] = { ...photos[idx], img: url };
-    else photos.push({ id: generateId(), img: url });
+    else photos.push({ id: generateId(), img: url, big: false });
     updateData({ mosaicPhotos: photos });
     setAssigning(null);
   }
