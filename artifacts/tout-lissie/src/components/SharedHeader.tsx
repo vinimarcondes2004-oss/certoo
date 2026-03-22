@@ -127,7 +127,7 @@ export function SharedHeader({ activePage = "none" }: SharedHeaderProps) {
   const { data } = useSite();
   const { totalItems, openCart } = useCart();
   const [open, setOpen] = useState(false);
-  const logo = data.settings.logo || "logo-pr.png";
+  const logo = data.settings.logo || "logo-pr.webp";
 
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">

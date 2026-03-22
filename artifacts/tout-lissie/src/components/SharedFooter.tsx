@@ -11,7 +11,7 @@ function imgSrc(v: string) {
 
 export function SharedFooter() {
   const { data } = useSite();
-  const logo = data.settings.logo || "logo-pr.png";
+  const logo = data.settings.logo || "logo-pr.webp";
   const instaUrl = data.settings.instagram || "";
   const fbUrl = data.settings.facebook || "";
   const waUrl = data.settings.whatsapp ? `https://wa.me/${data.settings.whatsapp}` : "";

@@ -678,7 +678,7 @@ function FAQ() {
 /* ─── FOOTER ─── */
 function Footer() {
   const { data } = useSite();
-  const logo = data.settings.logo || "logo-pr.png";
+  const logo = data.settings.logo || "logo-pr.webp";
   const instaUrl = data.settings.instagram || "";
   const fbUrl = data.settings.facebook || "";
   const waUrl = `https://wa.me/${data.settings.whatsapp}`;

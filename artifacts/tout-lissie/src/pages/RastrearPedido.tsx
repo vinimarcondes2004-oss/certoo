@@ -52,7 +52,7 @@ export default function RastrearPedido() {
     }
   }
 
-  const logo = data.settings.logo || "logo-pr.png";
+  const logo = data.settings.logo || "logo-pr.webp";
   const logoSrc = logo.startsWith("data:") || logo.startsWith("http")
     ? logo
     : `${import.meta.env.BASE_URL}${logo}`;

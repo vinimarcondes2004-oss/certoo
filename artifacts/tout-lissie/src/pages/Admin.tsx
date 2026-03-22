@@ -1232,7 +1232,7 @@ function SettingsTab({ onLogout }: { onLogout: () => void }) {
         <div className="rounded-xl border border-gray-200 p-4 space-y-3">
           <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Logo da marca</p>
           <p className="text-xs text-gray-400">Aparece em: cabeçalho fixo · página Produtos · página de categorias · rodapé · página Sobre nós</p>
-          <ImagePicker label="Logo (PNG com fundo transparente recomendado)" value={s.logo || "logo-pr.png"} onChange={v => setS({ ...s, logo: v })} />
+          <ImagePicker label="Logo (PNG com fundo transparente recomendado)" value={s.logo || "logo-pr.webp"} onChange={v => setS({ ...s, logo: v })} />
         </div>
         <Field label="Nome do site"><input className={inputCls} value={s.siteName} onChange={e => setS({ ...s, siteName: e.target.value })} /></Field>
         <Field label="WhatsApp (somente números)"><input className={inputCls} value={s.whatsapp} onChange={e => setS({ ...s, whatsapp: e.target.value })} placeholder="5511999999999" /></Field>

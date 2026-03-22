@@ -67,7 +67,7 @@ export function LoadingScreen({ ready }: LoadingScreenProps) {
 
       <div className="ls-logo" style={{ marginBottom: 32 }}>
         <img
-          src={`${import.meta.env.BASE_URL}logo-pr.png`}
+          src={`${import.meta.env.BASE_URL}logo-pr.webp`}
           alt="Logo"
           style={{ height: 80, width: "auto", objectFit: "contain" }}
           onError={e => {

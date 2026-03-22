@@ -16,7 +16,7 @@ export default function SobreNos() {
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-800 transition">← Voltar</Link>
           <span className="text-gray-300">|</span>
           {(() => {
-            const logo = data.settings.logo || "logo-pr.png";
+            const logo = data.settings.logo || "logo-pr.webp";
             const logoSrc = logo.startsWith("data:") || logo.startsWith("http") ? logo : `${import.meta.env.BASE_URL}${logo}`;
             return <img src={logoSrc} alt={data.settings.siteName} className="h-9 w-auto" onError={e => (e.currentTarget.style.display = "none")} />;
           })()}
