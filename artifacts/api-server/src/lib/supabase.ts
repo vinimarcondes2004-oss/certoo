@@ -1,10 +1,9 @@
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
 import { createClient } from "@supabase/supabase-js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, "../../.env"), override: true });
+dotenv.config({ path: join(process.cwd(), ".env"), override: true });
+dotenv.config({ path: join(process.cwd(), "artifacts/api-server", ".env"), override: true });
 
 const supabaseUrl = process.env["SUPABASE_URL"];
 const supabaseKey = process.env["SUPABASE_KEY"];
